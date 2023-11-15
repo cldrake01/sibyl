@@ -74,3 +74,68 @@ def day_indicators(week: dict):
     ind.append(talib.SAR(high, low, acceleration=0.02, maximum=0.2))
 
     return ind
+
+
+def data(stocks: list, start: str = None, end: str = None, timeframe: str = None):
+    """
+    Retrieve data from the Alpaca API.
+    """
+
+    if start is None:
+        start = (pd.Timestamp.now(tz="UTC") - pd.Timedelta(hours=28)).strftime(
+            "%Y-%m-%d %H:%M:%S"
+        )
+
+    if end is None:
+        end = (pd.Timestamp.now(tz="UTC") - pd.Timedelta(hours=24)).strftime(
+            "%Y-%m-%d %H:%M:%S"
+        )
+
+    print(f"start: {start}, end: {end}, {pd.Timestamp.now(tz='UTC')}")
+
+    if timeframe is None:
+        timeframe = TimeFrame.Minute
+
+    api_key = "PK3D0P0EF5NVU7LKHY76"
+    api_secret = "X2kmdCqfYzGxaCYG2C3UhQ9DqHT9bYhYUhXM2g6G"
+
+    client = StockHistoricalDataClient(
+        api_key,
+        api_secret,
+        url_override="https://data.alpaca.markets",
+    )
+
+    params = StockBarsRequest(
+        symbol_or_symbols=stocks,
+        start=start,
+        end=end,
+        timeframe=timeframe,
+    )
+
+    return client.get_stock_bars(params)
+
+
+if __name__ == "__main__":
+    print(data(["AAPL"]))
+
+    # # Retrieve 20 days (one month) of price data.
+    # start_date = f"2022-01-01 00:00:00"
+    # end_date = f"2022-01-21 00:00:00"
+    #
+    # params = StockBarsRequest(
+    #     symbol_or_symbols=["AAPL"],
+    #     start=start_date,
+    #     end=end_date,
+    #     timeframe=TimeFrame.Minute,
+    # )
+    #
+    # api_key = "PK3D0P0EF5NVU7LKHY76"
+    # api_secret = "X2kmdCqfYzGxaCYG2C3UhQ9DqHT9bYhYUhXM2g6G"
+    #
+    # client = StockHistoricalDataClient(
+    #     api_key,
+    #     api_secret,
+    #     url_override="https://data.alpaca.markets",
+    # )
+    #
+    # print(client.get_stock_bars(params))
