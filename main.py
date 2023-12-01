@@ -26,7 +26,7 @@ from sklearn.metrics import (
 
 from log import setup_logging
 from sp import sp_tickers
-from utils import day_indicators
+from utils import indicators
 
 log = setup_logging("main.py")
 
@@ -85,7 +85,7 @@ if os.path.exists("assets/indicators.pkl"):
     data = pickle.load(open("assets/indicators.pkl", "rb"))
     log.info("Loaded indicators from pickle file.")
 else:
-    data = list(map(lambda key: day_indicators(data[key]), data.keys()))
+    data = list(map(lambda key: indicators(data[key]), data.keys()))
     pickle.dump(data, open("assets/indicators.pkl", "wb"))
 
 log.info(len(data))
