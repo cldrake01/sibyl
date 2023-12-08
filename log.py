@@ -1,7 +1,7 @@
 import logging
 
 
-def setup_logging(file_name: str):
+def setup_logging(file_name: str) -> logging.Logger:
     """
     Setup logging configuration
 
@@ -24,5 +24,8 @@ def setup_logging(file_name: str):
 
     # Add the file handler to the logger
     logger.addHandler(file_handler)
+
+    # Send an initial message
+    logger.info(f"Logging to {file_name}")
 
     return logger
