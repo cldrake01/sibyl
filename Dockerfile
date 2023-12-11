@@ -17,4 +17,6 @@ COPY . /app
 WORKDIR /app
 
 # Run your application
-CMD ["conda", "run", "-n", "myenv", "python", "my_script.py"]
+CMD ["conda", "run", "-n", "myenv", "python", "workflow.train.py"]
+
+#CMD ["conda", "run", "-n", "myenv", "python", "workflow.inference.py"]
