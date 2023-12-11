@@ -1,16 +1,14 @@
 # Divine Inference
 
-## Kubernetes Instances
+## Google Cloud Deployments
 
 We deploy a Kubernetes instance alongside a single Docker container for model training.
 
 - **[divine-inference](https://hub.docker.com/repository/docker/collindrake/divine-inference/general)** - 
-*A Kubernetes instance that runs the inference process*
+*A Kubernetes instance containing [divine-inference](https://hub.docker.com/repository/docker/collindrake/divine-inference/general)
+pods which run the inference process*
 - **[divine-erudition]()** -
 *A Docker container that trains the Informer model and distributes the weights to Google Cloud Storage*
-
-[divine-erudition]() trains the Informer model and distributes the weights to Google Cloud Storage,
-which are then pulled by [divine-inference](https://hub.docker.com/repository/docker/collindrake/divine-inference/general).
 
 ## Structure
 
