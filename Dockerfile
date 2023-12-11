@@ -1,7 +1,5 @@
 FROM mambaorg/micromamba:latest
-LABEL authors="collin"
-
-ENTRYPOINT ["top", "-b"]
+LABEL authors="Collin Drake"
 
 # Copy the environment.yml file into the container
 COPY environment.yml /tmp/environment.yml

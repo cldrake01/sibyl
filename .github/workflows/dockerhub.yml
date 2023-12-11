@@ -23,4 +23,4 @@ jobs:
           context: .
           file: ./Dockerfile
           push: true
-          tags: yourusername/yourappname:latest  # Replace with your DockerHub username and app name
+          tags: collindrake/divine-inference:test
