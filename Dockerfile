@@ -3,9 +3,6 @@ LABEL authors="collin"
 
 ENTRYPOINT ["top", "-b"]
 
-# Start with a base image, e.g., Miniconda
-FROM continuumio/miniconda3
-
 # Copy the environment.yml file into the container
 COPY environment.yml /tmp/environment.yml
 
