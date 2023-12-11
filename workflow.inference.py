@@ -11,7 +11,7 @@ from utils import *
 API_KEY = "CK3D0VVO5962GGQMX47C"
 API_SECRET = "1ywZ2YMpNdGklgKvJ3heyGsisMVOYWqDvFyGgCXC"
 
-log: logging.Logger = setup_logging("ws.py")
+log: logging.Logger = setup_logging("workflow.inference.py")
 
 
 def on_open(ws):

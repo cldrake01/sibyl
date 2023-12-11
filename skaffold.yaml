@@ -1,0 +1,13 @@
+apiVersion: skaffold/v4beta6
+kind: Config
+metadata:
+  name: dl-quant
+build:
+  artifacts:
+    - image: yourusername/divine-inference
+      docker:
+        dockerfile: Dockerfile
+manifests:
+  rawYaml:
+    - kubernetes/deployment.yml
+    - kubernetes/service.yml

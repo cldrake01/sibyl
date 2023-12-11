@@ -1,0 +1,19 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: divine-inference-deployment
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: divine-inference
+  template:
+    metadata:
+      labels:
+        app: divine-inference
+    spec:
+      containers:
+        - name: divine-inference
+          image: collindrake/divine-inference:latest  # Replace with your image
+          ports:
+            - containerPort: 80
