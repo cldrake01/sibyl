@@ -8,7 +8,6 @@ import torch.nn as nn
 import seaborn as sns
 import torch.optim as optim
 import matplotlib.pyplot as plt
-from sklearn.model_selection import train_test_split
 
 from torch import nn
 from tqdm import tqdm
@@ -19,6 +18,7 @@ from dataclasses import dataclass
 from datetime import datetime, timedelta
 from sklearn.metrics import mean_squared_error
 from concurrent.futures import ThreadPoolExecutor
+from sklearn.model_selection import train_test_split
 from torch.utils.data import DataLoader, TensorDataset, Dataset, random_split
 from torch.nn.utils.rnn import pad_sequence, pack_padded_sequence
 from sklearn.metrics import (
@@ -31,7 +31,6 @@ from sklearn.metrics import (
 
 from alpaca.data import StockBarsRequest, TimeFrame
 from alpaca.data.historical import StockHistoricalDataClient
-from transformers import InformerForPrediction
 
 from log import *
 from sp import sp_tickers

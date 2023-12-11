@@ -13,7 +13,7 @@ log = setup_logging("workflow.train.py")
 
 log.info("Checking for pickle file...")
 
-path = "assets/time_series.pkl"
+path = "assets/pkl/time_series.pkl"
 
 if not os.path.exists(path):
     log.info("Pickle file not found. Fetching data...")
