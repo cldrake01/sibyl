@@ -8,12 +8,14 @@ import torch.nn as nn
 import seaborn as sns
 import torch.optim as optim
 import matplotlib.pyplot as plt
+from google.cloud.storage import Bucket
 
 from torch import nn
 from tqdm import tqdm
 from enum import Enum
 from pprint import pprint
 from itertools import chain
+from google.cloud import storage
 from dataclasses import dataclass
 from datetime import datetime, timedelta
 from sklearn.metrics import mean_squared_error
@@ -33,7 +35,7 @@ from alpaca.data import StockBarsRequest, TimeFrame
 from alpaca.data.historical import StockHistoricalDataClient
 
 from log import *
-from sp import sp_tickers
+from tickers import tickers
 
 API_KEY = "PK3D0P0EF5NVU7LKHY76"
 API_SECRET = "X2kmdCqfYzGxaCYG2C3UhQ9DqHT9bYhYUhXM2g6G"
@@ -132,6 +134,63 @@ class Informer(nn.Module):
         return output
 
 
+def upload_weights(bucket_name: str, filename: str = "informer.pt"):
+    # Instantiates a client
+    client = storage.Client()
+
+    bucket = client.get_bucket(bucket_name)
+
+    # Upload the latest model weights
+    blob = bucket.blob(filename)
+    blob.upload_from_filename(filename)
+
+
+def download_weights(
+    bucket_name: str, filename: str = "informer.pt", log: logging.Logger = NullLogger
+) -> Informer:
+    """
+    Retrieve model weights from GCS.
+    """
+    # Instantiates a client
+    client = storage.Client()
+
+    try:
+        bucket = client.get_bucket(bucket_name)
+    except Exception as e:
+        log.error(f"Unable to retrieve bucket from GCS with {bucket_name}.")
+        log.error(e)
+        raise e
+
+    # Download the latest model weights
+    try:
+        blobs = bucket.list_blobs()
+        latest_blob = max(blobs, key=lambda blob: blob.time_created)
+        latest_blob.download_to_filename(filename)
+    except Exception as e:
+        log.error(f"Unable to download model weights from GCS.")
+        log.error(e)
+        raise e
+
+    # Load the model weights
+    try:
+        model = Informer(
+            input_size=8,
+            output_size=8,
+            d_model=512,
+            n_heads=8,
+            e_layers=2,
+            d_layers=1,
+            dropout=0.1,
+        )
+        model.load_state_dict(torch.load(filename))
+
+        return model
+    except Exception as e:
+        log.error(f"Unable to load model weights from {filename}.")
+        log.error(e)
+        raise e
+
+
 def alpaca_time_series(
     stocks: list[str], start: datetime or str, end: datetime or str
 ) -> dict:
@@ -164,7 +223,7 @@ def alpaca_time_series(
 
 def fetch_data(
     years: float,
-    max_workers: int = len(sp_tickers) // 2,
+    max_workers: int = len(tickers) // 2,
     log: logging.Logger = NullLogger(),
 ) -> list:
     # Retrieve data from the Alpaca API
@@ -179,7 +238,7 @@ def fetch_data(
                 datetime.today() - timedelta(365 * years),
                 datetime.today(),
             )
-            for ticker in sp_tickers
+            for ticker in tickers
         ]
 
     # Collecting results

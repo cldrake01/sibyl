@@ -1,9 +1,8 @@
 import os
 import pickle
 
-from classes import Informer
 from log import setup_logging
-from utils import fetch_data, stock_tensors, train
+from utils import fetch_data, stock_tensors, train, Informer
 from transformers import (
     InformerForPrediction,
     InformerConfig,
