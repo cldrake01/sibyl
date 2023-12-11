@@ -3,20 +3,21 @@ LABEL authors="collin"
 
 ENTRYPOINT ["top", "-b"]
 
-# Set the working directory in the container
-WORKDIR /usr/src/app
+# Start with a base image, e.g., Miniconda
+FROM continuumio/miniconda3
 
-# Copy the current directory contents into the container at /usr/src/app
-COPY . .
+# Copy the environment.yml file into the container
+COPY environment.yml /tmp/environment.yml
 
-# Install any needed packages specified in requirements.txt
-RUN pip install --no-cache-dir -r requirements.txt
+# Create the environment using the environment.yml file
+RUN conda env create -f /tmp/environment.yml
 
-# Make port 80 available to the world outside this container
-EXPOSE 80
+# Make RUN commands use the new environment:
+SHELL ["conda", "run", "-n", "myenv", "/bin/bash", "-c"]
 
-# Define environment variable
-ENV NAME World
+# The code to run when container is started:
+COPY . /app
+WORKDIR /app
 
-# Run main.py when the container launches
-CMD ["python", "./main.py"]
+# Run your application
+CMD ["conda", "run", "-n", "myenv", "python", "my_script.py"]
