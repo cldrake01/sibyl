@@ -5,7 +5,7 @@ LABEL authors="Collin Drake"
 COPY environment.yml /tmp/environment.yml
 
 # Create the environment using the environment.yml file
-RUN conda env create -f /tmp/environment.yml
+SHELL ["conda", "env", "create", "-f", "/tmp/environment.yml"]
 
 # Make RUN commands use the new environment:
 SHELL ["conda", "run", "-n", "myenv", "/bin/bash", "-c"]
