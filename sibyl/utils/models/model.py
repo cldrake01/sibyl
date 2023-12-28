@@ -7,7 +7,7 @@ from sibyl.utils.models.attn import (
     AttentionLayer,
 )
 from sibyl.utils.models.decoder import Decoder, DecoderLayer
-from sibyl.utils.models.embed import DataEmbedding
+from sibyl.utils.models.embed import PositionalEmbedding
 from sibyl.utils.models.encoder import Encoder, EncoderLayer, ConvLayer
 
 
@@ -44,8 +44,8 @@ class Informer(nn.Module):
         self.pred_len = out_len
 
         # Assuming enc_in and dec_in are the dimensions of x and x_mark respectively
-        self.enc_embedding = DataEmbedding(enc_in, d_model, embed, freq, dropout)
-        self.dec_embedding = DataEmbedding(dec_in, d_model, embed, freq, dropout)
+        self.enc_embedding = PositionalEmbedding(d_model)
+        self.dec_embedding = PositionalEmbedding(d_model)
 
         # Attention
         Attn = ProbAttention if attn == "prob" else FullAttention
@@ -116,18 +116,15 @@ class Informer(nn.Module):
     def forward(
         self,
         x_enc,
-        x_mark_enc,
         x_dec,
-        x_mark_dec,
         enc_self_mask=None,
         dec_self_mask=None,
         dec_enc_mask=None,
     ):
-        # Embedding layers now directly take x and x_mark without additional args
-        enc_out = self.enc_embedding(x_enc, x_mark_enc)
+        enc_out = self.enc_embedding(x_enc)
         enc_out, attns = self.encoder(enc_out, attn_mask=enc_self_mask)
 
-        dec_out = self.dec_embedding(x_dec, x_mark_dec)
+        dec_out = self.dec_embedding(x_dec)
         dec_out = self.decoder(
             dec_out, enc_out, x_mask=dec_self_mask, cross_mask=dec_enc_mask
         )

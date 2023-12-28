@@ -4,7 +4,7 @@ import pickle
 import torch
 from matplotlib import pyplot as plt
 from torch import nn, optim
-from torch.utils.data import TensorDataset, random_split, DataLoader
+from torch.utils.data import TensorDataset, DataLoader
 from tqdm import tqdm
 
 from sibyl import NullLogger, logger
@@ -35,8 +35,8 @@ X, y = stock_tensors(time_series)
 log.info("Tensors created.")
 
 model = Informer(
-    enc_in=8,
-    dec_in=8,
+    enc_in=9,
+    dec_in=9,
     c_out=8,
     seq_len=60,
     label_len=15,
@@ -104,15 +104,43 @@ def train(
         X = torch.log10(X.detach().clone() + 1.0).float()
         y = torch.log10(y.detach().clone() + 1.0).float()
 
+    def chronological_split(X, y, train_ratio=0.8):
+        """
+        Splits the dataset into training and validation sets chronologically.
+
+        :param X: Feature tensor.
+        :param y: Target tensor.
+        :param train_ratio: Ratio of the dataset to be used as training data.
+        :return: (X_train, y_train), (X_val, y_val)
+        """
+        total_samples = X.size(1)
+        train_size = int(total_samples * train_ratio)
+
+        X_t = X[:, :train_size, :]
+        y_t = y[:, :train_size, :]
+
+        X_v = X[:, train_size:, :]
+        y_v = y[:, train_size:, :]
+
+        return (X_t, y_t), (X_v, y_v)
+
     # Creating a TensorDataset and DataLoader
     log.info("Creating a TensorDataset and DataLoader...")
-    dataset = TensorDataset(X, y)
-    train_size = int(0.8 * len(dataset))
-    val_size = len(dataset) - train_size
-    train_dataset, val_dataset = random_split(dataset, [train_size, val_size])
+    (X_train, y_train), (X_val, y_val) = chronological_split(X, y)
 
-    train_loader = DataLoader(train_dataset, batch_size=batch_size, shuffle=True)
-    val_loader = DataLoader(val_dataset, batch_size=batch_size)
+    train_dataset = TensorDataset(X_train, y_train)
+    val_dataset = TensorDataset(X_val, y_val)
+
+    train_loader = DataLoader(
+        train_dataset,
+        batch_size=batch_size,
+        shuffle=True,
+        pin_memory=True,
+        num_workers=4,
+    )
+    val_loader = DataLoader(
+        val_dataset, batch_size=batch_size, pin_memory=True, num_workers=4
+    )
     log.info("TensorDataset and DataLoader created.")
 
     # Model, loss function, and optimizer
@@ -173,6 +201,7 @@ def train(
         if avg_val_loss < best_loss:
             best_loss = avg_val_loss
             patience_counter = 0
+            torch.save(model.state_dict(), "models/best_transformer.pt")
         else:
             patience_counter += 1
             if patience_counter >= early_stopping_patience:
