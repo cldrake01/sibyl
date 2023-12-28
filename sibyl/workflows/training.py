@@ -7,43 +7,43 @@ from torch import nn, optim
 from torch.utils.data import TensorDataset, DataLoader
 from tqdm import tqdm
 
-from sibyl import NullLogger, logger
+from sibyl import NullLogger
 from sibyl.utils.models.model import Informer
 from sibyl.utils.preprocessing import stock_tensors
 from sibyl.utils.retrieval import fetch_data
 
-log = logger("training.py")
+# For macOS
+os.environ["KMP_DUPLICATE_LIB_OK"] = "True"
 
-log.info("Checking for pickle file...")
+log = NullLogger()
 
-path = "../../assets/pkl/time_series.pkl"
-
-if not os.path.exists(path):
-    log.info("Pickle file not found. Fetching data...")
-    time_series = fetch_data(years=0.1, log=log)
+if os.path.exists(path := "time_series.pkl"):
+    with open("time_series.pkl", "rb") as f:
+        time_series = pickle.load(f)
+else:
+    time_series = fetch_data(years=0.01, log=log)
     log.info("Creating pickle file...")
     with open(path, "wb") as f:
         pickle.dump(time_series, f)
-else:
-    log.info("Pickle file found.")
-    log.info("Loading pickle file...")
-    with open(path, "rb") as f:
-        time_series = pickle.load(f)
 
 log.info("Creating tensors...")
 X, y = stock_tensors(time_series)
 log.info("Tensors created.")
 
+features = X.size(2)  # 9
+
+print(features)
+
 model = Informer(
-    enc_in=9,
-    dec_in=9,
-    c_out=8,
+    enc_in=features,
+    dec_in=features,
+    c_out=features,
     seq_len=60,
     label_len=15,
     out_len=15,
     factor=5,
     d_model=512,
-    n_heads=8,
+    n_heads=features,
     e_layers=3,
     d_layers=2,
     d_ff=512,
@@ -55,7 +55,6 @@ model = Informer(
     output_attention=False,
     distil=True,
     mix=True,
-    device=torch.device("cuda:0"),
 )
 
 # Train the model
@@ -85,8 +84,6 @@ def train(
 
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
-    log.info(f"X.shape: {X.shape}, y.shape: {y.shape}")
-
     # Generate dummy past_time_features and past_observed_mask
     # num_samples, num_time_steps, num_features = X.shape
     #
@@ -104,23 +101,23 @@ def train(
         X = torch.log10(X.detach().clone() + 1.0).float()
         y = torch.log10(y.detach().clone() + 1.0).float()
 
-    def chronological_split(X, y, train_ratio=0.8):
-        """
-        Splits the dataset into training and validation sets chronologically.
+    print(
+        f"""
+X.size(): {X.size()},
+y.size(): {y.size()},
+"""
+    )
 
-        :param X: Feature tensor.
-        :param y: Target tensor.
-        :param train_ratio: Ratio of the dataset to be used as training data.
-        :return: (X_train, y_train), (X_val, y_val)
-        """
-        total_samples = X.size(1)
+    def chronological_split(X, y, train_ratio=0.8):
+        # Split based on the first dimension (number of samples)
+        total_samples = X.size(0)
         train_size = int(total_samples * train_ratio)
 
-        X_t = X[:, :train_size, :]
-        y_t = y[:, :train_size, :]
+        X_t = X[:train_size]
+        y_t = y[:train_size]
 
-        X_v = X[:, train_size:, :]
-        y_v = y[:, train_size:, :]
+        X_v = X[train_size:]
+        y_v = y[train_size:]
 
         return (X_t, y_t), (X_v, y_v)
 
@@ -128,6 +125,14 @@ def train(
     log.info("Creating a TensorDataset and DataLoader...")
     (X_train, y_train), (X_val, y_val) = chronological_split(X, y)
 
+    print(
+        f"""
+    X_train.size(): {X_train.size()},
+    y_train.size(): {y_train.size()},
+    X_val.size(): {X_val.size()},
+    y_val.size(): {y_val.size()}
+    """
+    )
     train_dataset = TensorDataset(X_train, y_train)
     val_dataset = TensorDataset(X_val, y_val)
 
@@ -135,11 +140,14 @@ def train(
         train_dataset,
         batch_size=batch_size,
         shuffle=True,
-        pin_memory=True,
-        num_workers=4,
+        # pin_memory=True,
+        # num_workers=4,
     )
     val_loader = DataLoader(
-        val_dataset, batch_size=batch_size, pin_memory=True, num_workers=4
+        val_dataset,
+        batch_size=batch_size,
+        # pin_memory=True,
+        # num_workers=4
     )
     log.info("TensorDataset and DataLoader created.")
 
