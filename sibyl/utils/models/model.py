@@ -41,9 +41,12 @@ class Informer(nn.Module):
         self.attn = attn
         self.output_attention = output_attention
 
-        # Encoding
+        self.pred_len = out_len
+
+        # Assuming enc_in and dec_in are the dimensions of x and x_mark respectively
         self.enc_embedding = DataEmbedding(enc_in, d_model, embed, freq, dropout)
         self.dec_embedding = DataEmbedding(dec_in, d_model, embed, freq, dropout)
+
         # Attention
         Attn = ProbAttention if attn == "prob" else FullAttention
         # Encoder
@@ -120,6 +123,7 @@ class Informer(nn.Module):
         dec_self_mask=None,
         dec_enc_mask=None,
     ):
+        # Embedding layers now directly take x and x_mark without additional args
         enc_out = self.enc_embedding(x_enc, x_mark_enc)
         enc_out, attns = self.encoder(enc_out, attn_mask=enc_self_mask)
 
@@ -129,8 +133,6 @@ class Informer(nn.Module):
         )
         dec_out = self.projection(dec_out)
 
-        # dec_out = self.end_conv1(dec_out)
-        # dec_out = self.end_conv2(dec_out.transpose(2,1)).transpose(1,2)
         if self.output_attention:
             return dec_out[:, -self.pred_len :, :], attns
         else:
