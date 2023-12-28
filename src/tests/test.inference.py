@@ -1,23 +1,18 @@
 import json
-import redis
-import logging
+from pprint import pprint
 
-import websocket
-
-from log import *
-from tickers import tickers
-from utils import *
+from src.utils import *
+from src.utils.preprocessing import stock_tensors
+from src.utils.tickers import tickers
 
 API_KEY = "CK3D0VVO5962GGQMX47C"
 API_SECRET = "1ywZ2YMpNdGklgKvJ3heyGsisMVOYWqDvFyGgCXC"
 
-log: logging.Logger = setup_logging("test.inference.py")
+log: logging.Logger = logger("test.inference.py")
 
 
 def on_open(ws):
     log.info("Opened connection")
-    global r
-    r = redis.Redis(host="localhost", port=6379, decode_responses=True)
 
     # Authentication and subscribing to a channel
     auth_data = {"action": "auth", "key": f"{API_KEY}", "secret": f"{API_SECRET}"}
@@ -47,9 +42,6 @@ def on_message(ws, message):
             for stock in data
         }
     ]
-    # Hash stock bars by ticker
-    r.hset("bars", stock_bars[0].keys(), stock_bars[0].values())
-    print(r)
 
 
 def on_error(ws, error):
