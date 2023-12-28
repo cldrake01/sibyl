@@ -9,6 +9,6 @@
     <orderEntry type="sourceFolder" forTests="false" />
   </component>
   <component name="PackageRequirementsSettings">
-    <option name="requirementsPath" value="$MODULE_DIR$/environment.yml" />
+    <option name="requirementsPath" value="$MODULE_DIR$/../dl-quant/environment.yml" />
   </component>
 </module>
