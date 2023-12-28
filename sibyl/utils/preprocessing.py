@@ -149,7 +149,4 @@ def stock_tensors(
     feature_windows_tensor = torch.cat(feature_windows_list, dim=1).to(device)
     target_windows_tensor = torch.cat(target_windows_list, dim=1).to(device)
 
-    feature_windows_tensor.permute(1, 2, 0)  # New shape for X: [2816814, 60, 8]
-    target_windows_tensor.permute(1, 2, 0)  # New shape for y: [2816814, 15, 8]
-
     return feature_windows_tensor, target_windows_tensor
