@@ -4,7 +4,7 @@ import numpy as np
 import torch
 import torch.nn as nn
 
-from src.utils.masking import TriangularCausalMask, ProbMask
+from divine_inference.utils.masking import TriangularCausalMask, ProbMask
 
 
 class FullAttention(nn.Module):

@@ -3,11 +3,11 @@ from collections import deque
 
 import torch
 
-from src import logger
-from src.utils import Bar
-from src.utils.preprocessing import stock_tensors
-from src.utils.tickers import tickers
-from src.utils.weights import download_weights
+from divine_inference import logger
+from divine_inference.utils import Bar
+from divine_inference.utils.preprocessing import stock_tensors
+from divine_inference.utils.tickers import tickers
+from divine_inference.utils.weights import download_weights
 
 API_KEY = "CK3D0VVO5962GGQMX47C"
 API_SECRET = "1ywZ2YMpNdGklgKvJ3heyGsisMVOYWqDvFyGgCXC"

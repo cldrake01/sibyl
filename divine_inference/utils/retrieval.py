@@ -3,9 +3,9 @@ from datetime import datetime, timedelta
 
 from alpaca.data import TimeFrame, StockBarsRequest, StockHistoricalDataClient
 
-from src import NullLogger
-from src.utils import API_KEY, API_SECRET
-from src.utils.tickers import tickers
+from divine_inference import NullLogger
+from divine_inference.utils import API_KEY, API_SECRET
+from divine_inference.utils.tickers import tickers
 
 
 def alpaca_time_series(

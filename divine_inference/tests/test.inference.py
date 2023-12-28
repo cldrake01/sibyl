@@ -1,9 +1,9 @@
 import json
 from pprint import pprint
 
-from src.utils import *
-from src.utils.preprocessing import stock_tensors
-from src.utils.tickers import tickers
+from divine_inference.utils import *
+from divine_inference.utils.preprocessing import stock_tensors
+from divine_inference.utils.tickers import tickers
 
 API_KEY = "CK3D0VVO5962GGQMX47C"
 API_SECRET = "1ywZ2YMpNdGklgKvJ3heyGsisMVOYWqDvFyGgCXC"

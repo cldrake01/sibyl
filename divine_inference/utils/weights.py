@@ -1,8 +1,8 @@
 import torch
 from google.cloud import storage
 
-from src import NullLogger
-from src.utils.models.model import Informer
+from divine_inference import NullLogger
+from divine_inference.utils.models.model import Informer
 
 
 def upload_weights(bucket_name: str, filename: str = "informer.pt"):
