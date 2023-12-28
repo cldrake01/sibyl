@@ -1,14 +1,14 @@
 import torch
 import torch.nn as nn
 
-from divine_inference.utils.models.attn import (
+from sibyl.utils.models.attn import (
     ProbAttention,
     FullAttention,
     AttentionLayer,
 )
-from divine_inference.utils.models.decoder import Decoder, DecoderLayer
-from divine_inference.utils.models.embed import DataEmbedding
-from divine_inference.utils.models.encoder import Encoder, EncoderLayer, ConvLayer
+from sibyl.utils.models.decoder import Decoder, DecoderLayer
+from sibyl.utils.models.embed import DataEmbedding
+from sibyl.utils.models.encoder import Encoder, EncoderLayer, ConvLayer
 
 
 class Informer(nn.Module):

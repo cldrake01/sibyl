@@ -1,7 +1,7 @@
 from setuptools import setup, find_packages
 
 setup(
-    name="divine_inference",
+    name="sibyl",
     version="0.1",
     author="cldrake01",
     author_email="collinlindendrake@gmail.com",

@@ -7,10 +7,10 @@ from torch import nn, optim
 from torch.utils.data import TensorDataset, random_split, DataLoader
 from tqdm import tqdm
 
-from divine_inference import NullLogger, logger
-from divine_inference.utils.models.model import Informer
-from divine_inference.utils.preprocessing import stock_tensors
-from divine_inference.utils.retrieval import fetch_data
+from sibyl import NullLogger, logger
+from sibyl.utils.models.model import Informer
+from sibyl.utils.preprocessing import stock_tensors
+from sibyl.utils.retrieval import fetch_data
 
 log = logger("training.py")
 
