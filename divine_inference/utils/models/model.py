@@ -1,7 +1,11 @@
 import torch
 import torch.nn as nn
 
-from divine_inference.utils.models.attn import ProbAttention, FullAttention, AttentionLayer
+from divine_inference.utils.models.attn import (
+    ProbAttention,
+    FullAttention,
+    AttentionLayer,
+)
 from divine_inference.utils.models.decoder import Decoder, DecoderLayer
 from divine_inference.utils.models.embed import DataEmbedding
 from divine_inference.utils.models.encoder import Encoder, EncoderLayer, ConvLayer
