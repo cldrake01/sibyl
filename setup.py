@@ -2,11 +2,14 @@ from setuptools import setup, find_packages
 
 setup(
     name="divine_inference",
-    url="https://github.com/cldrake01/divine-inference",
+    version="0.1",
     author="cldrake01",
     author_email="collinlindendrake@gmail.com",
-    version="0.1",
-    packages=find_packages(),
     description="A package for stock price prediction using deep learning.",
     long_description=open("README.md").read(),
+    long_description_content_type="text/markdown",
+    url="https://github.com/cldrake01/divine-inference",
+    packages=find_packages(),
+    python_requires=">=3.10",
+    include_package_data=True,
 )
