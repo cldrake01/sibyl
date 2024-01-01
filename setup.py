@@ -8,7 +8,7 @@ setup(
     description="A package for stock price prediction using deep learning.",
     long_description=open("README.md").read(),
     long_description_content_type="text/markdown",
-    url="https://github.com/cldrake01/divine-inference",
+    url="https://github.com/cldrake01/sibyl",
     packages=find_packages(),
     python_requires=">=3.10",
     include_package_data=True,

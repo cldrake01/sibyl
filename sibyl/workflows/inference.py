@@ -5,7 +5,7 @@ import torch
 
 from sibyl import logger
 from sibyl.utils import Bar
-from sibyl.utils.preprocessing import stock_tensors
+from sibyl.utils.preprocessing import indicator_tensors
 from sibyl.utils.tickers import tickers
 from sibyl.utils.weights import download_weights
 
@@ -27,7 +27,9 @@ WINDOW_SIZE = 60
 #          [0., 0., 0.,  ..., 2, 1, 1]]])
 GREATEST_INTERVAL = 14  # See indicators()
 
-rolling_windows = {ticker: deque(maxlen=WINDOW_SIZE + GREATEST_INTERVAL) for ticker in tickers}
+rolling_windows = {
+    ticker: deque(maxlen=WINDOW_SIZE + GREATEST_INTERVAL) for ticker in tickers
+}
 
 
 # Retrieve model weights from GCS
@@ -70,7 +72,9 @@ def on_open(ws):
 
 def on_message(ws, message):
     # Add latest bar to the rolling window
-    for stock in latest := json.loads(message):
+    latest = json.loads(message)
+
+    for stock in latest:
         rolling_windows[stock["S"]].append(bar(stock))
 
     # Predict the next 15 bars
@@ -80,7 +84,9 @@ def on_message(ws, message):
             # NOTE: stock_tensors() returns a rank-three tensor, which is essentially an entire dataset.
             #       We only want the last tensor in the dataset, which is the tensor for the rolling window.
             #       Therefore, we use [-1] to get the last tensor in the dataset.
-            X, _ = stock_tensors([rolling_windows[stock["S"]]])[-1]  # (1, window_size, indicators)
+            X, _ = indicator_tensors([rolling_windows[stock["S"]]])[
+                -1
+            ]  # (1, window_size, indicators)
             # Predict the next 15 bars
             y_hat = model(X)
 

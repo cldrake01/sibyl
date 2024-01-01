@@ -1,14 +1,15 @@
 import json
 from pprint import pprint
 
+from sibyl import logger
 from sibyl.utils import *
-from sibyl.utils.preprocessing import stock_tensors
+from sibyl.utils.preprocessing import indicator_tensors
 from sibyl.utils.tickers import tickers
 
 API_KEY = "CK3D0VVO5962GGQMX47C"
 API_SECRET = "1ywZ2YMpNdGklgKvJ3heyGsisMVOYWqDvFyGgCXC"
 
-log: logging.Logger = logger("test.inference.py")
+log = logger("test.inference.py")
 
 
 def on_open(ws):
@@ -203,4 +204,4 @@ if __name__ == "__main__":
 
     # Add bars
 
-    pprint(stock_tensors(data))
+    pprint(indicator_tensors(data))

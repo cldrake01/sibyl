@@ -1,5 +1,6 @@
 import logging
 import os.path
+from dataclasses import dataclass
 
 
 class NullLogger:
@@ -23,7 +24,21 @@ class NullLogger:
         ...
 
 
-def find_root_dir(current_path, marker_file):
+@dataclass
+class TimeSeriesConfig:
+    """
+    Configuration for time series data.
+    """
+
+    feature_window_size = 60
+    target_window_size = 15
+    include_hashes: bool = False
+    include_temporal: bool = False
+    included_indicators: list[str] = None
+    log: NullLogger or logging.Logger = NullLogger()
+
+
+def find_root_dir(current_path, marker_file) -> str:
     """
     Recursively find the root directory by looking for a marker file or directory.
     """
