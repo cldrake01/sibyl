@@ -1,4 +1,4 @@
-# Divine Inference
+# Sibyl
 
 ## Google Cloud Deployments
 
