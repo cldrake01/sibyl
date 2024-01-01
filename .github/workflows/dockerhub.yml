@@ -3,6 +3,10 @@ name: Docker Build and Push
 on:
   push:
     branches: [ main ]  # Set this to the branch you want to trigger the workflow
+    paths:
+        - 'Dockerfile'
+        - '.github/workflows/dockerhub.yml'
+        - 'sibyl/'
 
 jobs:
   build-and-push:
