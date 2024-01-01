@@ -17,7 +17,7 @@ def setup_environment():
     # Check for macOS
     if os.name == "posix":
         os.environ["KMP_DUPLICATE_LIB_OK"] = "True"
-    return logger("train.py"), find_root_dir(os.path.dirname(__file__), "README.md")
+    return logger("training.py"), find_root_dir(os.path.dirname(__file__), "README.md")
 
 
 def load_and_preprocess_data(log, file_path=None) -> tuple[torch.Tensor, torch.Tensor]:
