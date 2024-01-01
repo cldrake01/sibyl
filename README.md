@@ -4,11 +4,11 @@
 
 We deploy a Kubernetes instance alongside a single Docker container for model training.
 
-- **[divine-inference](https://hub.docker.com/repository/docker/collindrake/divine-inference/general)** - 
-*A Kubernetes instance containing [divine-inference](https://hub.docker.com/repository/docker/collindrake/divine-inference/general)
-pods which run the inference process*
+- **[divine-inference](https://hub.docker.com/repository/docker/collindrake/divine-inference/general)** -
+  *A Kubernetes instance containing [divine-inference](https://hub.docker.com/repository/docker/collindrake/divine-inference/general)
+  pods which run the inference process*
 - **[divine-erudition]()** -
-*A Docker container that trains the Informer model and distributes the weights to Google Cloud Storage*
+  *A Docker container that trains the Informer model and distributes the weights to Google Cloud Storage*
 
 ## Structure
 
@@ -17,9 +17,13 @@ pods which run the inference process*
 - **[kubernetes](kubernetes)** - *Kubernetes manifests*
 - **[environment.yml](environment.yml)** - *Conda environment*
 - **[skaffold.yml](skaffold.yml)** - *Skaffold configuration file called by Google Cloud*
-- **[utils.py](utils.py)** - *Contains the code for the inference and training processes*
-- **[log.py](log.py)** - *Initializes the logger*
-- **[sp.py](tickers.py)** - *A configuration file containing a list of equities to be used in the inference process*
+- **[sibyl/tests](sibyl/tests)** - *Unit tests*
+- **[sibyl/utils](sibyl/utils)** - *Utility functions*
+- | **[sibyl/utils/preprocessing.py](sibyl/utils/preprocessing.py)** - *Preprocessing functions*
+- | **[sibyl/utils/retrieval.py](sibyl/utils/retrieval.py)** - *Retrieval functions*
+- | **[sibyl/utils/tickers.py](sibyl/utils/tickers.py)** - *A list of tickers*
+- | **[sibyl/utils/weights.py](sibyl/utils/weights.py)** - *Retrieves model weights from Google Cloud Storage*
+- **[sibyl/workflows](sibyl/workflows)** - *Training and inference workflows*
 
 **Note:** files prepended with `workflow` are used directly by the Docker image build process.
 
