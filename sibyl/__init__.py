@@ -2,6 +2,8 @@ import logging
 import os.path
 from dataclasses import dataclass
 
+from sibyl.utils.models.informer.model import Informer
+
 
 class NullLogger:
     """
@@ -36,6 +38,7 @@ class TimeSeriesConfig:
     include_temporal: bool = False
     included_indicators: list[str] = None
     log: NullLogger or logging.Logger = NullLogger()
+    model = Informer
 
 
 def find_root_dir(current_path, marker_file) -> str:

@@ -16,6 +16,15 @@ class FullAttention(nn.Module):
         attention_dropout=0.1,
         output_attention=False,
     ):
+        """
+        Implements Full Attention mechanism.
+
+        :param mask_flag: If True, masks future positions to enforce causality.
+        :param factor: Factor by which to reduce the number of keys.
+        :param scale: Scale factor for the attention scores.
+        :param attention_dropout: Dropout rate for attention weights.
+        :param output_attention: If True, outputs the attention weights.
+        """
         super(FullAttention, self).__init__()
         self.scale = scale
         self.mask_flag = mask_flag
@@ -23,6 +32,16 @@ class FullAttention(nn.Module):
         self.dropout = nn.Dropout(attention_dropout)
 
     def forward(self, queries, keys, values, attn_mask):
+        """
+        Forward pass for Full Attention.
+
+        :param queries: Queries.
+        :param keys: Keys.
+        :param values: Values.
+        :param attn_mask: Attention mask.
+
+        :returns: A tuple containing the output of the attention mechanism and the attention weights.
+        """
         B, L, H, E = queries.shape
         _, S, _, D = values.shape
         scale = self.scale or 1.0 / sqrt(E)
@@ -38,9 +57,9 @@ class FullAttention(nn.Module):
         V = torch.einsum("bhls,bshd->blhd", A, values)
 
         if self.output_attention:
-            return (V.contiguous(), A)
+            return V.contiguous(), A
         else:
-            return (V.contiguous(), None)
+            return V.contiguous(), None
 
 
 class ProbAttention(nn.Module):
@@ -52,6 +71,15 @@ class ProbAttention(nn.Module):
         attention_dropout=0.1,
         output_attention=False,
     ):
+        """
+        Implements Probabilistic Attention mechanism.
+
+        :param mask_flag: If True, masks future positions to enforce causality.
+        :param factor: Factor by which to reduce the number of keys.
+        :param scale: Scale factor for the attention scores.
+        :param attention_dropout: Dropout rate for attention weights.
+        :param output_attention: If True, outputs the attention weights.
+        """
         super(ProbAttention, self).__init__()
         self.factor = factor
         self.scale = scale
@@ -60,6 +88,16 @@ class ProbAttention(nn.Module):
         self.dropout = nn.Dropout(attention_dropout)
 
     def _prob_QK(self, Q, K, sample_k, n_top):  # n_top: c*ln(L_q)
+        """
+        Calculates the probabilistic scores between queries and keys.
+
+        :param Q: Queries.
+        :param K: Keys.
+        :param sample_k: Number of keys to be sampled.
+        :param n_top: Number of top elements to be selected.
+
+        :return: The scores and indices of the top elements.
+        """
         # Q [B, H, L, D]
         B, H, L_K, E = K.shape
         _, _, L_Q, _ = Q.shape
@@ -74,7 +112,7 @@ class ProbAttention(nn.Module):
             -2
         )
 
-        # find the Top_k query with sparisty measurement
+        # find the Top_k query with sparsity measurement
         M = Q_K_sample.max(-1)[0] - torch.div(Q_K_sample.sum(-1), L_K)
         M_top = M.topk(n_top, sorted=False)[1]
 
@@ -87,6 +125,17 @@ class ProbAttention(nn.Module):
         return Q_K, M_top
 
     def _get_initial_context(self, V, L_Q):
+        """
+        Initializes the context for the attention mechanism.
+
+        Note: This method calculates the initial context either by taking the mean or
+        the cumulative sum of the value matrix, depending on whether masking is applied.
+
+        :param V: The value matrix.
+        :param L_Q: The length of the query sequence.
+
+        :return: The initial context tensor.
+        """
         B, H, L_V, D = V.shape
         if not self.mask_flag:
             # V_sum = V.sum(dim=-2)
@@ -98,6 +147,18 @@ class ProbAttention(nn.Module):
         return contex
 
     def _update_context(self, context_in, V, scores, index, L_Q, attn_mask):
+        """
+        Updates the context tensor with the attention mechanism.
+
+        :param context_in: The initial context tensor.
+        :param V: The value matrix.
+        :param scores: Attention scores.
+        :param index: Indices of the top elements.
+        :param L_Q: The length of the query sequence.
+        :param attn_mask: The attention mask.
+
+        :return: The updated context tensor.
+        """
         B, H, L_V, D = V.shape
 
         if self.mask_flag:
@@ -114,11 +175,21 @@ class ProbAttention(nn.Module):
             attns[
                 torch.arange(B)[:, None, None], torch.arange(H)[None, :, None], index, :
             ] = attn
-            return (context_in, attns)
+            return context_in, attns
         else:
-            return (context_in, None)
+            return context_in, None
 
     def forward(self, queries, keys, values, attn_mask):
+        """
+        Forward pass for the Probabilistic Attention mechanism.
+
+        :param queries: Queries.
+        :param keys: Keys.
+        :param values: Values.
+        :param attn_mask: Attention mask.
+
+        :returns: A tuple containing the output of the attention mechanism and the attention weights.
+        """
         B, L_Q, H, D = queries.shape
         _, L_K, _, _ = keys.shape
 
@@ -152,6 +223,16 @@ class AttentionLayer(nn.Module):
     def __init__(
         self, attention, d_model, n_heads, d_keys=None, d_values=None, mix=False
     ):
+        """
+        A layer that wraps an attention mechanism.
+
+        :param attention: The attention module to be used.
+        :param d_model: The dimensionality of the model.
+        :param n_heads: Number of attention heads.
+        :param d_keys: Size of the key vectors. Defaults to d_model/n_heads.
+        :param d_values: Size of the value vectors. Defaults to d_model/n_heads.
+        :param mix: If True, mixes the output.
+        """
         super(AttentionLayer, self).__init__()
 
         d_keys = d_keys or (d_model // n_heads)
@@ -166,6 +247,16 @@ class AttentionLayer(nn.Module):
         self.mix = mix
 
     def forward(self, queries, keys, values, attn_mask):
+        """
+        Forward pass for the AttentionLayer.
+
+        :param queries: Queries.
+        :param keys: Keys.
+        :param values: Values.
+        :param attn_mask: Attention mask.
+
+        :return: A tuple containing the output of the attention mechanism and the attention weights.
+        """
         B, L, _ = queries.shape
         _, S, _ = keys.shape
         H = self.n_heads

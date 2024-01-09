@@ -1,17 +1,17 @@
 import torch
 import torch.nn as nn
 
-from sibyl.utils.models.informer.layers.attn import (
-    ProbAttention,
-    FullAttention,
+from sibyl.utils.models.dimformer.layers.attn import (
+    SelfAttention,
     AttentionLayer,
+    FullAttention,
 )
-from sibyl.utils.models.informer.layers.decoder import Decoder, DecoderLayer
-from sibyl.utils.models.informer.layers.embed import PositionalEmbedding
-from sibyl.utils.models.informer.layers.encoder import Encoder, EncoderLayer, ConvLayer
+from sibyl.utils.models.dimformer.layers.decoder import Decoder, DecoderLayer
+from sibyl.utils.models.dimformer.layers.embed import PositionalEmbedding
+from sibyl.utils.models.dimformer.layers.encoder import ConvLayer, Encoder, EncoderLayer
 
 
-class Informer(nn.Module):
+class Dimformer(nn.Module):
     def __init__(
         self,
         enc_in,
@@ -35,7 +35,7 @@ class Informer(nn.Module):
         distil=True,
         mix=True,
     ):
-        super(Informer, self).__init__()
+        super(Dimformer, self).__init__()
         self.pred_len = out_len
         self.attn = attn
         self.output_attention = output_attention
@@ -51,18 +51,14 @@ class Informer(nn.Module):
         # )
 
         # Attention
-        Attn = ProbAttention if attn == "prob" else FullAttention
+        # Attn = ProbAttention if attn == "prob" else FullAttention
+        Attn = SelfAttention
         # Encoder
         self.encoder = Encoder(
             [
                 EncoderLayer(
                     AttentionLayer(
-                        Attn(
-                            False,
-                            factor,
-                            attention_dropout=dropout,
-                            output_attention=output_attention,
-                        ),
+                        Attn(dropout=dropout),
                         d_model,
                         n_heads,
                         mix=False,
@@ -72,7 +68,7 @@ class Informer(nn.Module):
                     dropout=dropout,
                     activation=activation,
                 )
-                for l in range(e_layers)
+                for _ in range(e_layers)
             ],
             [ConvLayer(d_model) for _ in range(e_layers - 1)] if distil else None,
             norm_layer=torch.nn.LayerNorm(d_model),
@@ -82,12 +78,7 @@ class Informer(nn.Module):
             [
                 DecoderLayer(
                     AttentionLayer(
-                        Attn(
-                            True,
-                            factor,
-                            attention_dropout=dropout,
-                            output_attention=False,
-                        ),
+                        Attn(dropout=dropout),
                         d_model,
                         n_heads,
                         mix=mix,
@@ -126,10 +117,10 @@ class Informer(nn.Module):
         dec_self_mask=None,
         dec_enc_mask=None,
     ):
-        enc_out = self.enc_embedding(x=x_enc, x_mark=x_enc_mark)
+        enc_out = self.enc_embedding(x=x_enc)
         enc_out, attentions = self.encoder(enc_out, attn_mask=enc_self_mask)
 
-        dec_out = self.dec_embedding(x=x_dec, x_mark=x_dec_mark)
+        dec_out = self.dec_embedding(x=x_dec)
         dec_out = self.decoder(
             dec_out, enc_out, x_mask=dec_self_mask, cross_mask=dec_enc_mask
         )
@@ -141,7 +132,7 @@ class Informer(nn.Module):
             return dec_out[:, -self.pred_len :, :]  # [B, L, D]
 
 
-class DecoderOnlyInformer(nn.Module):
+class DecoderOnlyDimformer(nn.Module):
     def __init__(
         self,
         dec_in,
@@ -161,14 +152,16 @@ class DecoderOnlyInformer(nn.Module):
         output_attention=False,
         mix=True,
     ):
-        super(DecoderOnlyInformer, self).__init__()
+        super(DecoderOnlyDimformer, self).__init__()
         self.pred_len = out_len
 
         # Embedding for the input sequence
         self.seq_embedding = PositionalEmbedding(d_model)
 
         # Attention
-        Attn = ProbAttention if attn == "prob" else FullAttention
+        # Attn = ProbAttention if attn == "prob" else FullAttention
+
+        Attn = SelfAttention
 
         # Decoder
         self.decoder = Decoder(
@@ -176,25 +169,11 @@ class DecoderOnlyInformer(nn.Module):
                 DecoderLayer(
                     AttentionLayer(
                         Attn(
-                            True,
-                            factor,
-                            attention_dropout=dropout,
-                            output_attention=output_attention,
+                            dropout=dropout,
                         ),
                         d_model,
                         n_heads,
                         mix=mix,
-                    ),
-                    AttentionLayer(
-                        FullAttention(
-                            False,
-                            factor,
-                            attention_dropout=dropout,
-                            output_attention=False,
-                        ),
-                        d_model,
-                        n_heads,
-                        mix=False,
                     ),
                     d_model,
                     d_ff,

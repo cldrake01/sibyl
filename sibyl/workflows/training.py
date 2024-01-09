@@ -4,11 +4,13 @@ import pickle
 import torch
 from IPython.core.display_functions import clear_output
 from matplotlib import pyplot as plt
-from torch import nn, optim
+from torch import nn, optim, Tensor
 from torch.utils.data import TensorDataset, DataLoader, random_split
 
 from sibyl import logger, find_root_dir, NullLogger, TimeSeriesConfig
-from sibyl.utils.models.informer.model import Informer
+from sibyl.utils.models.dimformer.masking import make_target_mask, make_source_mask
+from sibyl.utils.models.dimformer.model import Dimformer
+from sibyl.utils.models.informer.model import Informer, DecoderOnlyInformer
 from sibyl.utils.preprocessing import indicator_tensors
 from sibyl.utils.retrieval import fetch_data
 
@@ -45,48 +47,73 @@ def load_and_preprocess_data(log, file_path=None) -> tuple[torch.Tensor, torch.T
     return features, targets
 
 
-def initialize_model(X, y):
+def initialize_model(X, y, model):
     num_features = X.size(2)
     num_targets = y.size(2)
     feature_len = X.size(1)
     target_len = y.size(1)
 
-    # return DecoderOnlyInformer(
-    #     dec_in=num_features,
-    #     c_out=num_targets,
-    #     seq_len=feature_len,
-    #     out_len=target_len,
-    #     factor=5,
-    #     d_model=512,
-    #     n_heads=num_features,
-    #     d_layers=2,
-    #     d_ff=512,
-    #     dropout=0.01,
-    #     activation="gelu",
-    # )
+    model_configurations = {
+        Dimformer: Dimformer(
+            enc_in=num_features,
+            dec_in=num_features,
+            c_out=num_features,
+            seq_len=feature_len,
+            label_len=target_len,
+            out_len=target_len,
+            factor=5,
+            d_model=512,
+            n_heads=num_features,
+            e_layers=3,
+            d_layers=2,
+            d_ff=512,
+            dropout=0.05,
+            attn="prob",
+            embed="fixed",
+            freq="h",
+            activation="gelu",
+            output_attention=False,
+            distil=True,
+            mix=True,
+        ),
+        Informer: Informer(
+            enc_in=num_features,
+            dec_in=num_features,
+            c_out=num_features,
+            seq_len=feature_len,
+            label_len=target_len,
+            out_len=target_len,
+            factor=5,
+            d_model=512,
+            n_heads=num_features,
+            e_layers=3,
+            d_layers=2,
+            d_ff=512,
+            dropout=0.05,
+            attn="prob",
+            embed="fixed",
+            freq="h",
+            activation="gelu",
+            output_attention=False,
+            distil=True,
+            mix=True,
+        ),
+        DecoderOnlyInformer: DecoderOnlyInformer(
+            dec_in=num_features,
+            c_out=num_targets,
+            seq_len=feature_len,
+            out_len=target_len,
+            factor=5,
+            d_model=512,
+            n_heads=num_features,
+            d_layers=2,
+            d_ff=512,
+            dropout=0.01,
+            activation="gelu",
+        ),
+    }
 
-    return Informer(
-        enc_in=num_features,
-        dec_in=num_features,
-        c_out=num_features,
-        seq_len=feature_len,
-        label_len=target_len,
-        out_len=target_len,
-        factor=5,
-        d_model=512,
-        n_heads=num_features,
-        e_layers=3,
-        d_layers=2,
-        d_ff=512,
-        dropout=0.05,
-        attn="prob",
-        embed="fixed",
-        freq="h",
-        activation="gelu",
-        output_attention=False,
-        distil=True,
-        mix=True,
-    )
+    return model_configurations[model]
 
 
 def normalize(X, y) -> tuple[torch.Tensor, torch.Tensor]:
@@ -107,6 +134,27 @@ def normalize(X, y) -> tuple[torch.Tensor, torch.Tensor]:
     y = torch.nan_to_num(torch.sign(y) * torch.log10(torch.abs(y) + 1.0).float(), 0.0)
 
     return X, y
+
+
+def normalize_(*tensors) -> tuple[Tensor, ...]:
+    """
+    See \frac{\left|T\right|}{T}\log_{10}\left(\left|T\right|+1\right), where T is the tensor
+    to be normalized.
+
+    This normalization preserves the sign of the tensor whilst normalizing it, as opposed to
+    methods available online, wherein the minimum is added to the tensor before normalizing it;
+    thereby shifting the tensor to the positive side of the number line, subsequently losing the
+    sign of the tensor.
+
+    :param tensors: The tensors to normalize.
+    :return: The normalized feature and target tensors.
+    """
+    return tuple(
+        torch.nan_to_num(
+            torch.sign(tensor) * torch.log10(torch.abs(tensor) + 1.0).float(), 0.0
+        )
+        for tensor in tensors
+    )
 
 
 def prepare_datasets(
@@ -152,7 +200,7 @@ def train_model(
     device,
     log=NullLogger(),
     validation=False,
-    epochs=1,  # Default to 1 epoch if not specified
+    epochs=1,
 ):
     criterion = nn.L1Loss()
     optimizer = optim.AdamW(model.parameters())
@@ -168,8 +216,10 @@ def train_model(
 
         for window, (X, y) in enumerate(train_loader):
             X, y = X.to(device), y.to(device)
+            X_mask, y_mask = make_source_mask(X, 0), make_target_mask(y.squeeze(0))
+            print(X_mask.shape, y_mask.shape)
             optimizer.zero_grad()
-            y_hat = model(X, y)
+            y_hat = model(X, y, X_mask, y_mask)
             clear_output(wait=True)
             # log.info(f"y_hat: {y_hat[0][-1]}")
             # log.info(f"y: {y[0][-1]}")
@@ -303,8 +353,8 @@ def plot_losses(losses):
 def main():
     log, root = setup_environment()
     features, targets = load_and_preprocess_data(log)
-    X_norm, y_norm = normalize(features, targets)
-    model = initialize_model(X_norm, y_norm)
+    X_norm, y_norm = normalize_(features, targets)
+    model = initialize_model(X_norm, y_norm, Dimformer)
     train_loader, val_loader = prepare_datasets(X_norm, y_norm)
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     train_model(

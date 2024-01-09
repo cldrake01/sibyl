@@ -1,3 +1,6 @@
+from datetime import datetime
+from typing import Callable
+
 import numpy as np
 import talib
 import torch
@@ -18,13 +21,12 @@ def indicators(
     :param config: (TimeSeriesConfig): A configuration object for time series data.
     :return: tuple[torch.Tensor, torch.Tensor]: Two tensors representing feature windows and target windows.
     """
-
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
-    print(f"(indicators) time_series: {time_series[:5]}")
+    # print(f"(indicators) time_series: {time_series[:5]}")
 
     # Extracting data points for indicators
-    timestamps = [bar.timestamp for bar in time_series]
+    datetimes = [bar.timestamp for bar in time_series]
     closes = np.array([bar.close for bar in time_series], dtype=np.float64)
     highs = np.array([bar.high for bar in time_series], dtype=np.float64)
     lows = np.array([bar.low for bar in time_series], dtype=np.float64)
@@ -53,6 +55,7 @@ def indicators(
             torch.tensor(np.array(func()), dtype=torch.float64).to(device)
             for func in indicator_functions.values()
         ]
+        # print(f"(indicators) indicator_tensor_list: {indicator_tensor_list[0]}")
     else:
         indicator_tensor_list = [
             torch.tensor(np.array(indicator_functions[ind]()), dtype=torch.float64).to(
@@ -70,7 +73,6 @@ def indicators(
         id_tensor = torch.full(
             (1, indicator_time_series.shape[1]), stock_id, dtype=torch.float64
         )
-        print(f"(indicators) id_tensor: {id_tensor}")
         indicator_time_series = torch.cat((indicator_time_series, id_tensor), dim=0)
 
     # Defining window sizes for features and targets
@@ -88,16 +90,50 @@ def indicators(
     feature_windows = windows[..., :feature_window_size]
     target_windows = windows[..., feature_window_size:]
 
-    # Build a tensor of temporal information without concatenating it to the feature and target tensors
-    if config.include_temporal:
-        temporal_features = [[dt.minute, dt.hour, dt.weekday] for dt in timestamps]
+    def temporal_embedding(dt: datetime) -> torch.Tensor:
+        """
+        Returns a tensor representing the temporal embedding for a given datetime object.
 
-        print(f"(indicators) temporal_features: {temporal_features}")
+        Note: All values are normalized to be between 0 and 1.
+        """
+        return torch.tensor(
+            [
+                dt.month / 12,
+                dt.weekday() / 7,
+                dt.day / 31,
+                dt.hour / 24,
+                dt.minute / 60,
+                dt.second / 60,
+            ],
+            dtype=torch.float64,
+        ).to(device)
+
+    # Adding temporal embeddings if required
+    if config.include_temporal:
+        # Creating temporal embeddings
+        temporal_embeddings = torch.stack(
+            [temporal_embedding(dt) for dt in datetimes],
+            dim=0,
+        )
+
+        # print(f"(indicators) temporal_embeddings.size(): {temporal_embeddings.size()}")
+        # print(f"(indicators) temporal_embeddings: {temporal_embeddings}")
+
+        # print(f"(indicators) feature_windows.size(): {feature_windows.size()}")
+        # print(f"(indicators) target_windows.size(): {target_windows.size()}\n")
 
     return feature_windows.squeeze(0), target_windows.squeeze(0)
 
 
-def indicator_lists(stock_data: dict, config: TimeSeriesConfig) -> tuple[list, list]:
+def windows(stock_data: dict, config: TimeSeriesConfig) -> tuple[list, list]:
+    """
+    Applies the `indicators` function to each stock in the input dictionary and aggregates the resulting feature and
+    target windows into lists.
+
+    :param stock_data:
+    :param config:
+    :return tuple[list, list]: A tuple of lists representing feature windows and target windows.
+    """
     target_windows_list, feature_windows_list = [], []
 
     hashes = {ticker: hash(ticker) for ticker in stock_data.keys()}
@@ -114,34 +150,37 @@ def indicator_lists(stock_data: dict, config: TimeSeriesConfig) -> tuple[list, l
     return feature_windows_list, target_windows_list
 
 
-def aggregate_indicators(
+def window_function(
     stock_data: dict or list, config: TimeSeriesConfig
-) -> tuple[list, list]:
+) -> Callable[[dict or list, TimeSeriesConfig], tuple[list, list]]:
     """
-    Applies the `indicators` function to each stock in the input dictionary and aggregates the resulting feature and
-    target windows into lists.
+    A higher-order function that applies the `indicators` function to each stock in the input dictionary and
+    aggregates the resulting feature and target windows into lists.
 
     :param stock_data: (dict or list): A dictionary of stock data or a list of dictionaries of stock data.
     :param config: (TimeSeriesConfig): A configuration object for time series data.
-    :return: tuple[list, list]: Two lists representing feature windows and target windows.
+    :return: (Callable): A function that applies the `indicators` function to each stock in the input dictionary and
+    aggregates the resulting feature and target windows into lists.
     """
-
     # Processing each stock in the dictionary
     if isinstance(stock_data, dict):
-        feature_windows_list, target_windows_list = indicator_lists(stock_data, config)
+        return windows
+    elif isinstance(stock_data, list):
+
+        def list_indicators(s_d: list, c: TimeSeriesConfig):
+            # Handling case where stock_data is a list of dictionaries
+            aggregated_data = {
+                ticker: data
+                for stock_dict in s_d
+                for ticker, data in stock_dict.items()
+            }
+            return windows(aggregated_data, c)
+
+        return list_indicators
     else:
-        # Handling case where stock_data is a list of dictionaries
-        aggregated_data = {
-            ticker: data
-            for stock_dict in stock_data
-            for ticker, data in stock_dict.items()
-        }
-
-        feature_windows_list, target_windows_list = indicator_lists(
-            aggregated_data, config
+        raise ValueError(
+            f"Expected stock_data to be a dictionary or a list of dictionaries, but got {type(stock_data)}."
         )
-
-    return feature_windows_list, target_windows_list
 
 
 def indicator_tensors(
@@ -156,11 +195,12 @@ def indicator_tensors(
     :param config: (TimeSeriesConfig): A configuration object for time series data.
     :return: tuple[torch.Tensor, torch.Tensor]: Two tensors representing feature windows and target windows.
     """
-
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
     # Aggregating feature and target windows
-    feature_windows_list, target_windows_list = aggregate_indicators(stock_data, config)
+    feature_windows_list, target_windows_list = window_function(stock_data, config)(
+        stock_data, config
+    )
 
     # Concatenating all feature and target windows across stocks along the time dimension
     feature_windows_tensor = torch.cat(feature_windows_list, dim=1).to(device)
