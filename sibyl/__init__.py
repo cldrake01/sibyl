@@ -11,6 +11,7 @@ API_SECRET = os.getenv("API_SECRET")
 WEBSOCKET_KEY = os.getenv("WEBSOCKET_KEY")
 WEBSOCKET_SECRET = os.getenv("WEBSOCKET_SECRET")
 
+
 class NullLogger:
     """
     A logger that does nothing.
