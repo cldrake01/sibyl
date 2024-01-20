@@ -25,12 +25,21 @@ class DecoderLayer(nn.Module):
         self.activation = F.relu if activation == "relu" else F.gelu
 
     def forward(self, x, cross, x_mask=None, cross_mask=None):
-        x = x + self.dropout(self.self_attention(x, x, x, attn_mask=x_mask)[0])
+        # print(f"(DecoderLayer.forward) x.shape: {x.shape}")
+        x, _ = self.self_attention(x, x, x, attn_mask=x_mask)
+        # print(f"(DecoderLayer.forward) x.shape: {x.shape}")
+        x = x + self.dropout(x)
+        # print(f"(DecoderLayer.forward) x.shape: {x.shape}")
         x = self.norm1(x)
 
-        x = x + self.dropout(
-            self.cross_attention(x, cross, cross, attn_mask=cross_mask)[0]
-        )
+        # print(f"(DecoderLayer.forward) x.shape: {x.shape}")
+        # print(f"(DecoderLayer.forward) cross.shape: {cross.shape}")
+
+        # f, _ = self.cross_attention(x, cross, cross, attn_mask=cross_mask)
+        # f = f + self.dropout(f)
+        # f = self.norm2(f)
+
+        # x = s + f
 
         y = x = self.norm2(x)
         y = self.dropout(self.activation(self.conv1(y.transpose(-1, 1))))

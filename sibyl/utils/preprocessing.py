@@ -34,18 +34,18 @@ def indicators(
 
     # Defining indicator functions
     indicator_functions = {
-        "SMA": lambda x=closes, interval=5: talib.SMA(x, timeperiod=interval),
-        "EMA": lambda x=closes, interval=12: talib.EMA(x, timeperiod=interval),
-        "WMA": lambda x=closes, interval=12: talib.WMA(x, timeperiod=interval),
-        "CCI": lambda interval=20: talib.CCI(highs, lows, closes, timeperiod=interval),
+        # "SMA": lambda x=closes, interval=5: talib.SMA(x, timeperiod=interval),
+        # "EMA": lambda x=closes, interval=12: talib.EMA(x, timeperiod=interval),
+        # "WMA": lambda x=closes, interval=12: talib.WMA(x, timeperiod=interval),
+        # "CCI": lambda interval=20: talib.CCI(highs, lows, closes, timeperiod=interval),
         "ROC": lambda x=closes, interval=12: talib.ROC(x, timeperiod=interval),
         "RSI": lambda x=closes, interval=14: talib.RSI(x, timeperiod=interval),
         "MFI": lambda interval=14: talib.MFI(
             highs, lows, closes, volumes, timeperiod=interval
         ),
-        "SAR": lambda a=0.02, m=0.2, interval=0: talib.SAR(
-            highs, lows, acceleration=a, maximum=m
-        ),
+        # "SAR": lambda a=0.02, m=0.2, interval=0: talib.SAR(
+        #     highs, lows, acceleration=a, maximum=m
+        # ),
         "ADX": lambda interval=14: talib.ADX(highs, lows, closes, timeperiod=interval),
     }
 
@@ -195,29 +195,24 @@ def indicator_tensors(
     :param config: (TimeSeriesConfig): A configuration object for time series data.
     :return: tuple[torch.Tensor, torch.Tensor]: Two tensors representing feature windows and target windows.
     """
-    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-
     # Aggregating feature and target windows
     feature_windows_list, target_windows_list = window_function(stock_data, config)(
         stock_data, config
     )
 
     # Concatenating all feature and target windows across stocks along the time dimension
-    feature_windows_tensor = torch.cat(feature_windows_list, dim=1).to(device)
-    target_windows_tensor = torch.cat(target_windows_list, dim=1).to(device)
+    feature_windows_tensor = torch.cat(feature_windows_list, dim=1).to(config.device)
+    target_windows_tensor = torch.cat(target_windows_list, dim=1).to(config.device)
 
-    feature_windows_tensor = feature_windows_tensor.permute(
-        1, 2, 0
-    )  # New shape for X: [2816814, 60, 8]
-    target_windows_tensor = target_windows_tensor.permute(
-        1, 2, 0
-    )  # New shape for y: [2816814, 15, 8]
+    feature_windows_tensor = feature_windows_tensor.permute(1, 2, 0)
+    target_windows_tensor = target_windows_tensor.permute(1, 2, 0)
 
-    print(
-        f"(stock_tensors) new feature_windows_tensor shape: {feature_windows_tensor.shape}"
-    )
-    print(
-        f"(stock_tensors) new target_windows_tensor shape: {target_windows_tensor.shape}"
+    config.log.info(
+        rf"""
+        ({__name__})
+        feature_windows_tensor.shape: {feature_windows_tensor.shape}, 
+        target_windows_tensor.shape: {target_windows_tensor.shape}
+        """
     )
 
     return feature_windows_tensor, target_windows_tensor

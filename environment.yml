@@ -263,4 +263,6 @@ dependencies:
 variables:
   API_KEY: PK3D0P0EF5NVU7LKHY76
   API_SECRET: X2kmdCqfYzGxaCYG2C3UhQ9DqHT9bYhYUhXM2g6G
+  WEBSOCKET_KEY: CK3D0VVO5962GGQMX47C
+  WEBSOCKET_SECRET: 1ywZ2YMpNdGklgKvJ3heyGsisMVOYWqDvFyGgCXC
 prefix: /Users/collin/anaconda3/envs/dl-quant

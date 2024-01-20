@@ -3,9 +3,6 @@ from dataclasses import dataclass
 import numpy as np
 import torch
 
-API_KEY = "PK3D0P0EF5NVU7LKHY76"
-API_SECRET = "X2kmdCqfYzGxaCYG2C3UhQ9DqHT9bYhYUhXM2g6G"
-
 
 @dataclass
 class Bar:
@@ -29,8 +26,9 @@ class Bar:
         }
 
 
-def adjust_learning_rate(optimizer, epoch, args):
-    # lr = args.learning_rate * (0.2 ** (epoch // 2))
+def adjust_learning_rate(
+    optimizer, epoch, args
+):  # lr = args.learning_rate * (0.2 ** (epoch // 2))
     if args.lradj == "type1":
         lr_adjust = {epoch: args.learning_rate * (0.5 ** ((epoch - 1) // 1))}
     elif args.lradj == "type2":

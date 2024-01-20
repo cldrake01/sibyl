@@ -8,11 +8,27 @@ from sibyl.utils.models.dimformer.masking import TriangularCausalMask
 
 
 class SelfAttention(nn.Module):
-    """Scaled Dot-Product Attention"""
+    def __init__(
+        self,
+        mask_flag=False,
+        factor=5,
+        scale=None,
+        attention_dropout=0.1,
+        output_attention=False,
+    ):
+        """
+        Provides the Self Attention mechanism.
 
-    def __init__(self, dropout=0.1):
+        :param mask_flag: If True, masks future positions to enforce causality.
+        :param factor: Factor by which to reduce the number of keys.
+        :param scale: Scale factor for the attention scores.
+        :param attention_dropout: Dropout rate for attention weights.
+        :param output_attention: If True, outputs the attention weights.
+        """
         super(SelfAttention, self).__init__()
-        self.dropout = nn.Dropout(dropout)
+        self.mask_flag = mask_flag
+        self.dropout = nn.Dropout(attention_dropout)
+        self.output_attention = output_attention
 
     def forward(self, query, key, value, mask=None):
         """
@@ -27,48 +43,73 @@ class SelfAttention(nn.Module):
 
             return output
         """
-        print(f"(SelfAttention.forward) query: {query.shape}")
-        print(f"(SelfAttention.forward) key: {key.shape}")
-        print(f"(SelfAttention.forward) value: {value.shape}")
 
         def attention(q, k, v, i, m=None):
-            print(f"(SelfAttention.forward.attention) query: {q}")
-            print(f"(SelfAttention.forward.attention) key: {k}")
-            print(f"(SelfAttention.forward.attention) value: {v}")
-            print(f"(SelfAttention.forward.attention) i: {i}")
-
             # Create a mask with ones at the i-th position in the third dimension and zeros elsewhere
-            mask = torch.zeros_like(v)
-            mask[..., i, :] = 1
+            mask = torch.zeros_like(q)
+            mask[:, i, ...] = 1
 
             # Apply the mask to v
-            v_i = v * mask
-
-            print(f"(SelfAttention.forward.attention) v_i: {v_i}")
-            print(f"(SelfAttention.forward.attention) v_i.shape: {v_i.shape}")
+            q_i = q * mask
 
             key_dim = k.size(-1)
-            attn_i = torch.matmul(q / np.sqrt(key_dim), k.transpose(2, 3))
-            if m is not None:
+            a_i = torch.matmul(q_i / np.sqrt(key_dim), k.transpose(2, 3))
+            if m:
                 m = m.unsqueeze(1)
-                attn_i = attn_i.masked_fill(m == 0, -1e9)
-            attn_i = self.dropout(torch.softmax(attn_i, dim=-1))
-            o_i = torch.matmul(attn_i, v_i)
+                a_i = a_i.masked_fill(m == 0, -1e9)
+            a_i = self.dropout(torch.softmax(a_i, dim=-1))
+            o_i = torch.matmul(a_i, v)
 
-            return o_i, attn_i
+            return o_i, a_i
 
-        # Calculate the attention weights for each dimension of the value vector
+        # Calculate the attention weights for each dimension of the query vector
+        dim = 1
+        output_list, attn_list = zip(
+            *[attention(query, key, value, i, mask) for i in range(query.size(dim))]
+        )
 
-        dim = -2
-
-        output_list = [
-            attention(query, key, value, i, mask)[0] for i in range(value.size(dim))
-        ]
-
-        # Concatenate the output
         output = torch.sum(torch.cat(output_list, dim=dim), dim=dim)
 
-        return output, None
+        attn = torch.sum(torch.cat(attn_list, dim=dim), dim=dim)
+
+        attn = attn if self.output_attention else None
+
+        return output, attn
+
+
+class StandardAttention(nn.Module):
+    def __init__(
+        self,
+        mask_flag=False,
+        factor=5,
+        scale=None,
+        attention_dropout=0.1,
+        output_attention=False,
+    ):
+        """
+        Provides the Self Attention mechanism.
+
+        :param mask_flag: If True, masks future positions to enforce causality.
+        :param factor: Factor by which to reduce the number of keys.
+        :param scale: Scale factor for the attention scores.
+        :param attention_dropout: Dropout rate for attention weights.
+        :param output_attention: If True, outputs the attention weights.
+        """
+        super(StandardAttention, self).__init__()
+        self.mask_flag = mask_flag
+        self.dropout = nn.Dropout(attention_dropout)
+        self.output_attention = output_attention
+
+    def forward(self, query, key, value, mask=None):
+        key_dim = key.size(-1)
+        attn = torch.matmul(query / np.sqrt(key_dim), key.transpose(1, 2))
+        if mask is not None:
+            mask = mask.unsqueeze(1)
+            attn = attn.masked_fill(mask == 0, -1e9)
+        attn = self.dropout(torch.softmax(attn, dim=-1))
+        output = torch.matmul(attn, value)
+
+        return output, attn
 
 
 class MultiHeadAttention(nn.Module):
@@ -117,6 +158,10 @@ class MultiHeadAttention(nn.Module):
 class FullAttention(nn.Module):
     def __init__(
         self,
+        d_model,
+        n_heads,
+        d_keys=None,
+        d_values=None,
         mask_flag=True,
         factor=5,
         scale=None,
@@ -133,10 +178,18 @@ class FullAttention(nn.Module):
         :param output_attention: If True, outputs the attention weights.
         """
         super(FullAttention, self).__init__()
+
+        d_keys = d_keys or (d_model // n_heads)
+        d_values = d_values or (d_model // n_heads)
+
         self.scale = scale
         self.mask_flag = mask_flag
         self.output_attention = output_attention
         self.dropout = nn.Dropout(attention_dropout)
+        self.query_projection = nn.Linear(d_model, d_keys * n_heads)
+        self.key_projection = nn.Linear(d_model, d_keys * n_heads)
+        self.value_projection = nn.Linear(d_model, d_values * n_heads)
+        self.n_heads = n_heads
 
     def forward(self, queries, keys, values, attn_mask):
         """
@@ -149,6 +202,17 @@ class FullAttention(nn.Module):
 
         :returns: A tuple containing the output of the attention mechanism and the attention weights.
         """
+        # print(
+        #     f"(FullAttention.forward) queries: {queries.shape}, keys: {keys.shape}, values: {values.shape}"
+        # )
+        # B, L, _ = queries.shape
+        # _, S, _ = keys.shape
+        # H = self.n_heads
+        #
+        # queries = self.query_projection(queries).view(B, L, H, -1)
+        # keys = self.key_projection(keys).view(B, S, H, -1)
+        # values = self.value_projection(values).view(B, S, H, -1)
+
         B, L, H, E = queries.shape
         _, S, _, D = values.shape
         scale = self.scale or 1.0 / sqrt(E)
@@ -161,17 +225,23 @@ class FullAttention(nn.Module):
             scores.masked_fill_(attn_mask.mask, -np.inf)
 
         A = self.dropout(torch.softmax(scale * scores, dim=-1))
-        V = torch.einsum("bhls,bshd->blhd", A, values)
+        V = torch.einsum("bhls,bshd->blhd", A, values).contiguous()
 
-        if self.output_attention:
-            return V.contiguous(), A
-        else:
-            return V.contiguous(), None
+        A = A if self.output_attention else None
+
+        return V, A
 
 
 class AttentionLayer(nn.Module):
     def __init__(
-        self, attention, d_model, n_heads, d_keys=None, d_values=None, mix=False
+        self,
+        attention,
+        d_model,
+        n_heads,
+        d_keys=None,
+        d_values=None,
+        mix=False,
+        full=False,
     ):
         """
         A layer that wraps an attention mechanism.
@@ -185,8 +255,10 @@ class AttentionLayer(nn.Module):
         """
         super(AttentionLayer, self).__init__()
 
-        d_keys = d_keys or (d_model // n_heads)
-        d_values = d_values or (d_model // n_heads)
+        # d_keys = d_keys or (d_model // n_heads)
+        # d_values = d_values or (d_model // n_heads)
+        d_keys = d_keys or d_model
+        d_values = d_values or d_model
 
         self.d_model = d_model
         self.inner_attention = attention
@@ -197,27 +269,33 @@ class AttentionLayer(nn.Module):
         self.n_heads = n_heads
         self.dim_per_head = d_model // n_heads
         self.mix = mix
+        self.full = full
 
-    def forward(self, queries, keys, values, attn_mask=None):
-        # Apply the linear projections
-        batch_size = queries.size(0)
-        queries = self.query_projection(queries)
-        keys = self.key_projection(keys)
-        values = self.value_projection(values)
-        # Reshape the input
-        queries = queries.view(
-            batch_size, -1, self.n_heads, self.dim_per_head
-        ).transpose(1, 2)
-        keys = keys.view(batch_size, -1, self.n_heads, self.dim_per_head).transpose(
-            1, 2
-        )
-        values = values.view(batch_size, -1, self.n_heads, self.dim_per_head).transpose(
-            1, 2
-        )
-        # Calculate the attention
-        scores, attn = self.inner_attention(queries, keys, values, attn_mask)
-        # Reshape the output
-        output = scores.transpose(1, 2).contiguous().view(batch_size, -1, self.d_model)
-        # Apply the linear projection
-        output = self.out(output)
-        return output, attn
+    def forward(self, queries, keys, values, attn_mask):
+        """
+        Forward pass for the AttentionLayer.
+
+        :param queries: Queries.
+        :param keys: Keys.
+        :param values: Values.
+        :param attn_mask: Attention mask.
+
+        :return: A tuple containing the output of the attention mechanism and the attention weights.
+        """
+        B, L, _ = queries.shape
+        _, S, _ = keys.shape
+        H = self.n_heads
+
+        if type(self.inner_attention) is SelfAttention:
+            queries = self.query_projection(queries).view(B, L, H, -1)
+            keys = self.key_projection(keys).view(B, S, H, -1)
+            values = self.value_projection(values).view(B, S, H, -1)
+
+        out, attn = self.inner_attention(queries, keys, values, attn_mask)
+
+        if self.mix:
+            out = out.transpose(2, 1).contiguous()
+
+        out = out.view(B, L, -1) if not self.full else out
+
+        return out, attn

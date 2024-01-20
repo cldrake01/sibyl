@@ -46,6 +46,7 @@ class EncoderLayer(nn.Module):
         #     attn_mask = attn_mask
         # ))
         new_x, attn = self.attention(x, x, x, attn_mask=attn_mask)
+        print(f"(EncoderLayer.forward) x: {x.shape}, new_x: {new_x.shape}")
         x = x + self.dropout(new_x)
 
         y = x = self.norm1(x)

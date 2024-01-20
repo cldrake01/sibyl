@@ -1,14 +1,15 @@
 import os
 import pickle
 
+import pandas as pd
 import torch
 from IPython.core.display_functions import clear_output
 from matplotlib import pyplot as plt
-from torch import nn, optim, Tensor
+from torch import Tensor
 from torch.utils.data import TensorDataset, DataLoader, random_split
+from tqdm import tqdm
 
-from sibyl import logger, find_root_dir, NullLogger, TimeSeriesConfig
-from sibyl.utils.models.dimformer.masking import make_target_mask, make_source_mask
+from sibyl import logger, find_root_dir, NullLogger, TimeSeriesConfig, TrainingConfig
 from sibyl.utils.models.dimformer.model import Dimformer
 from sibyl.utils.models.informer.model import Informer, DecoderOnlyInformer
 from sibyl.utils.preprocessing import indicator_tensors
@@ -19,10 +20,12 @@ def setup_environment():
     # Check for macOS
     if os.name == "posix":
         os.environ["KMP_DUPLICATE_LIB_OK"] = "True"
-    return logger("training.py"), find_root_dir(os.path.dirname(__file__), "README.md")
+    return logger("training.py")
 
 
-def load_and_preprocess_data(log, file_path=None) -> tuple[torch.Tensor, torch.Tensor]:
+def load_and_preprocess_data(
+    config: TimeSeriesConfig, file_path=None
+) -> tuple[torch.Tensor, torch.Tensor]:
     if file_path is None:
         file_path = f"{find_root_dir(os.path.dirname(__file__), 'README.md')}/assets/pkl/time_series.pkl"
 
@@ -30,20 +33,14 @@ def load_and_preprocess_data(log, file_path=None) -> tuple[torch.Tensor, torch.T
         with open(file_path, "rb") as f:
             time_series = pickle.load(f)
     else:
-        time_series = fetch_data(years=0.05, log=log)
-        log.info("Creating pickle file...")
+        time_series = fetch_data(years=0.05, log=config.log)
+        config.log.info("Creating pickle file...")
         with open(file_path, "wb") as f:
             pickle.dump(time_series, f)
 
-    config = TimeSeriesConfig(
-        include_hashes=True,
-        include_temporal=True,
-        log=log,
-    )
-
-    log.info("Creating tensors...")
+    config.log.info("Creating tensors...")
     features, targets = indicator_tensors(time_series, config=config)
-    log.info("Tensors created.")
+    config.log.info("Tensors created.")
     return features, targets
 
 
@@ -57,7 +54,8 @@ def initialize_model(X, y, model):
         Dimformer: Dimformer(
             enc_in=num_features,
             dec_in=num_features,
-            c_out=num_features,
+            # c_out=num_features,
+            c_out=target_len,
             seq_len=feature_len,
             label_len=target_len,
             out_len=target_len,
@@ -68,13 +66,14 @@ def initialize_model(X, y, model):
             d_layers=2,
             d_ff=512,
             dropout=0.05,
-            attn="prob",
+            attn="self",
             embed="fixed",
             freq="h",
             activation="gelu",
             output_attention=False,
             distil=True,
             mix=True,
+            encoder=False,
         ),
         Informer: Informer(
             enc_in=num_features,
@@ -116,27 +115,7 @@ def initialize_model(X, y, model):
     return model_configurations[model]
 
 
-def normalize(X, y) -> tuple[torch.Tensor, torch.Tensor]:
-    """
-    See \frac{\left|T\right|}{T}\log_{10}\left(\left|T\right|+1\right), where T is the tensor
-    to be normalized.
-
-    This normalization preserves the sign of the tensor whilst normalizing it, as opposed to
-    methods available online, wherein the minimum is added to the tensor before normalizing it;
-    thereby shifting the tensor to the positive side of the number line, subsequently losing the
-    sign of the tensor.
-
-    :param X: The feature tensor.
-    :param y: The target tensor.
-    :return: The normalized feature and target tensors.
-    """
-    X = torch.nan_to_num(torch.sign(X) * torch.log10(torch.abs(X) + 1.0).float(), 0.0)
-    y = torch.nan_to_num(torch.sign(y) * torch.log10(torch.abs(y) + 1.0).float(), 0.0)
-
-    return X, y
-
-
-def normalize_(*tensors) -> tuple[Tensor, ...]:
+def normalize(*tensors: Tensor) -> tuple[Tensor, ...]:
     """
     See \frac{\left|T\right|}{T}\log_{10}\left(\left|T\right|+1\right), where T is the tensor
     to be normalized.
@@ -184,46 +163,30 @@ def early_stop_check(
 
     if current_patience >= patience:
         log.info(f"Early stopping triggered. Best loss: {best_loss}")
-        save_model(
-            model,
-            f"{find_root_dir(os.path.dirname(__file__), 'README.md')}/assets/weights/informer.pt",
-        )
+        save_model(model)
         exit(0)
-
-    # log.info(f"Loss: {loss} | Best Loss: {best_loss} | Patience: {current_patience}")
 
 
 def train_model(
     model,
     train_loader,
     val_loader,
-    device,
-    log=NullLogger(),
-    validation=False,
-    epochs=1,
+    config: TrainingConfig,
 ):
-    criterion = nn.L1Loss()
-    optimizer = optim.AdamW(model.parameters())
-    best_loss = float("inf")
-    early_stopping_patience = 10
-    patience_counter = 0
+    criterion = config.loss_function_()()
+    optimizer = config.optimizer_()(model.parameters(), lr=config.learning_rate)
 
-    for epoch in range(epochs):
-        log.info(f"Epoch: {epoch + 1}/{epochs}")
+    model.to(config.device)
+
+    for epoch in range(config.epochs):
         model.train()
         training_losses = []
         train_loss = 0.0  # Reset train loss for the epoch
 
-        for window, (X, y) in enumerate(train_loader):
-            X, y = X.to(device), y.to(device)
-            X_mask, y_mask = make_source_mask(X, 0), make_target_mask(y.squeeze(0))
-            print(X_mask.shape, y_mask.shape)
+        for window, (X, y) in enumerate(tqdm(train_loader)):
+            X, y = X.to(config.device), y.to(config.device)
             optimizer.zero_grad()
-            y_hat = model(X, y, X_mask, y_mask)
-            clear_output(wait=True)
-            # log.info(f"y_hat: {y_hat[0][-1]}")
-            # log.info(f"y: {y[0][-1]}")
-            # log.info(f"y_hat - y: {y_hat[0][-1] - y[0][-1]}")
+            y_hat = model(X, y)
             loss = criterion(y_hat, y)
             loss.backward()
             optimizer.step()
@@ -233,64 +196,36 @@ def train_model(
             # Gradient clipping
             torch.nn.utils.clip_grad_norm_(model.parameters(), 0.5)
 
-            # Plot every 20 windows
-            if window % 20 == 0:
-                pred_vs_actual_plot(X, y, y_hat)
+            if window % config.plot_interval == 0:
+                combined_plot(
+                    X=X,
+                    y=y,
+                    y_hat=y_hat,
+                    loss=training_losses,
+                    config=config,
+                )
 
-                # live_plot(
-                #     loss=training_losses,
-                #     title="Training Losses",
-                #     window=window,
-                #     windows=len(train_loader),
-                # )
-
-            # Early stopping check after each window
-            early_stop_check(
-                loss=train_loss / (window + 1),  # Current average loss
-                patience=early_stopping_patience,
-                current_patience=patience_counter,
-                best_loss=best_loss,
-                model=model,
-                log=log,
-            )
-
-        if validation:
+        if config.validation:
             model.eval()
             validation_losses = []
             val_loss = 0.0  # Reset validation loss for the epoch
             with torch.no_grad():
                 for window, (X, y) in enumerate(val_loader):
-                    X, y = X.to(device), y.to(device)
+                    X, y = X.to(config.device), y.to(config.device)
                     y_hat = model(X, y)
                     loss = criterion(y_hat, y)
                     val_loss += loss.item()
                     validation_losses.append(loss.item())
 
-                    # # Plot every 20 windows
-                    # if window % 20 == 0:
-                    #     live_plot(
-                    #         loss=validation_losses,
-                    #         title="Validation Losses",
-                    #         window=window,
-                    #         windows=len(val_loader),
-                    #     )
-
-            # Update best_loss and reset patience_counter if validation loss improved
-            average_val_loss = val_loss / len(val_loader)
-            if average_val_loss < best_loss:
-                best_loss = average_val_loss
-                patience_counter = 0
-                # Save the model
-                torch.save(model.state_dict(), "best_model.pth")
-                log.info(f"New best loss: {best_loss}")
-            else:
-                patience_counter += 1
-                log.info(
-                    f"No improvement in validation loss for {patience_counter} epochs."
-                )
-                if patience_counter >= early_stopping_patience:
-                    log.info("Early stopping triggered")
-                    return  # Exit the training function
+                    if window % config.plot_interval == 0:
+                        combined_plot(
+                            X=X,
+                            y=y,
+                            y_hat=y_hat,
+                            loss=validation_losses,
+                            config=config,
+                        )
+    save_model(model)
 
 
 def save_model(model, path=None):
@@ -299,74 +234,113 @@ def save_model(model, path=None):
     torch.save(model.state_dict(), path)
 
 
-def pred_vs_actual_plot(X, y, y_hat, feature: int = 5):
+def combined_plot(
+    X,
+    y,
+    y_hat,
+    loss,
+    config: TrainingConfig,
+    features: list[int] = None,
+):
     """
-    Plot the predicted vs actual values such that X is placed to the left of y and y_hat.
+    Plot both the predicted vs actual values and the loss on the same graph.
 
     :param X: The context window preceding the target window.
     :param y: The target window.
     :param y_hat: The predicted target window.
-    :param feature: The feature to plot.
-    :return:
+    :param loss: List of loss values.
+    :param config: TrainingConfig object.
+    :param features: List of features to plot.
     """
-    # Detach the tensors from the computational graph
-    X_, y_, y_hat_ = X.detach(), y.detach(), y_hat.detach()
-
-    # Squeeze the batch dimension
-    X_, y_, y_hat_ = X_.squeeze(0), y_.squeeze(0), y_hat_.squeeze(0)
-
-    # Plot the selected feature
-    X_, y_, y_hat_ = X_[:, feature], y_[:, feature], y_hat_[:, feature]
-
-    # print(X_.shape, y_.shape, y_hat_.shape)
-
-    # Plot the tensors
-    plt.plot(torch.cat((X_, y_)), "b", alpha=0.5)
-    plt.plot(torch.cat((X_, y_hat_)), "r", alpha=0.5)
-    plt.show()
-
-
-def live_plot(loss, title="Losses", window=None, windows=None):
+    # Clear existing figure
     clear_output(wait=True)
-    # Destroy the current figure
     plt.clf()
-    plt.plot(loss)
-    plt.title(title)
-    plt.xlabel(
-        f"Windows: {window}/{windows}, Mean Loss: {(sum(fifty := loss[:-50]) / len(fifty)) if len(loss) > 60 else 'N/A'}"
-    )
-    plt.ylabel("Loss")
-    plt.show()
 
+    # First subplot for predicted vs actual
+    if config.plot_predictions:
+        # 1 row, 2 columns, 1st subplot
+        sub = plt.subplot(1, 1, 1)
+        sub.xaxis.set_label_position("top")
+        sub.xaxis.tick_top()
+        X_, y_, y_hat_ = (
+            X.detach().squeeze(0),
+            y.detach().squeeze(0),
+            y_hat.detach().squeeze(0),
+        )
 
-def plot_losses(losses):
-    """
-    Plot losses independently of the current phase, whether training or validation.
+        if features is None:
+            features = range(X_.shape[1])
 
-    :param losses: A list of losses to plot.
-    :return:
-    """
-    plt.plot(losses)
+        _ = list(
+            map(
+                lambda i: plt.plot(torch.cat((X_[:, i], y_[:, i])), "b", alpha=0.5),
+                features,
+            )
+        )
+        _ = list(
+            map(
+                lambda i: plt.plot(torch.cat((X_[:, i], y_hat_[:, i])), "r", alpha=0.5),
+                features,
+            )
+        )
+
+    # Second subplot for loss
+    if config.plot_loss:
+        # 1 row, 2 columns, 2nd subplot
+        if config.plot_predictions:
+            sub = plt.subplot(2, 1, 2)
+            # Place a label on the right side of the plot
+            sub.yaxis.set_label_position("right")
+            sub.yaxis.tick_right()
+        else:
+            plt.subplot(1, 1, 1)
+        # Make its background transparent
+        plt.gca().patch.set_alpha(0.0)
+        # Make it borderless
+        plt.gca().spines["top"].set_alpha(0.0)
+        # Plot the moving average of the loss using a pandas dataframe
+        plt.plot(
+            pd.DataFrame(loss).rolling(config.plot_interval).mean(),
+            "g",
+            alpha=0.5,
+        )
+        # plt.xlabel(
+        #     f"Mean Loss: {(sum(last_fifty := loss[-50:]) / len(last_fifty)) if len(loss) > 50 else 'N/A'}"
+        # )
+
+    # Show the combined plot
     plt.show()
 
 
 def main():
-    log, root = setup_environment()
-    features, targets = load_and_preprocess_data(log)
-    X_norm, y_norm = normalize_(features, targets)
+    log = setup_environment()
+    features, targets = load_and_preprocess_data(
+        TimeSeriesConfig(
+            include_hashes=False,
+            include_temporal=False,
+            log=log,
+        )
+    )
+    X_norm, y_norm = normalize(features, targets)
     model = initialize_model(X_norm, y_norm, Dimformer)
     train_loader, val_loader = prepare_datasets(X_norm, y_norm)
-    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     train_model(
         model=model,
         train_loader=train_loader,
         val_loader=val_loader,
-        device=device,
-        epochs=1,
-        log=log,
+        config=TrainingConfig(
+            validation=True,
+            epochs=10,
+            batch_size=1,
+            learning_rate=0.001,
+            loss_function="MAE",
+            optimizer="AdamW",
+            plot_loss=True,
+            plot_predictions=True,
+            plot_interval=300,
+            log=log,
+        ),
     )
-    save_model(model)
-    # plot_losses logic here
 
 
 if __name__ == "__main__":

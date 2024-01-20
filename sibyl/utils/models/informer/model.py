@@ -7,7 +7,7 @@ from sibyl.utils.models.informer.layers.attn import (
     AttentionLayer,
 )
 from sibyl.utils.models.informer.layers.decoder import Decoder, DecoderLayer
-from sibyl.utils.models.informer.layers.embed import PositionalEmbedding
+from sibyl.utils.models.informer.layers.embed import PositionalEmbedding, DataEmbedding
 from sibyl.utils.models.informer.layers.encoder import Encoder, EncoderLayer, ConvLayer
 
 
@@ -41,14 +41,14 @@ class Informer(nn.Module):
         self.output_attention = output_attention
 
         # Assuming enc_in and dec_in are the dimensions of x and x_mark respectively
-        self.enc_embedding = PositionalEmbedding(d_model)
-        self.dec_embedding = PositionalEmbedding(d_model)
-        # self.enc_embedding = DataEmbedding(
-        #     c_in=enc_in, d_model=d_model, embed_type=embed, freq=freq
-        # )
-        # self.dec_embedding = DataEmbedding(
-        #     c_in=dec_in, d_model=d_model, embed_type=embed, freq=freq
-        # )
+        # self.enc_embedding = PositionalEmbedding(d_model)
+        # self.dec_embedding = PositionalEmbedding(d_model)
+        self.enc_embedding = DataEmbedding(
+            c_in=enc_in, d_model=d_model, embed_type=embed, freq=freq
+        )
+        self.dec_embedding = DataEmbedding(
+            c_in=dec_in, d_model=d_model, embed_type=embed, freq=freq
+        )
 
         # Attention
         Attn = ProbAttention if attn == "prob" else FullAttention
@@ -72,7 +72,7 @@ class Informer(nn.Module):
                     dropout=dropout,
                     activation=activation,
                 )
-                for l in range(e_layers)
+                for _ in range(e_layers)
             ],
             [ConvLayer(d_model) for _ in range(e_layers - 1)] if distil else None,
             norm_layer=torch.nn.LayerNorm(d_model),

@@ -139,7 +139,7 @@ class MultiHeadAttention(nn.Module):
         self.key_projection = nn.Linear(embedding_dim, embedding_dim)
         self.value_projection = nn.Linear(embedding_dim, embedding_dim)
         self.dropout = nn.Dropout(dropout)
-        self.out = nn.Linear(embedding_dim, embedding_dim)
+        self.out_projection = nn.Linear(embedding_dim, embedding_dim)
 
     def forward(self, query, key, value, mask=None):
         # Apply the linear projections
@@ -147,6 +147,11 @@ class MultiHeadAttention(nn.Module):
         query = self.query_projection(query)
         key = self.key_projection(key)
         value = self.value_projection(value)
+
+        print(f"(MultiHeadAttention.forward) query: {query.shape}")
+        print(f"(MultiHeadAttention.forward) key: {key.shape}")
+        print(f"(MultiHeadAttention.forward) value: {value.shape}")
+
         # Reshape the input
         query = query.view(batch_size, -1, self.num_heads, self.dim_per_head).transpose(
             1, 2
@@ -157,14 +162,20 @@ class MultiHeadAttention(nn.Module):
         value = value.view(batch_size, -1, self.num_heads, self.dim_per_head).transpose(
             1, 2
         )
+
+        print(f"(MultiHeadAttention.forward) query: {query.shape}")
+        print(f"(MultiHeadAttention.forward) key: {key.shape}")
+        print(f"(MultiHeadAttention.forward) value: {value.shape}")
+
         # Calculate the attention
         scores = self.self_attention(query, key, value, mask)
         # Reshape the output
         output = (
             scores.transpose(1, 2).contiguous().view(batch_size, -1, self.embedding_dim)
         )
+        print(f"(MultiHeadAttention.forward) output: {output.shape}")
         # Apply the linear projection
-        output = self.out(output)
+        output = self.out_projection(output)
         return output
 
 
@@ -207,7 +218,6 @@ class DecoderLayer(nn.Module):
     def __init__(self, embedding_dim, num_heads, ff_dim=2048, dropout=0.1):
         super(DecoderLayer, self).__init__()
         self.self_attention = MultiHeadAttention(embedding_dim, num_heads, dropout)
-        self.encoder_attention = MultiHeadAttention(embedding_dim, num_heads, dropout)
         self.feed_forward = nn.Sequential(
             nn.Linear(embedding_dim, ff_dim),
             nn.ReLU(),

@@ -44,7 +44,8 @@ class TokenEmbedding(nn.Module):
                 )
 
     def forward(self, x):
-        x = self.tokenConv(x.permute(0, 2, 1)).transpose(1, 2)
+        # Convert x to double precision to avoid loss of precision when converting to float
+        x = self.tokenConv(x.permute(0, 2, 1).double()).transpose(1, 2)
         return x
 
 

@@ -1,20 +1,26 @@
 import json
+import os
 from collections import deque
 
 import torch
 
-from sibyl import logger
+from sibyl import logger, TimeSeriesConfig
 from sibyl.utils import Bar
 from sibyl.utils.preprocessing import indicator_tensors
 from sibyl.utils.tickers import tickers
 from sibyl.utils.weights import download_weights
 
-API_KEY = "CK3D0VVO5962GGQMX47C"
-API_SECRET = "1ywZ2YMpNdGklgKvJ3heyGsisMVOYWqDvFyGgCXC"
+WEB_SOCKET_KEY = os.getenv("WEBSOCKET_KEY")
+WEB_SOCKET_SECRET = os.getenv("WEBSOCKET_SECRET")
 
 log = logger("inference.py")
 
-WINDOW_SIZE = 60
+config = TimeSeriesConfig(
+    include_hashes=False,
+    include_temporal=False,
+    log=log,
+)
+
 # TA-Lib represents all values prior to the calculation interval value as NaN (they're zeroed out).
 # Therefore, we need to add the greatest interval to the window size.
 # Otherwise, we'll get a tensor whose first 14 values are zeros, like so:
@@ -28,7 +34,8 @@ WINDOW_SIZE = 60
 GREATEST_INTERVAL = 14  # See indicators()
 
 rolling_windows = {
-    ticker: deque(maxlen=WINDOW_SIZE + GREATEST_INTERVAL) for ticker in tickers
+    ticker: deque(maxlen=config.feature_window_size + GREATEST_INTERVAL)
+    for ticker in tickers
 }
 
 

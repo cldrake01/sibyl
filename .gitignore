@@ -5,3 +5,5 @@ assets/pkl
 *.pkl
 *.env
 *.log
+
+environment.yml
