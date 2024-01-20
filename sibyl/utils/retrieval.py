@@ -3,7 +3,7 @@ from datetime import datetime, timedelta
 
 from alpaca.data import TimeFrame, StockBarsRequest, StockHistoricalDataClient
 
-from sibyl import NullLogger, API_KEY, API_SECRET
+from sibyl import ALPACA_API_KEY, ALPACA_API_SECRET, TimeSeriesConfig
 from sibyl.utils.tickers import tickers
 
 
@@ -26,8 +26,8 @@ def alpaca_time_series(
         end = end.strftime("%Y-%m-%d %H:%M:%S")
 
     client = StockHistoricalDataClient(
-        API_KEY,
-        API_SECRET,
+        ALPACA_API_KEY,
+        ALPACA_API_SECRET,
     )
 
     # url_override="https://data.alpaca.markets",
@@ -43,28 +43,24 @@ def alpaca_time_series(
 
 
 def fetch_data(
-    years: int or float,
-    max_workers: int = len(tickers) // 2,
-    log=NullLogger(),
+    config: TimeSeriesConfig,
 ) -> list:
     """
     Retrieve data from the Alpaca API for a given number of years using multiple worker-threads.
 
-    :param years: (float): Number of years of data to retrieve.
-    :param max_workers: (int): Maximum number of worker-threads to use.
-    :param log: (logging.Logger): Logger (optional).
+    :param config: (TimeSeriesConfig): A configuration object for time series data.
     :return: list: A list of bars for a given stock.
     """
     # Retrieve data from the Alpaca API
-    log.info("Retrieving data from the Alpaca API...")
-    log.info(f"Maximum Worker-threads: {max_workers}")
+    config.log.info("Retrieving data from the Alpaca API...")
+    config.log.info(f"Maximum Worker-threads: {config.max_workers}")
 
-    with ThreadPoolExecutor(max_workers=max_workers) as executor:
+    with ThreadPoolExecutor(max_workers=config.max_workers) as executor:
         futures = [
             executor.submit(
                 alpaca_time_series,
                 [ticker],
-                datetime.today() - timedelta(365 * years),
+                datetime.today() - timedelta(365 * config.years),
                 datetime.today(),
             )
             for ticker in tickers
@@ -72,6 +68,6 @@ def fetch_data(
 
     # Collecting results
     data = [future.result() for future in futures]
-    log.info("Retrieved data from the Alpaca API.")
+    config.log.info("Retrieved data from the Alpaca API.")
 
     return data

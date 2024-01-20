@@ -26,6 +26,16 @@ class Bar:
         }
 
 
+def bar(stock: dict) -> Bar:
+    return Bar(
+        open=stock["o"],
+        close=stock["c"],
+        high=stock["h"],
+        low=stock["l"],
+        volume=stock["v"],
+    )
+
+
 def adjust_learning_rate(
     optimizer, epoch, args
 ):  # lr = args.learning_rate * (0.2 ** (epoch // 2))

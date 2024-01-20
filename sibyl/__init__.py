@@ -5,11 +5,12 @@ from dataclasses import dataclass
 import torch
 
 from sibyl.utils.models.informer.model import Informer
+from sibyl.utils.tickers import tickers
 
-API_KEY = os.getenv("API_KEY")
-API_SECRET = os.getenv("API_SECRET")
-WEBSOCKET_KEY = os.getenv("WEBSOCKET_KEY")
-WEBSOCKET_SECRET = os.getenv("WEBSOCKET_SECRET")
+ALPACA_API_KEY = os.getenv("ALPACA_API_KEY")
+ALPACA_API_SECRET = os.getenv("ALPACA_API_SECRET")
+ALPACA_WEBSOCKET_KEY = os.getenv("ALPACA_WEBSOCKET_KEY")
+ALPACA_WEBSOCKET_SECRET = os.getenv("ALPACA_WEBSOCKET_SECRET")
 
 
 class NullLogger:
@@ -39,6 +40,8 @@ class TimeSeriesConfig:
     Configuration for time series data.
     """
 
+    years: int or float = 0.05
+    max_workers: int = (len(tickers) // 2,)
     feature_window_size = 60
     target_window_size = 15
     include_hashes: bool = False

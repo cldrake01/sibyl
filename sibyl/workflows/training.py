@@ -33,7 +33,7 @@ def load_and_preprocess_data(
         with open(file_path, "rb") as f:
             time_series = pickle.load(f)
     else:
-        time_series = fetch_data(years=0.05, log=config.log)
+        time_series = fetch_data(config=config)
         config.log.info("Creating pickle file...")
         with open(file_path, "wb") as f:
             pickle.dump(time_series, f)

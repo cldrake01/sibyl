@@ -5,13 +5,13 @@ from collections import deque
 import torch
 
 from sibyl import logger, TimeSeriesConfig
-from sibyl.utils import Bar
+from sibyl.utils import bar
 from sibyl.utils.preprocessing import indicator_tensors
 from sibyl.utils.tickers import tickers
 from sibyl.utils.weights import download_weights
 
-WEB_SOCKET_KEY = os.getenv("WEBSOCKET_KEY")
-WEB_SOCKET_SECRET = os.getenv("WEBSOCKET_SECRET")
+ALPACA_WEBSOCKET_KEY = os.getenv("ALPACA_WEBSOCKET_KEY")
+ALPACA_WEBSOCKET_SECRET = os.getenv("ALPACA_WEBSOCKET_SECRET")
 
 log = logger("inference.py")
 
@@ -52,21 +52,15 @@ log.info("Model weights loaded.")
 model.eval()
 
 
-def bar(stock: dict) -> Bar:
-    return Bar(
-        open=stock["o"],
-        close=stock["c"],
-        high=stock["h"],
-        low=stock["l"],
-        volume=stock["v"],
-    )
-
-
 def on_open(ws):
     log.info("Opened connection")
 
     # Authentication and subscribing to a channel
-    auth_data = {"action": "auth", "key": f"{API_KEY}", "secret": f"{API_SECRET}"}
+    auth_data = {
+        "action": "auth",
+        "key": f"{ALPACA_WEBSOCKET_KEY}",
+        "secret": f"{ALPACA_WEBSOCKET_SECRET}",
+    }
     ws.send(json.dumps(auth_data))
 
     # Subscribe to some market data
@@ -91,7 +85,7 @@ def on_message(ws, message):
             # NOTE: stock_tensors() returns a rank-three tensor, which is essentially an entire dataset.
             #       We only want the last tensor in the dataset, which is the tensor for the rolling window.
             #       Therefore, we use [-1] to get the last tensor in the dataset.
-            X, _ = indicator_tensors([rolling_windows[stock["S"]]])[
+            X, _ = indicator_tensors([rolling_windows[stock["S"]]], config=config)[
                 -1
             ]  # (1, window_size, indicators)
             # Predict the next 15 bars

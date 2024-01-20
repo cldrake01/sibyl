@@ -21,10 +21,6 @@ def indicators(
     :param config: (TimeSeriesConfig): A configuration object for time series data.
     :return: tuple[torch.Tensor, torch.Tensor]: Two tensors representing feature windows and target windows.
     """
-    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-
-    # print(f"(indicators) time_series: {time_series[:5]}")
-
     # Extracting data points for indicators
     datetimes = [bar.timestamp for bar in time_series]
     closes = np.array([bar.close for bar in time_series], dtype=np.float64)
@@ -52,14 +48,14 @@ def indicators(
     # Calculating indicators and converting to PyTorch tensors
     if not config.included_indicators:
         indicator_tensor_list = [
-            torch.tensor(np.array(func()), dtype=torch.float64).to(device)
+            torch.tensor(np.array(func()), dtype=torch.float64).to(config.device)
             for func in indicator_functions.values()
         ]
         # print(f"(indicators) indicator_tensor_list: {indicator_tensor_list[0]}")
     else:
         indicator_tensor_list = [
             torch.tensor(np.array(indicator_functions[ind]()), dtype=torch.float64).to(
-                device
+                config.device
             )
             for ind in config.included_indicators
         ]
@@ -106,7 +102,7 @@ def indicators(
                 dt.second / 60,
             ],
             dtype=torch.float64,
-        ).to(device)
+        ).to(config.device)
 
     # Adding temporal embeddings if required
     if config.include_temporal:
