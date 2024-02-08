@@ -4,6 +4,7 @@ from typing import Callable
 import numpy as np
 import talib
 import torch
+from torch import Tensor
 
 from sibyl import TimeSeriesConfig
 
@@ -12,14 +13,14 @@ def indicators(
     time_series: list,
     stock_id: int,
     config: TimeSeriesConfig,
-) -> tuple[torch.Tensor, torch.Tensor]:
+) -> tuple[Tensor, Tensor]:
     """
     Calculates technical indicators for a given stock and returns feature and target windows.
 
     :param time_series: (list): A list of bars for a given stock.
     :param stock_id: (int): A unique identifier for the stock. Which must be passed to indi
     :param config: (TimeSeriesConfig): A configuration object for time series data.
-    :return: tuple[torch.Tensor, torch.Tensor]: Two tensors representing feature windows and target windows.
+    :return: tuple[Tensor, Tensor]: Two tensors representing feature windows and target windows.
     """
     # Extracting data points for indicators
     datetimes = [bar.timestamp for bar in time_series]
@@ -30,35 +31,31 @@ def indicators(
 
     # Defining indicator functions
     indicator_functions = {
-        # "SMA": lambda x=closes, interval=5: talib.SMA(x, timeperiod=interval),
-        # "EMA": lambda x=closes, interval=12: talib.EMA(x, timeperiod=interval),
-        # "WMA": lambda x=closes, interval=12: talib.WMA(x, timeperiod=interval),
-        # "CCI": lambda interval=20: talib.CCI(highs, lows, closes, timeperiod=interval),
+        "SMA": lambda x=closes, interval=5: talib.SMA(x, timeperiod=interval),
+        "EMA": lambda x=closes, interval=12: talib.EMA(x, timeperiod=interval),
+        "WMA": lambda x=closes, interval=12: talib.WMA(x, timeperiod=interval),
+        "CCI": lambda interval=20: talib.CCI(highs, lows, closes, timeperiod=interval),
         "ROC": lambda x=closes, interval=12: talib.ROC(x, timeperiod=interval),
         "RSI": lambda x=closes, interval=14: talib.RSI(x, timeperiod=interval),
         "MFI": lambda interval=14: talib.MFI(
             highs, lows, closes, volumes, timeperiod=interval
         ),
-        # "SAR": lambda a=0.02, m=0.2, interval=0: talib.SAR(
-        #     highs, lows, acceleration=a, maximum=m
-        # ),
+        "SAR": lambda a=0.02, m=0.2, interval=0: talib.SAR(
+            highs, lows, acceleration=a, maximum=m
+        ),
         "ADX": lambda interval=14: talib.ADX(highs, lows, closes, timeperiod=interval),
     }
 
+    if config.included_indicators:
+        indicator_functions = {
+            func: indicator_functions[func] for func in config.included_indicators
+        }
+
     # Calculating indicators and converting to PyTorch tensors
-    if not config.included_indicators:
-        indicator_tensor_list = [
-            torch.tensor(np.array(func()), dtype=torch.float64).to(config.device)
-            for func in indicator_functions.values()
-        ]
-        # print(f"(indicators) indicator_tensor_list: {indicator_tensor_list[0]}")
-    else:
-        indicator_tensor_list = [
-            torch.tensor(np.array(indicator_functions[ind]()), dtype=torch.float64).to(
-                config.device
-            )
-            for ind in config.included_indicators
-        ]
+    indicator_tensor_list = [
+        Tensor(func(), dtype=torch.float64).to(config.device)
+        for func in indicator_functions.values()
+    ]
 
     # Stacking indicator tensors and handling NaN values
     indicator_time_series = torch.stack(indicator_tensor_list, dim=0)
@@ -86,13 +83,13 @@ def indicators(
     feature_windows = windows[..., :feature_window_size]
     target_windows = windows[..., feature_window_size:]
 
-    def temporal_embedding(dt: datetime) -> torch.Tensor:
+    def temporal_embedding(dt: datetime) -> Tensor:
         """
         Returns a tensor representing the temporal embedding for a given datetime object.
 
         Note: All values are normalized to be between 0 and 1.
         """
-        return torch.tensor(
+        return Tensor(
             [
                 dt.month / 12,
                 dt.weekday() / 7,
@@ -111,12 +108,6 @@ def indicators(
             [temporal_embedding(dt) for dt in datetimes],
             dim=0,
         )
-
-        # print(f"(indicators) temporal_embeddings.size(): {temporal_embeddings.size()}")
-        # print(f"(indicators) temporal_embeddings: {temporal_embeddings}")
-
-        # print(f"(indicators) feature_windows.size(): {feature_windows.size()}")
-        # print(f"(indicators) target_windows.size(): {target_windows.size()}\n")
 
     return feature_windows.squeeze(0), target_windows.squeeze(0)
 
@@ -147,14 +138,13 @@ def windows(stock_data: dict, config: TimeSeriesConfig) -> tuple[list, list]:
 
 
 def window_function(
-    stock_data: dict or list, config: TimeSeriesConfig
-) -> Callable[[dict or list, TimeSeriesConfig], tuple[list, list]]:
+    stock_data: dict | list,
+) -> Callable[[dict | list, TimeSeriesConfig], tuple[list, list]]:
     """
     A higher-order function that applies the `indicators` function to each stock in the input dictionary and
     aggregates the resulting feature and target windows into lists.
 
     :param stock_data: (dict or list): A dictionary of stock data or a list of dictionaries of stock data.
-    :param config: (TimeSeriesConfig): A configuration object for time series data.
     :return: (Callable): A function that applies the `indicators` function to each stock in the input dictionary and
     aggregates the resulting feature and target windows into lists.
     """
@@ -180,19 +170,19 @@ def window_function(
 
 
 def indicator_tensors(
-    stock_data: dict or list,
+    stock_data: dict | list,
     config: TimeSeriesConfig,
-) -> tuple[torch.Tensor, torch.Tensor]:
+) -> tuple[Tensor, Tensor]:
     """
     Applies the `indicators` function to each stock in the input dictionary and aggregates the resulting feature and
     target windows into tensors.
 
     :param stock_data: (dict or list): A dictionary of stock data or a list of dictionaries of stock data.
     :param config: (TimeSeriesConfig): A configuration object for time series data.
-    :return: tuple[torch.Tensor, torch.Tensor]: Two tensors representing feature windows and target windows.
+    :return: tuple[Tensor, Tensor]: Two tensors representing feature windows and target windows.
     """
     # Aggregating feature and target windows
-    feature_windows_list, target_windows_list = window_function(stock_data, config)(
+    feature_windows_list, target_windows_list = window_function(stock_data)(
         stock_data, config
     )
 
@@ -203,12 +193,6 @@ def indicator_tensors(
     feature_windows_tensor = feature_windows_tensor.permute(1, 2, 0)
     target_windows_tensor = target_windows_tensor.permute(1, 2, 0)
 
-    config.log.info(
-        rf"""
-        ({__name__})
-        feature_windows_tensor.shape: {feature_windows_tensor.shape}, 
-        target_windows_tensor.shape: {target_windows_tensor.shape}
-        """
-    )
+    config.log.info(f"feature windows shape: {feature_windows_tensor.shape}")
 
     return feature_windows_tensor, target_windows_tensor

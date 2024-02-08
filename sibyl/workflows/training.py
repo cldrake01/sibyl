@@ -9,7 +9,7 @@ from torch import Tensor
 from torch.utils.data import TensorDataset, DataLoader, random_split
 from tqdm import tqdm
 
-from sibyl import logger, find_root_dir, NullLogger, TimeSeriesConfig, TrainingConfig
+from sibyl import logger, find_root_dir, TimeSeriesConfig, TrainingConfig
 from sibyl.utils.models.dimformer.model import Dimformer
 from sibyl.utils.models.informer.model import Informer, DecoderOnlyInformer
 from sibyl.utils.preprocessing import indicator_tensors
@@ -25,9 +25,10 @@ def setup_environment():
 
 def load_and_preprocess_data(
     config: TimeSeriesConfig, file_path=None
-) -> tuple[torch.Tensor, torch.Tensor]:
-    if file_path is None:
-        file_path = f"{find_root_dir(os.path.dirname(__file__), 'README.md')}/assets/pkl/time_series.pkl"
+) -> tuple[Tensor, Tensor]:
+    root = find_root_dir(os.path.dirname(__file__), "README.md")
+
+    file_path = file_path or f"{root}/assets/pkl/time_series.pkl"
 
     if os.path.exists(file_path):
         with open(file_path, "rb") as f:
@@ -136,35 +137,17 @@ def normalize(*tensors: Tensor) -> tuple[Tensor, ...]:
     )
 
 
-def prepare_datasets(
-    X, y, train_size_ratio=0.9, batch_size=1
-) -> tuple[DataLoader, DataLoader]:
+def prepare_datasets(X, y, config: TrainingConfig) -> tuple[DataLoader, DataLoader]:
     total_samples = len(X)
-    train_size = int(total_samples * train_size_ratio)
+    train_size = int(total_samples * config.train_val_split)
     val_size = total_samples - train_size
     full_dataset = TensorDataset(X, y)
     train_dataset, val_dataset = random_split(full_dataset, [train_size, val_size])
-    train_loader = DataLoader(train_dataset, batch_size=batch_size, shuffle=False)
-    val_loader = DataLoader(val_dataset, batch_size=batch_size, shuffle=False)
+    train_loader = DataLoader(
+        train_dataset, batch_size=config.batch_size, shuffle=False
+    )
+    val_loader = DataLoader(val_dataset, batch_size=config.batch_size, shuffle=False)
     return train_loader, val_loader
-
-
-def early_stop_check(
-    loss, best_loss, patience, current_patience, model, log=NullLogger()
-):
-    if best_loss is None:
-        best_loss = loss
-
-    if loss < best_loss:
-        best_loss = loss
-        current_patience = 0
-    else:
-        current_patience += 1
-
-    if current_patience >= patience:
-        log.info(f"Early stopping triggered. Best loss: {best_loss}")
-        save_model(model)
-        exit(0)
 
 
 def train_model(
@@ -173,10 +156,9 @@ def train_model(
     val_loader,
     config: TrainingConfig,
 ):
-    criterion = config.loss_function_()()
-    optimizer = config.optimizer_()(model.parameters(), lr=config.learning_rate)
-
     model.to(config.device)
+    config.criterion = config.criterion().to(config.device)
+    config.optimizer = config.optimizer(model.parameters(), lr=config.learning_rate)
 
     for epoch in range(config.epochs):
         model.train()
@@ -185,11 +167,11 @@ def train_model(
 
         for window, (X, y) in enumerate(tqdm(train_loader)):
             X, y = X.to(config.device), y.to(config.device)
-            optimizer.zero_grad()
+            config.optimizer.zero_grad()
             y_hat = model(X, y)
-            loss = criterion(y_hat, y)
+            loss = config.criterion(y_hat, y)
             loss.backward()
-            optimizer.step()
+            config.optimizer.step()
             train_loss += loss.item()
             training_losses.append(loss.item())
 
@@ -213,7 +195,7 @@ def train_model(
                 for window, (X, y) in enumerate(val_loader):
                     X, y = X.to(config.device), y.to(config.device)
                     y_hat = model(X, y)
-                    loss = criterion(y_hat, y)
+                    loss = config.criterion(y_hat, y)
                     val_loss += loss.item()
                     validation_losses.append(loss.item())
 
@@ -271,18 +253,9 @@ def combined_plot(
         if features is None:
             features = range(X_.shape[1])
 
-        _ = list(
-            map(
-                lambda i: plt.plot(torch.cat((X_[:, i], y_[:, i])), "b", alpha=0.5),
-                features,
-            )
-        )
-        _ = list(
-            map(
-                lambda i: plt.plot(torch.cat((X_[:, i], y_hat_[:, i])), "r", alpha=0.5),
-                features,
-            )
-        )
+        for i in features:
+            plt.plot(torch.cat((X_[:, i], y_[:, i]), 0), "b", alpha=0.5)
+            plt.plot(torch.cat((X_[:, i], y_hat_[:, i]), 0), "r", alpha=0.5)
 
     # Second subplot for loss
     if config.plot_loss:
@@ -314,32 +287,32 @@ def combined_plot(
 
 def main():
     log = setup_environment()
-    features, targets = load_and_preprocess_data(
-        TimeSeriesConfig(
-            include_hashes=False,
-            include_temporal=False,
-            log=log,
-        )
+    time_series_config = TimeSeriesConfig(
+        include_hashes=False,
+        include_temporal=False,
+        included_indicators=["ROC", "RSI", "MFI", "ADX"],
+        log=log,
     )
+    features, targets = load_and_preprocess_data(time_series_config)
     X_norm, y_norm = normalize(features, targets)
     model = initialize_model(X_norm, y_norm, Dimformer)
-    train_loader, val_loader = prepare_datasets(X_norm, y_norm)
+    training_config = TrainingConfig(
+        validation=True,
+        epochs=10,
+        learning_rate=0.001,
+        criterion="MAE",
+        optimizer="AdamW",
+        plot_loss=True,
+        plot_predictions=True,
+        plot_interval=300,
+        log=log,
+    )
+    train_loader, val_loader = prepare_datasets(X_norm, y_norm, training_config)
     train_model(
         model=model,
         train_loader=train_loader,
         val_loader=val_loader,
-        config=TrainingConfig(
-            validation=True,
-            epochs=10,
-            batch_size=1,
-            learning_rate=0.001,
-            loss_function="MAE",
-            optimizer="AdamW",
-            plot_loss=True,
-            plot_predictions=True,
-            plot_interval=300,
-            log=log,
-        ),
+        config=training_config,
     )
 
 

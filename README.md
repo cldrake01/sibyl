@@ -1,33 +1,60 @@
 # Sibyl
 
-## Google Cloud Deployments
+## Overview
 
-We deploy a Kubernetes instance alongside a single Docker container for model training.
+There's an enormous amount of boilerplate associated with time series forecasting.
+Sibyl aims to simplify the process by providing a simple, modular,
+and extensible framework for time series forecasting.
 
-- **[divine-inference](https://hub.docker.com/repository/docker/collindrake/divine-inference/general)** -
-  *A Kubernetes instance containing [divine-inference](https://hub.docker.com/repository/docker/collindrake/divine-inference/general)
-  pods which run the inference process*
-- **[divine-erudition]()** -
-  *A Docker container that trains the Informer model and distributes the weights to Google Cloud Storage*
+## Sibyl's Assumptions
 
-## Structure
+Sibyl assumes several things about your data and your intentions:
 
-- ***[.github](.github)*** - *GitHub Actions*
-- ***[assets](assets)*** - *Model weights, etc.*
-- ***[kubernetes](kubernetes)*** - *Kubernetes manifests*
-- [environment.yml](environment.yml) - *Conda environment*
-- [skaffold.yml](skaffold.yml) - *Skaffold configuration file called by Google Cloud*
-- ***[sibyl/tests](sibyl/tests)*** - *Unit tests*
-- ***[sibyl/utils](sibyl/utils)*** - *Utility functions*
-- | [preprocessing.py](sibyl/utils/preprocessing.py) - *Preprocessing functions*
-- | [retrieval.py](sibyl/utils/retrieval.py) - *Retrieval functions*
-- | [tickers.py](sibyl/utils/tickers.py) - *A list of tickers*
-- | [weights.py](sibyl/utils/weights.py) - *Retrieves model weights from Google Cloud Storage*
-- ***[sibyl/workflows](sibyl/workflows)*** - *Training and inference workflows*
-- | [inference.py](sibyl/workflows/inference.py) - *Inference workflow*
-- | [training.py](sibyl/workflows/training.py) - *Training workflow*
+1. The data are time series data.
+2. You intend to forecast future values of the time series.
+3. The forecasting horizon is fixed and known in advance.
 
-**Note:** files prepended with `workflow` are used directly by the Docker image build process.
+Sibyl does not assume:
+
+1. The data are univariate.
+2. The data are regularly spaced.
+3. The data are stationary.
+4. The data are normally distributed.
+5. The data are free of missing values.
+6. The data are free of outliers.
+
+## Methodology
+
+### Normalization
+
+Sibyl normalizes the time series data using the following formula:
+
+```py
+torch.sign(tensor) * torch.log10(torch.abs(tensor) + 1.0)
+```
+
+Which can be expressed in LaTeX as:
+
+$$
+\text{sign}(x) \cdot \log_{10}(|x| + 1)
+$$
+
+### Windowing
+
+Sibyl creates a windowed dataset from the normalized time series data.
+The windowed dataset is a supervised learning problem where the target `y`
+is the next `target_window_size` values in the time series and the input `X` is a window of
+length `feature_window_size` of the time series data.
+
+## Sibyl's Components
+
+Sibyl is composed of several components:
+
+1. **Data**: Sibyl provides a simple interface for loading time series data.
+2. **Models**: Sibyl provides a simple interface for training and evaluating forecasting models.
+3. **Metrics**: Sibyl provides a simple interface for evaluating forecasting models.
+4. **Utilities**: Sibyl provides a simple interface for common time series operations.
+5. **Logging**: Sibyl provides a simple interface for logging.
 
 **Note:** [environment.yml](environment.yml) is used by the Docker image build process
 and can be created using `conda env export > environment.yml`.

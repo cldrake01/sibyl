@@ -33,7 +33,7 @@ class FullAttention(nn.Module):
 
     def forward(
         self, queries, keys, values, attn_mask
-    ) -> tuple[torch.Tensor, torch.Tensor] or torch.Tensor:
+    ) -> tuple[Tensor, Tensor] or Tensor:
         """
         Forward pass for Full Attention.
 
@@ -88,7 +88,7 @@ class ProbAttention(nn.Module):
         self.output_attention = output_attention
         self.dropout = nn.Dropout(attention_dropout)
 
-    def _prob_QK(self, Q, K, sample_k, n_top) -> tuple[torch.Tensor, torch.Tensor]:
+    def _prob_QK(self, Q, K, sample_k, n_top) -> tuple[Tensor, Tensor]:
         """
         Calculates the probabilistic scores between queries and keys.
 
@@ -125,7 +125,7 @@ class ProbAttention(nn.Module):
 
         return Q_K, M_top
 
-    def _get_initial_context(self, V, L_Q) -> torch.Tensor:
+    def _get_initial_context(self, V, L_Q) -> Tensor:
         """
         Initializes the context for the attention mechanism.
 
@@ -149,7 +149,7 @@ class ProbAttention(nn.Module):
 
     def _update_context(
         self, context_in, V, scores, index, L_Q, attn_mask
-    ) -> tuple[torch.Tensor, torch.Tensor] or torch.Tensor:
+    ) -> tuple[Tensor, Tensor] or Tensor:
         """
         Updates the context tensor with the attention mechanism.
 
@@ -182,9 +182,7 @@ class ProbAttention(nn.Module):
         else:
             return context_in, None
 
-    def forward(
-        self, queries, keys, values, attn_mask
-    ) -> tuple[torch.Tensor, torch.Tensor]:
+    def forward(self, queries, keys, values, attn_mask) -> tuple[Tensor, Tensor]:
         """
         Forward pass for the Probabilistic Attention mechanism.
 

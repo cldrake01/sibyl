@@ -40,15 +40,15 @@ class TimeSeriesConfig:
     Configuration for time series data.
     """
 
-    years: int or float = 0.05
-    max_workers: int = (len(tickers) // 2,)
-    feature_window_size = 60
-    target_window_size = 15
+    years: float = 0.05
+    max_workers: int = len(tickers) // 2
+    feature_window_size: int = 60
+    target_window_size: int = 15
     include_hashes: bool = False
     include_temporal: bool = False
     included_indicators: list[str] = None
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-    log: NullLogger or logging.Logger = NullLogger()
+    log: NullLogger | logging.Logger = NullLogger()
 
 
 @dataclass
@@ -60,36 +60,41 @@ class TrainingConfig:
     validation: bool = False
     epochs: int = 10  # Our dataset is quite large, so we don't need many epochs; especially on minute-by-minute data
     batch_size: int = 1
+    train_val_split: float = 0.9
     learning_rate: float = 0.001
-    loss_function: str = "MAE"
-    optimizer: str = "AdamW"
+    criterion: str | torch._Loss = "MAE"
+    optimizer: str | torch.optim.Optimizer = "AdamW"
     load_path: str = None
     save_path: str = None
     plot_loss: bool = False
     plot_predictions: bool = False
     plot_interval: int = 20
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-    log: NullLogger or logging.Logger = NullLogger()
+    log: NullLogger | logging.Logger = NullLogger()
 
-    def loss_function_(self) -> torch.nn.Module:
+    def __post_init__(self):
         """
-        Return the loss function based on the configuration.
+        Post-initialization method to set the criterion and optimizer.
+
+        Note that `self.criterion` and `self.optimizer` hold pointers to their respective classes.
+        Consequently, they must be instantiated before being used.
+        E.g.:
+        ```py
+        criterion = self.criterion(model.parameters(), ...)
+        optimizer = self.optimizer()
+        ```
         """
         loss_functions = {
             "MSE": torch.nn.MSELoss,
             "MAE": torch.nn.L1Loss,
         }
-        return loss_functions[self.loss_function]
+        self.criterion = loss_functions[self.criterion]
 
-    def optimizer_(self) -> torch.optim.Adam or torch.optim.AdamW:
-        """
-        Return the optimizer based on the configuration.
-        """
         optimizers = {
             "Adam": torch.optim.Adam,
             "AdamW": torch.optim.AdamW,
         }
-        return optimizers[self.optimizer]
+        self.optimizer = optimizers[self.optimizer]
 
 
 def find_root_dir(current_path, marker_file) -> str:
@@ -117,8 +122,6 @@ def logger(file_name: str) -> logging.Logger:
     log_directory = os.path.join(root_dir, "logs")
     log_file_path = os.path.join(log_directory, f"{file_name}.log")
 
-    print(f"Logging to {log_file_path}")
-
     # Create a logger
     log = logging.getLogger("my_logger")
     log.setLevel(logging.DEBUG)
@@ -127,7 +130,9 @@ def logger(file_name: str) -> logging.Logger:
     file_handler = logging.FileHandler(log_file_path)
 
     # Create a formatter to format log messages
-    formatter = logging.Formatter("%(asctime)s - %(levelname)s - %(message)s")
+    formatter = logging.Formatter(
+        "%(asctime)s - %(levelname)s - [%(funcName)s] - %(message)s"
+    )
 
     # Set the formatter for the file handler
     file_handler.setFormatter(formatter)

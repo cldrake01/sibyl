@@ -8,7 +8,7 @@ from sibyl.utils.tickers import tickers
 
 
 def alpaca_time_series(
-    stocks: list[str], start: datetime or str, end: datetime or str
+    stocks: list[str], start: datetime | str, end: datetime | str
 ) -> dict:
     """
     Retrieve time series data from the Alpaca API.
@@ -19,9 +19,9 @@ def alpaca_time_series(
     :return: dict: A dictionary of stock data.
     """
 
+    # Alpaca's API, whilst it does accept datetime objects, is prone to error when using them.
     if isinstance(start, datetime):
         start = start.strftime("%Y-%m-%d %H:%M:%S")
-
     if isinstance(end, datetime):
         end = end.strftime("%Y-%m-%d %H:%M:%S")
 
