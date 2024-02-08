@@ -39,6 +39,22 @@ $$
 \text{sign}(x) \cdot \log_{10}(|x| + 1)
 $$
 
+Why this form of normalization?
+
+Firstly, in any time series forecasting task, 
+it's crucial to avoid leaking future 
+data indirectly. Z-score normalization
+and min-max are both highly error prone,
+as they rescaled data themselves
+reveal information about the entire time
+series.
+
+Secondly, if your data comprise negative
+values ordinary logarithmic normalization
+techniques would suggest shifting 
+
+
+
 ### Windowing
 
 Sibyl creates a windowed dataset from the normalized time series data.
