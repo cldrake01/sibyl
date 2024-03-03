@@ -53,8 +53,7 @@ def indicators(
 
     # Calculating indicators and converting to PyTorch tensors
     indicator_tensor_list = [
-        Tensor(func(), dtype=torch.float64).to(config.device)
-        for func in indicator_functions.values()
+        Tensor(func()).to(config.device) for func in indicator_functions.values()
     ]
 
     # Stacking indicator tensors and handling NaN values
@@ -98,7 +97,6 @@ def indicators(
                 dt.minute / 60,
                 dt.second / 60,
             ],
-            dtype=torch.float64,
         ).to(config.device)
 
     # Adding temporal embeddings if required
@@ -117,18 +115,16 @@ def windows(stock_data: dict, config: TimeSeriesConfig) -> tuple[list, list]:
     Applies the `indicators` function to each stock in the input dictionary and aggregates the resulting feature and
     target windows into lists.
 
-    :param stock_data:
-    :param config:
+    :param stock_data: (dict): A dictionary of stock data.
+    :param config: (TimeSeriesConfig): A configuration object for time series data.
     :return tuple[list, list]: A tuple of lists representing feature windows and target windows.
     """
     target_windows_list, feature_windows_list = [], []
 
-    hashes = {ticker: hash(ticker) for ticker in stock_data.keys()}
-
-    for ticker, stock in stock_data.items():
+    for ticker, time_series in stock_data.items():
         feature_windows, target_windows = indicators(
-            time_series=stock,
-            stock_id=hashes[ticker],
+            time_series=time_series,
+            stock_id=hash(ticker),
             config=config,
         )
         feature_windows_list.append(feature_windows)

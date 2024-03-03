@@ -1,11 +1,15 @@
 import logging
 import os.path
 from dataclasses import dataclass
+from logging import Logger
 
 import torch
+from dotenv import load_dotenv
 
 from sibyl.utils.models.informer.model import Informer
 from sibyl.utils.tickers import tickers
+
+load_dotenv()
 
 ALPACA_API_KEY = os.getenv("ALPACA_API_KEY")
 ALPACA_API_SECRET = os.getenv("ALPACA_API_SECRET")
@@ -36,6 +40,7 @@ class NullLogger:
 
 @dataclass
 class TimeSeriesConfig:
+
     """
     Configuration for time series data.
     """
@@ -44,6 +49,7 @@ class TimeSeriesConfig:
     max_workers: int = len(tickers) // 2
     feature_window_size: int = 60
     target_window_size: int = 15
+    rate: int = 125
     include_hashes: bool = False
     include_temporal: bool = False
     included_indicators: list[str] = None
@@ -62,7 +68,7 @@ class TrainingConfig:
     batch_size: int = 1
     train_val_split: float = 0.9
     learning_rate: float = 0.001
-    criterion: str | torch._Loss = "MAE"
+    criterion: str | torch.nn.modules.loss._Loss = "MSE"
     optimizer: str | torch.optim.Optimizer = "AdamW"
     load_path: str = None
     save_path: str = None
@@ -111,7 +117,7 @@ def find_root_dir(current_path, marker_file) -> str:
         return find_root_dir(parent, marker_file)
 
 
-def logger(file_name: str) -> logging.Logger:
+def logger(file_name: str) -> Logger:
     """
     Setup logging configuration
 

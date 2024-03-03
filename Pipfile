@@ -1,0 +1,22 @@
+[[source]]
+url = "https://pypi.org/simple"
+verify_ssl = true
+name = "pypi"
+
+[packages]
+pandas = "*"
+torch = "*"
+tqdm = "*"
+matplotlib = "*"
+alpaca-py = "*"
+ta-lib = "*"
+einx = "*"
+beartype = "*"
+python-dotenv = "*"
+flash-attn = "*"
+triton = "*"
+
+[dev-packages]
+
+[requires]
+python_version = "3.12"

@@ -1,7 +1,7 @@
-from concurrent.futures import ThreadPoolExecutor
 from datetime import datetime, timedelta
 
 from alpaca.data import TimeFrame, StockBarsRequest, StockHistoricalDataClient
+from tqdm import tqdm
 
 from sibyl import ALPACA_API_KEY, ALPACA_API_SECRET, TimeSeriesConfig
 from sibyl.utils.tickers import tickers
@@ -26,8 +26,8 @@ def alpaca_time_series(
         end = end.strftime("%Y-%m-%d %H:%M:%S")
 
     client = StockHistoricalDataClient(
-        ALPACA_API_KEY,
-        ALPACA_API_SECRET,
+        api_key=ALPACA_API_KEY,
+        secret_key=ALPACA_API_SECRET,
     )
 
     # url_override="https://data.alpaca.markets",
@@ -42,32 +42,30 @@ def alpaca_time_series(
     return client.get_stock_bars(params).data
 
 
-def fetch_data(
-    config: TimeSeriesConfig,
-) -> list:
+def fetch_data(config: TimeSeriesConfig) -> list:
     """
     Retrieve data from the Alpaca API for a given number of years using multiple worker-threads.
 
     :param config: (TimeSeriesConfig): A configuration object for time series data.
     :return: list: A list of bars for a given stock.
     """
-    # Retrieve data from the Alpaca API
     config.log.info("Retrieving data from the Alpaca API...")
-    config.log.info(f"Maximum Worker-threads: {config.max_workers}")
 
-    with ThreadPoolExecutor(max_workers=config.max_workers) as executor:
-        futures = [
-            executor.submit(
-                alpaca_time_series,
+    # Partitioning the tickers
+    partitions = [tickers[i : i + config.rate] for i in range(0, len(tickers), config.rate)]
+    config.log.info(f"Partitioned tickers into {len(partitions)} partitions.")
+
+    data = []
+
+    for ticker in tqdm(tickers, desc="Retrieving Data"):
+        data.append(
+            alpaca_time_series(
                 [ticker],
                 datetime.today() - timedelta(365 * config.years),
                 datetime.today(),
             )
-            for ticker in tickers
-        ]
+        )
 
-    # Collecting results
-    data = [future.result() for future in futures]
     config.log.info("Retrieved data from the Alpaca API.")
 
     return data
