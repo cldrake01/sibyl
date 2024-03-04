@@ -9,7 +9,12 @@ from beartype import beartype
 from torch import Tensor
 from torch.autograd.function import Function
 
-from sibyl.utils.models.ring.ring import get_world_size, get_rank, all_ring_pass, null_ring_pass
+from sibyl.utils.models.ring.ring import (
+    get_world_size,
+    get_rank,
+    all_ring_pass,
+    null_ring_pass,
+)
 
 
 # helpers

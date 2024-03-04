@@ -3,16 +3,24 @@ from typing import Optional
 
 import einx
 import torch
+import torch.nn.functional as F
 from beartype import beartype
 from einx import rearrange
 from torch import Tensor
 from torch.autograd.function import Function
 
-from sibyl.utils.models.ring.ring import get_rank, null_ring_pass, all_ring_pass, ring_pass, get_world_size
+from sibyl.utils.models.ring.ring import (
+    get_rank,
+    null_ring_pass,
+    all_ring_pass,
+    ring_pass,
+    get_world_size,
+)
 
 # constants
 
 EPSILON = 1e-10
+
 
 # helper functions
 
@@ -157,9 +165,16 @@ class RingFlashAttentionFunction(Function):
 
                     row_bucket_index = row_ring_rank * per_machine_buckets + ind
 
-                    qc, kc = qc.unsqueeze(0), kc.unsqueeze(0)
+                    qc, kc, vc, oc = (
+                        qc.unsqueeze(0),
+                        kc.unsqueeze(0),
+                        vc.unsqueeze(0),
+                        oc.unsqueeze(0),
+                    )
 
-                    attn_weights = torch.einsum("b i h d, b j h d -> b h i j", qc, kc) * scale
+                    attn_weights = (
+                        torch.einsum("b i h d, b j h d -> b h i j", qc, kc) * scale
+                    )
 
                     if exists(col_mask):
                         attn_weights = einx.where(
@@ -195,7 +210,26 @@ class RingFlashAttentionFunction(Function):
                             elif row_bucket_index < col_bucket_index:
                                 attn_weights.fill_(max_neg_value)
 
-                    block_row_maxes = attn_weights.amax(dim=-1, keepdims=True)
+                    block_row_maxes = attn_weights.amax(dim=-1, keepdim=True)
+
+                    row_maxes = row_maxes.permute(3, 2, 0, 1)
+                    row_maxes = F.interpolate(
+                        row_maxes,
+                        size=(block_row_maxes.size(-2), block_row_maxes.size(-1)),
+                        mode="bilinear",
+                        align_corners=False,
+                    )
+
+                    row_sums = row_sums.permute(3, 2, 0, 1)
+                    row_sums = F.interpolate(
+                        row_sums,
+                        size=(block_row_maxes.size(-2), block_row_maxes.size(-1)),
+                        mode="bilinear",
+                        align_corners=False,
+                    )
+
+                    # Match the dimensions of `row_maxes` and `row_sums` to `block_row_maxes`
+
                     new_row_maxes = torch.maximum(block_row_maxes, row_maxes)
 
                     exp_weights = torch.exp(attn_weights - new_row_maxes)
@@ -205,23 +239,28 @@ class RingFlashAttentionFunction(Function):
                             "b j, b h i j, -> b h i j", col_mask, exp_weights, 0.0
                         )
 
-                    block_row_sums = exp_weights.sum(dim=-1, keepdims=True).clamp(
+                    block_row_sums = exp_weights.sum(dim=-1, keepdim=True).clamp(
                         min=EPSILON
                     )
 
-                    exp_values = torch.einsum("b h i j, b j h d -> b i h d", exp_weights, vc)
+                    exp_values = torch.einsum(
+                        "b h i j, b j h d -> b i h d", exp_weights, vc
+                    )
 
                     exp_row_max_diff = torch.exp(row_maxes - new_row_maxes)
 
                     new_row_sums = exp_row_max_diff * row_sums + block_row_sums
 
                     exp_row_max_diff = rearrange("b h n 1 -> b n h 1", exp_row_max_diff)
+
                     oc.mul_(exp_row_max_diff).add_(exp_values)
 
                     row_maxes.copy_(new_row_maxes)
                     row_sums.copy_(new_row_sums)
 
-        o.div_(rearrange("b h n 1 -> b n h 1", all_row_sums))
+        o = o.unsqueeze(-1).permute(0, 2, 1, 3)
+
+        o.div_(all_row_sums)
 
         lse = all_row_sums.clamp(min=EPSILON).log() + all_row_maxes
 
@@ -319,7 +358,9 @@ class RingFlashAttentionFunction(Function):
 
                     qk_len_diff = kc.shape[-3] - qc.shape[-3]
 
-                    attn_weights = torch.einsum("b i h d, b j h d -> b h i j", qc, kc) * scale
+                    attn_weights = (
+                        torch.einsum("b i h d, b j h d -> b h i j", qc, kc) * scale
+                    )
 
                     if causal:
                         if (row_bucket_index - col_bucket_index) > num_lookback_buckets:

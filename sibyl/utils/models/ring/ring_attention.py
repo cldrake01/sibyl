@@ -321,7 +321,9 @@ class RingAttention(Module):
                 if exists(mask):
                     mask = rearrange("b (i j) -> b (j i)", mask, i=self.bucket_size)
 
-            (x, mask), batch_sizes = sharded_batch_to_sharded_seq(x, mask, self.ring_seq_size)
+            (x, mask), batch_sizes = sharded_batch_to_sharded_seq(
+                x, mask, self.ring_seq_size
+            )
 
         qkv = self.to_qkv(x).unsqueeze(0)
 
@@ -371,7 +373,11 @@ class RingAttention(Module):
 
         # combine heads
 
-        out = rearrange("b n h d -> b n (h d)", out)
+        print(f"{out.size() = }")
+        out = rearrange("b n h d -> n (h d)", out)
+        print(f"{out.size() = }")
+        out = out.sum(0)
+        print(f"{out.size() = }")
         out = self.to_out(out)
 
         if auto_shard_seq:
@@ -394,7 +400,7 @@ class RMSNorm(Module):
         return F.normalize(x, dim=-1) * self.scale * self.gamma
 
 
-def FeedForward(dim, mult=4):
+def feed_forward(dim, mult=4):
     dim_inner = int(dim * mult)
     return nn.Sequential(
         RMSNorm(dim), nn.Linear(dim, dim_inner), nn.GELU(), nn.Linear(dim_inner, dim)
@@ -471,7 +477,7 @@ class RingTransformer(Module):
                             striped_ring_attn=striped_ring_attn,
                             auto_shard_seq=False,
                         ),
-                        FeedForward(dim=dim, mult=ff_mult),
+                        feed_forward(dim=dim, mult=ff_mult),
                     ]
                 )
             )
@@ -581,13 +587,7 @@ class RingTransformer(Module):
             logits = logits.sum(-1)
             labels = labels.sum(-1)
 
-            print(f"{logits.size() = }")
-            print(f"{labels.size() = }")
-
             logits = rearrange("b n c -> b c n", logits)
-
-            print(f"{logits.size() = }")
-            print(f"{labels.size() = }")
 
             ce_loss = F.cross_entropy(logits, labels, ignore_index=self.ignore_index)
 
@@ -598,7 +598,7 @@ class RingTransformer(Module):
         if not auto_shard_seq:
             return logits
 
-        logits = sharded_seq_to_sharded_batch(logits, batch_sizes, num_sharded_batches)
+        logits = sharded_seq_io_sharded_batch(logits, batch_sizes, num_sharded_batches)
 
         if self.striped_ring_attn:
             logits = rearrange("b (i j) d -> b (j i) d", logits, j=self.bucket_size)

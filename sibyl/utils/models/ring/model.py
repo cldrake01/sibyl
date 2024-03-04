@@ -54,23 +54,27 @@ class Ring(nn.Module):
         # Attention
         Attn = RingAttention
         # Encoder
-        self.encoder = Encoder(
-            [
-                EncoderLayer(
-                    Attn(
-                        dim=d_model,
-                        striped_ring_attn=True,
-                    ),
-                    d_model,
-                    d_ff,
-                    dropout=dropout,
-                    activation=activation,
-                )
-                for _ in range(e_layers)
-            ],
-            [ConvLayer(d_model) for _ in range(e_layers - 1)] if distil else None,
-            norm_layer=torch.nn.LayerNorm(d_model),
-        ) if encoder else None
+        self.encoder = (
+            Encoder(
+                [
+                    EncoderLayer(
+                        Attn(
+                            dim=d_model,
+                            striped_ring_attn=True,
+                        ),
+                        d_model,
+                        d_ff,
+                        dropout=dropout,
+                        activation=activation,
+                    )
+                    for _ in range(e_layers)
+                ],
+                [ConvLayer(d_model) for _ in range(e_layers - 1)] if distil else None,
+                norm_layer=torch.nn.LayerNorm(d_model),
+            )
+            if encoder
+            else None
+        )
         # Decoder
         self.decoder = Decoder(
             [
@@ -104,12 +108,12 @@ class Ring(nn.Module):
         self.projection = nn.Linear(d_model, c_out, bias=True)
 
     def forward(
-            self,
-            x_enc,
-            x_dec,
-            enc_self_mask=None,
-            dec_self_mask=None,
-            dec_enc_mask=None,
+        self,
+        x_enc,
+        x_dec,
+        enc_self_mask=None,
+        dec_self_mask=None,
+        dec_enc_mask=None,
     ):
         attentions = None
         enc_out = self.enc_embedding(x_enc.size(1))
