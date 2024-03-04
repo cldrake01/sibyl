@@ -306,7 +306,8 @@ def plot(
         # )
 
     # Show the combined plot
-    plt.show()
+    if config.plot_predictions or config.plot_loss:
+        plt.show()
 
 
 def main():
@@ -324,6 +325,8 @@ def main():
     """
     log = setup_environment()
     time_series_config = TimeSeriesConfig(
+        feature_window_size=120,
+        target_window_size=15,
         include_hashes=False,
         include_temporal=False,
         included_indicators=["ROC", "RSI", "MFI", "ADX"],
@@ -332,12 +335,12 @@ def main():
     )
     features, targets = load_and_preprocess_data(time_series_config)
     X_norm, y_norm = normalize(features, targets)
-    model = initialize_model(X_norm, y_norm, RingTransformer)
+    model = initialize_model(X_norm, y_norm, Dimformer)
     training_config = TrainingConfig(
         validation=True,
         epochs=10,
         learning_rate=0.001,
-        criterion="MAE",
+        criterion="Stoch",
         optimizer="AdamW",
         plot_loss=True,
         plot_predictions=True,

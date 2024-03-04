@@ -6,6 +6,7 @@ from logging import Logger
 import torch
 from dotenv import load_dotenv
 
+from sibyl.utils.loss import StochLoss
 from sibyl.utils.models.informer.model import Informer
 from sibyl.utils.tickers import tickers
 
@@ -22,25 +23,19 @@ class NullLogger:
     A logger that does nothing.
     """
 
-    def __init__(self, *args, **kwargs):
-        ...
+    def __init__(self, *args, **kwargs): ...
 
-    def info(self, *args, **kwargs):
-        ...
+    def info(self, *args, **kwargs): ...
 
-    def debug(self, *args, **kwargs):
-        ...
+    def debug(self, *args, **kwargs): ...
 
-    def warning(self, *args, **kwargs):
-        ...
+    def warning(self, *args, **kwargs): ...
 
-    def error(self, *args, **kwargs):
-        ...
+    def error(self, *args, **kwargs): ...
 
 
 @dataclass
 class TimeSeriesConfig:
-
     """
     Configuration for time series data.
     """
@@ -64,7 +59,9 @@ class TrainingConfig:
     """
 
     validation: bool = False
-    epochs: int = 10  # Our dataset is quite large, so we don't need many epochs; especially on minute-by-minute data
+    epochs: int = (
+        10  # Our dataset is quite large, so we don't need many epochs; especially on minute-by-minute data
+    )
     batch_size: int = 1
     train_val_split: float = 0.9
     learning_rate: float = 0.001
@@ -91,6 +88,7 @@ class TrainingConfig:
         ```
         """
         loss_functions = {
+            "Stoch": StochLoss,
             "MSE": torch.nn.MSELoss,
             "MAE": torch.nn.L1Loss,
         }
