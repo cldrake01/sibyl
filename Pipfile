@@ -13,8 +13,11 @@ ta-lib = "*"
 einx = "*"
 beartype = "*"
 python-dotenv = "*"
+<<<<<<< HEAD
 flash-attn = "*"
 triton = "*"
+=======
+>>>>>>> 04e14f0 (//)
 
 [dev-packages]
 

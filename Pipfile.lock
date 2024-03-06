@@ -18,12 +18,21 @@
     "default": {
         "alpaca-py": {
             "hashes": [
+<<<<<<< HEAD
                 "sha256:5ed97f0084d5d5fc69c2573131efc3b508777282bc1eb66b08fac2ace10b8644",
                 "sha256:6c2c8b186f9848da8a73e0aee8c70c5949179dca375240a53776d1fc2dc17bf6"
             ],
             "index": "pypi",
             "markers": "python_full_version >= '3.8.0' and python_full_version < '4.0.0'",
             "version": "==0.16.0"
+=======
+                "sha256:1d20d4d84fd7a57fd037c5df1fe68a91c352952e005e6a392a71d43f43a924b2",
+                "sha256:c664729654855eb504836853728911fd9b7e486b1947ab83531df4bcc9e7bd81"
+            ],
+            "index": "pypi",
+            "markers": "python_full_version >= '3.8.0' and python_full_version < '4.0.0'",
+            "version": "==0.17.0"
+>>>>>>> 04e14f0 (//)
         },
         "annotated-types": {
             "hashes": [
@@ -662,7 +671,11 @@
                 "sha256:f870204a840a60da0b12273ef34f7051e98c3b5961b61b0c2c1be6dfd64fbcd3",
                 "sha256:ffa75af20b44f8dba823498024771d5ac50620e6915abac414251bd971b4529f"
             ],
+<<<<<<< HEAD
             "markers": "python_version >= '3.9'",
+=======
+            "markers": "python_version >= '3.12'",
+>>>>>>> 04e14f0 (//)
             "version": "==1.26.4"
         },
         "packaging": {
@@ -878,11 +891,19 @@
         },
         "pyparsing": {
             "hashes": [
+<<<<<<< HEAD
                 "sha256:32c7c0b711493c72ff18a981d24f28aaf9c1fb7ed5e9667c9e84e3db623bdbfb",
                 "sha256:ede28a1a32462f5a9705e07aea48001a08f7cf81a021585011deba701581a0db"
             ],
             "markers": "python_full_version >= '3.6.8'",
             "version": "==3.1.1"
+=======
+                "sha256:a1bac0ce561155ecc3ed78ca94d3c9378656ad4c94c1270de543f621420f94ad",
+                "sha256:f9db75911801ed778fe61bb643079ff86601aca99fcae6345aa67292038fb742"
+            ],
+            "markers": "python_full_version >= '3.6.8'",
+            "version": "==3.1.2"
+>>>>>>> 04e14f0 (//)
         },
         "python-dateutil": {
             "hashes": [
