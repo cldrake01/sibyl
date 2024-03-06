@@ -22,12 +22,11 @@ class StochLoss(nn.Module):
     def _exponential(self, target: Tensor) -> Tensor:
         return torch.exp(self._linear(target))
 
-    def forward(self, input: Tensor, target: Tensor) -> tuple[Tensor, Tensor]:
-        mse = torch.nn.functional.mse_loss(input, target)
+    def forward(self, input: Tensor, target: Tensor) -> Tensor:
         weights = self.func(target)
         errors = input - target
         # We divide because our steps are between 0 and 1.
         errors = errors.mT * weights
         errors **= 2
         loss = errors.mean()
-        return loss, mse
+        return loss
