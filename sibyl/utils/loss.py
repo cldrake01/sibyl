@@ -16,16 +16,15 @@ class StochLoss(nn.Module):
             self._linear if increase_type == "linear" else self._exponential
         )
 
-    def _linear(self, target: Tensor) -> Tensor:
-        return torch.linspace(1, 10, steps=target.size(self.dim))
+    def _linear(self, y_hat: Tensor) -> Tensor:
+        return torch.linspace(1, 10, steps=y_hat.size(self.dim))
 
-    def _exponential(self, target: Tensor) -> Tensor:
-        return torch.exp(self._linear(target))
+    def _exponential(self, y_hat: Tensor) -> Tensor:
+        return torch.exp(self._linear(y_hat))
 
-    def forward(self, input: Tensor, target: Tensor) -> Tensor:
-        weights = self.func(target)
-        errors = input - target
-        # We divide because our steps are between 0 and 1.
+    def forward(self, y: Tensor, y_hat: Tensor) -> Tensor:
+        weights = self.func(y_hat)
+        errors = y - y_hat
         errors = errors.mT * weights
         errors **= 2
         loss = errors.mean()

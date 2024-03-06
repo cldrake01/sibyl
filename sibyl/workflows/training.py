@@ -194,7 +194,7 @@ def train_model(
             config.optimizer.zero_grad()
             y_hat = model(X, y)
             loss = config.criterion(y_hat, y)
-            print(loss.item())
+            print(loss)
             loss.backward()
             config.optimizer.step()
             train_loss += loss.item()
@@ -344,7 +344,7 @@ def main():
         validation=True,
         epochs=10,
         learning_rate=0.001,
-        criterion="MSE",
+        criterion="Stoch",
         optimizer="AdamW",
         plot_loss=True,
         plot_predictions=True,
