@@ -182,7 +182,7 @@ def train_model(
     config: TrainingConfig,
 ):
     model.to(config.device)
-    config.criterion = config.criterion().to(config.device)
+    config.criterion = config.criterion()
     config.optimizer = config.optimizer(model.parameters(), lr=config.learning_rate)
 
     for epoch in range(config.epochs):
@@ -191,10 +191,10 @@ def train_model(
         train_loss = 0.0  # Reset train loss for the epoch
 
         for window, (X, y) in enumerate(tqdm(train_loader)):
-            X, y = X.to(config.device), y.to(config.device)
             config.optimizer.zero_grad()
             y_hat = model(X, y)
             loss = config.criterion(y_hat, y)
+            print(loss.item())
             loss.backward()
             config.optimizer.step()
             train_loss += loss.item()
@@ -218,7 +218,6 @@ def train_model(
             val_loss = 0.0  # Reset validation loss for the epoch
             with torch.no_grad():
                 for window, (X, y) in enumerate(val_loader):
-                    X, y = X.to(config.device), y.to(config.device)
                     y_hat = model(X)
                     loss = config.criterion(y_hat, y)
                     val_loss += loss.item()
@@ -329,7 +328,12 @@ def main():
         target_window_size=15,
         include_hashes=False,
         include_temporal=False,
-        included_indicators=["ROC", "RSI", "MFI", "ADX"],
+        included_indicators=[
+            "ROC",
+            "RSI",
+            # "MFI",
+            "ADX",
+        ],
         log=log,
         years=0.01,
     )
@@ -340,7 +344,7 @@ def main():
         validation=True,
         epochs=10,
         learning_rate=0.001,
-        criterion="Stoch",
+        criterion="MSE",
         optimizer="AdamW",
         plot_loss=True,
         plot_predictions=True,

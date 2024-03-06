@@ -18,6 +18,20 @@ ALPACA_WEBSOCKET_KEY = os.getenv("ALPACA_WEBSOCKET_KEY")
 ALPACA_WEBSOCKET_SECRET = os.getenv("ALPACA_WEBSOCKET_SECRET")
 
 
+def find_root_dir(current_path, marker_file) -> str:
+    """
+    Recursively find the root directory by looking for a marker file or directory.
+    """
+    if os.path.exists(os.path.join(current_path, marker_file)):
+        return current_path
+    else:
+        parent = os.path.dirname(current_path)
+        if parent == current_path:
+            # Root directory reached without finding the marker
+            raise FileNotFoundError(f"Root directory marker '{marker_file}' not found.")
+        return find_root_dir(parent, marker_file)
+
+
 class NullLogger:
     """
     A logger that does nothing.
@@ -59,12 +73,14 @@ class TrainingConfig:
     """
 
     validation: bool = False
-    epochs: int = (
-        10  # Our dataset is quite large, so we don't need many epochs; especially on minute-by-minute data
-    )
+    # Our dataset is quite large, so we don't need many epochs; especially on minute-by-minute data
+    epochs: int = 10
     batch_size: int = 1
     train_val_split: float = 0.9
     learning_rate: float = 0.001
+    loss_file: str = (
+        find_root_dir(os.path.dirname(__file__), "README.md") + "/assets/pkl/loss.pkl"
+    )
     criterion: str | torch.nn.modules.loss._Loss = "MSE"
     optimizer: str | torch.optim.Optimizer = "AdamW"
     load_path: str = None
@@ -99,20 +115,6 @@ class TrainingConfig:
             "AdamW": torch.optim.AdamW,
         }
         self.optimizer = optimizers[self.optimizer]
-
-
-def find_root_dir(current_path, marker_file) -> str:
-    """
-    Recursively find the root directory by looking for a marker file or directory.
-    """
-    if os.path.exists(os.path.join(current_path, marker_file)):
-        return current_path
-    else:
-        parent = os.path.dirname(current_path)
-        if parent == current_path:
-            # Root directory reached without finding the marker
-            raise FileNotFoundError(f"Root directory marker '{marker_file}' not found.")
-        return find_root_dir(parent, marker_file)
 
 
 def logger(file_name: str) -> Logger:

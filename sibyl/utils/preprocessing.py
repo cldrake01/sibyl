@@ -24,6 +24,7 @@ def indicators(
     """
     # Extracting data points for indicators
     datetimes = [bar.timestamp for bar in time_series]
+    opens = np.array([bar.open for bar in time_series], dtype=np.float64)
     closes = np.array([bar.close for bar in time_series], dtype=np.float64)
     highs = np.array([bar.high for bar in time_series], dtype=np.float64)
     lows = np.array([bar.low for bar in time_series], dtype=np.float64)
