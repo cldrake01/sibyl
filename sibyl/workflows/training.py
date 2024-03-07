@@ -25,7 +25,7 @@ def setup_environment():
 
 
 def load_and_preprocess_data(
-    config: TimeSeriesConfig, file_path: str | None = None
+        config: TimeSeriesConfig, file_path: str | None = None
 ) -> tuple[Tensor, Tensor]:
     root = find_root_dir(os.path.dirname(__file__), "README.md")
 
@@ -38,6 +38,8 @@ def load_and_preprocess_data(
     else:
         time_series = fetch_data(config=config)
         config.log.info("Creating pickle file...")
+        if not os.path.exists(os.path.dirname(file_path)):
+            os.makedirs(os.path.dirname(file_path))
         with open(file_path, "wb") as f:
             pickle.dump(time_series, f)
 
@@ -161,7 +163,7 @@ def normalize(*tensors: Tensor) -> tuple[Tensor, ...]:
 
 
 def prepare_datasets(
-    X: Tensor, y: Tensor, config: TrainingConfig
+        X: Tensor, y: Tensor, config: TrainingConfig
 ) -> tuple[DataLoader, DataLoader]:
     total_samples = len(X)
     train_size = int(total_samples * config.train_val_split)
@@ -176,10 +178,10 @@ def prepare_datasets(
 
 
 def train_model(
-    model: torch.nn.Module,
-    train_loader: DataLoader,
-    val_loader: DataLoader,
-    config: TrainingConfig,
+        model: torch.nn.Module,
+        train_loader: DataLoader,
+        val_loader: DataLoader,
+        config: TrainingConfig,
 ):
     model.to(config.device)
     config.criterion = config.criterion()
@@ -241,12 +243,12 @@ def save_model(model, path=None):
 
 
 def plot(
-    X: Tensor,
-    y: Tensor,
-    y_hat: Tensor,
-    loss: list[float],
-    config: TrainingConfig,
-    features: list[int] = None,
+        X: Tensor,
+        y: Tensor,
+        y_hat: Tensor,
+        loss: list[float],
+        config: TrainingConfig,
+        features: list[int] = None,
 ):
     """
     Plot both the predicted vs actual values and the loss on the same graph.
@@ -307,6 +309,8 @@ def plot(
     # Show the combined plot
     if config.plot_predictions or config.plot_loss:
         plt.show()
+        # Save the combined plot to `plots/latest.png`
+        plt.savefig(f"{find_root_dir(os.path.dirname(__file__), 'README.md')}/plots/latest.png")
 
 
 def main():

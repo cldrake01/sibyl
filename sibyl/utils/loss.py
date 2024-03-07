@@ -23,9 +23,21 @@ class StochLoss(nn.Module):
         return torch.exp(self._linear(y_hat))
 
     def forward(self, y: Tensor, y_hat: Tensor) -> Tensor:
-        weights = self.func(y_hat)
+        # weights = self.func(y_hat)
+        # errors = y - y_hat
+        # errors = errors.mT * weights
+        # errors **= 2
+        # loss = errors.mean()
+        # [1, 15, 4] -> [15, 4]
+        y, y_hat = y.squeeze(), y_hat.squeeze()
+        # We multiply by 100 because covariance matrices contain values between -1 and 1
+        y_cov, y_hat_cov = y.cov() * 100, y_hat.cov() * 100
+        y, y_hat = y * y_cov, y_hat * y_hat_cov
+        print(y)
+        print(y.size())
+        print(y_hat)
+        print(y_hat.size())
         errors = y - y_hat
-        errors = errors.mT * weights
         errors **= 2
         loss = errors.mean()
         return loss

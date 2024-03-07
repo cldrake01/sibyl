@@ -4,20 +4,13 @@ verify_ssl = true
 name = "pypi"
 
 [packages]
-pandas = "*"
 torch = "*"
-tqdm = "*"
-matplotlib = "*"
-alpaca-py = "*"
 ta-lib = "*"
-einx = "*"
-beartype = "*"
 python-dotenv = "*"
-<<<<<<< HEAD
-flash-attn = "*"
-triton = "*"
-=======
->>>>>>> 04e14f0 (//)
+pandas = "*"
+matplotlib = "*"
+tqdm = "*"
+alpaca-py = "*"
 
 [dev-packages]
 

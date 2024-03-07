@@ -22,7 +22,14 @@ def find_root_dir(current_path, marker_file) -> str:
     """
     Recursively find the root directory by looking for a marker file or directory.
     """
-    return os.getcwd()
+    if os.path.exists(os.path.join(current_path, marker_file)):
+        return current_path
+    else:
+        parent = os.path.dirname(current_path)
+        if parent == current_path:
+            # Root directory reached without finding the marker
+            raise FileNotFoundError(f"Root directory marker '{marker_file}' not found.")
+        return find_root_dir(parent, marker_file)
 
 
 class NullLogger:
@@ -72,7 +79,7 @@ class TrainingConfig:
     train_val_split: float = 0.9
     learning_rate: float = 0.001
     loss_file: str = (
-        find_root_dir(os.path.dirname(__file__), "README.md") + "/assets/pkl/loss.pkl"
+            find_root_dir(os.path.dirname(__file__), "README.md") + "/assets/pkl/loss.pkl"
     )
     criterion: str | torch.nn.modules.loss._Loss = "MSE"
     optimizer: str | torch.optim.Optimizer = "AdamW"
@@ -120,6 +127,15 @@ def logger(file_name: str) -> Logger:
     root_dir = find_root_dir(os.path.dirname(__file__), "README.md")
     log_directory = os.path.join(root_dir, "logs")
     log_file_path = os.path.join(log_directory, f"{file_name}.log")
+
+    # Create the log directory if it doesn't exist
+    if not os.path.exists(log_directory):
+        os.makedirs(log_directory)
+
+    # Create the log file if it doesn't exist
+    if not os.path.exists(log_file_path):
+        with open(log_file_path, "w") as f:
+            f.write("")
 
     # Create a logger
     log = logging.getLogger("my_logger")
