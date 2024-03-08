@@ -23,3 +23,17 @@ class StochLoss(nn.Module):
         errors **= 2
         loss = errors.mean()
         return loss
+
+class EigenLoss(nn.Module):
+    def __init__(
+            self,
+            dim: int = 1,
+    ):
+        super(StochLoss, self).__init__()
+        self.dim: int = dim
+
+    def _weights(self, t: Tensor) -> Tensor:
+        return 0
+
+    def forward(self, y: Tensor, y_hat: Tensor) -> Tensor:
+        return 0
