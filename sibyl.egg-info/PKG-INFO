@@ -5,7 +5,7 @@ Summary: A package for stock price prediction using deep learning.
 Home-page: https://github.com/cldrake01/sibyl
 Author: cldrake01
 Author-email: collinlindendrake@gmail.com
-Requires-Python: >=3.10
+Requires-Python: >=3.12
 Description-Content-Type: text/markdown
 
 # Sibyl

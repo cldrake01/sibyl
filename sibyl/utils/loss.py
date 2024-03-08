@@ -13,13 +13,11 @@ class StochLoss(nn.Module):
 
     def _weights(self, t: Tensor) -> Tensor:
         n = t.size(self.dim)
-        l = torch.linspace(1, n, n).int()
+        l = torch.linspace(1, n, n  ).int()
         w = torch.repeat_interleave(t, l, dim=self.dim)
         return w
 
     def forward(self, y: Tensor, y_hat: Tensor) -> Tensor:
-        errors = y - y_hat
-        errors = self._weights(errors)
-        errors **= 2
-        loss = errors.mean()
+        errors = self._weights(y - y_hat)**2
+        loss = errors.var()
         return loss

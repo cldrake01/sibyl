@@ -11,6 +11,7 @@ pandas = "*"
 matplotlib = "*"
 tqdm = "*"
 alpaca-py = "*"
+setuptools = "*"
 
 [dev-packages]
 

@@ -146,7 +146,7 @@ def logger(file_name: str) -> Logger:
 
     # Create a formatter to format log messages
     formatter = logging.Formatter(
-        "%(asctime)s - %(levelname)s - [%(funcName)s] - %(message)s"
+        "%(asctime)s - %(levelname)s - [%(funcName)-30s] \t %(message)s"
     )
 
     # Set the formatter for the file handler
