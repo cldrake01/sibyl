@@ -11,7 +11,8 @@ pandas = "*"
 matplotlib = "*"
 tqdm = "*"
 alpaca-py = "*"
-setuptools = "*"
+einx = "*"
+beartype = "*"
 
 [dev-packages]
 
