@@ -52,7 +52,9 @@ def fetch_data(config: TimeSeriesConfig) -> list:
     config.log.info("Retrieving data from the Alpaca API...")
 
     # Partitioning the tickers
-    partitions = [tickers[i : i + config.rate] for i in range(0, len(tickers), config.rate)]
+    partitions = [
+        tickers[i : i + config.rate] for i in range(0, len(tickers), config.rate)
+    ]
     config.log.info(f"Partitioned tickers into {len(partitions)} partitions.")
 
     data = []

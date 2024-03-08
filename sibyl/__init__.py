@@ -6,7 +6,7 @@ from logging import Logger
 import torch
 from dotenv import load_dotenv
 
-from sibyl.utils.loss import StochLoss
+from sibyl.utils.loss import VarianceLoss
 from sibyl.utils.models.informer.model import Informer
 from sibyl.utils.tickers import tickers
 
@@ -78,9 +78,6 @@ class TrainingConfig:
     batch_size: int = 1
     train_val_split: float = 0.9
     learning_rate: float = 0.001
-    loss_file: str = (
-            find_root_dir(os.path.dirname(__file__), "README.md") + "/assets/pkl/loss.pkl"
-    )
     criterion: str | torch.nn.modules.loss._Loss = "MSE"
     optimizer: str | torch.optim.Optimizer = "AdamW"
     load_path: str = None
@@ -104,7 +101,7 @@ class TrainingConfig:
         ```
         """
         loss_functions = {
-            "Stoch": StochLoss,
+            "Stoch": VarianceLoss,
             "MSE": torch.nn.MSELoss,
             "MAE": torch.nn.L1Loss,
         }
