@@ -5,45 +5,7 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="a7ff77d1-7ecd-4619-8090-4ce640081a6c" name="Changes" comment="//">
-      <change afterPath="$PROJECT_DIR$/poetry.lock" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/pyproject.toml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/sibyl/workflows/loss.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/sibyl/workflows/plot.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/copilot/chatSessions/00000000000.xd" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/copilot/chatSessions/00000000000.xd" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/copilot/chatSessions/xd.lck" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/copilot/chatSessions/xd.lck" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/sibyl/__init__.py" beforeDir="false" afterPath="$PROJECT_DIR$/sibyl/__init__.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/sibyl/tests/test.inference.py" beforeDir="false" afterPath="$PROJECT_DIR$/sibyl/tests/test.inference.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/sibyl/utils/__init__.py" beforeDir="false" afterPath="$PROJECT_DIR$/sibyl/utils/__init__.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/sibyl/utils/loss.py" beforeDir="false" afterPath="$PROJECT_DIR$/sibyl/utils/loss.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/sibyl/utils/models/dimformer/layers/attn.py" beforeDir="false" afterPath="$PROJECT_DIR$/sibyl/utils/models/dimformer/layers/attn.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/sibyl/utils/models/dimformer/layers/decoder.py" beforeDir="false" afterPath="$PROJECT_DIR$/sibyl/utils/models/dimformer/layers/decoder.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/sibyl/utils/models/dimformer/layers/embed.py" beforeDir="false" afterPath="$PROJECT_DIR$/sibyl/utils/models/dimformer/layers/embed.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/sibyl/utils/models/dimformer/layers/encoder.py" beforeDir="false" afterPath="$PROJECT_DIR$/sibyl/utils/models/dimformer/layers/encoder.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/sibyl/utils/models/dimformer/masking.py" beforeDir="false" afterPath="$PROJECT_DIR$/sibyl/utils/models/dimformer/masking.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/sibyl/utils/models/dimformer/model.py" beforeDir="false" afterPath="$PROJECT_DIR$/sibyl/utils/models/dimformer/model.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/sibyl/utils/models/dimformer/timefeatures.py" beforeDir="false" afterPath="$PROJECT_DIR$/sibyl/utils/models/dimformer/timefeatures.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/sibyl/utils/models/informer/layers/attn.py" beforeDir="false" afterPath="$PROJECT_DIR$/sibyl/utils/models/informer/layers/attn.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/sibyl/utils/models/informer/layers/decoder.py" beforeDir="false" afterPath="$PROJECT_DIR$/sibyl/utils/models/informer/layers/decoder.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/sibyl/utils/models/informer/layers/embed.py" beforeDir="false" afterPath="$PROJECT_DIR$/sibyl/utils/models/informer/layers/embed.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/sibyl/utils/models/informer/layers/encoder.py" beforeDir="false" afterPath="$PROJECT_DIR$/sibyl/utils/models/informer/layers/encoder.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/sibyl/utils/models/informer/masking.py" beforeDir="false" afterPath="$PROJECT_DIR$/sibyl/utils/models/informer/masking.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/sibyl/utils/models/informer/model.py" beforeDir="false" afterPath="$PROJECT_DIR$/sibyl/utils/models/informer/model.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/sibyl/utils/models/informer/timefeatures.py" beforeDir="false" afterPath="$PROJECT_DIR$/sibyl/utils/models/informer/timefeatures.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/sibyl/utils/models/ring/layers/attn.py" beforeDir="false" afterPath="$PROJECT_DIR$/sibyl/utils/models/ring/layers/attn.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/sibyl/utils/models/ring/layers/decoder.py" beforeDir="false" afterPath="$PROJECT_DIR$/sibyl/utils/models/ring/layers/decoder.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/sibyl/utils/models/ring/layers/embed.py" beforeDir="false" afterPath="$PROJECT_DIR$/sibyl/utils/models/ring/layers/embed.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/sibyl/utils/models/ring/layers/encoder.py" beforeDir="false" afterPath="$PROJECT_DIR$/sibyl/utils/models/ring/layers/encoder.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/sibyl/utils/models/ring/model.py" beforeDir="false" afterPath="$PROJECT_DIR$/sibyl/utils/models/ring/model.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/sibyl/utils/models/ring/ring.py" beforeDir="false" afterPath="$PROJECT_DIR$/sibyl/utils/models/ring/ring.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/sibyl/utils/models/ring/ring_attention.py" beforeDir="false" afterPath="$PROJECT_DIR$/sibyl/utils/models/ring/ring_attention.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/sibyl/utils/models/ring/ring_flash_attention.py" beforeDir="false" afterPath="$PROJECT_DIR$/sibyl/utils/models/ring/ring_flash_attention.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/sibyl/utils/models/ring/ring_flash_attention_cuda.py" beforeDir="false" afterPath="$PROJECT_DIR$/sibyl/utils/models/ring/ring_flash_attention_cuda.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/sibyl/utils/models/trans/models.py" beforeDir="false" afterPath="$PROJECT_DIR$/sibyl/utils/models/trans/models.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/sibyl/utils/preprocessing.py" beforeDir="false" afterPath="$PROJECT_DIR$/sibyl/utils/preprocessing.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/sibyl/utils/retrieval.py" beforeDir="false" afterPath="$PROJECT_DIR$/sibyl/utils/retrieval.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/sibyl/workflows/training.py" beforeDir="false" afterPath="$PROJECT_DIR$/sibyl/workflows/training.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -146,7 +108,7 @@
       <workItem from="1709932615865" duration="3568000" />
       <workItem from="1709939958333" duration="106000" />
       <workItem from="1709940106420" duration="284000" />
-      <workItem from="1709940521850" duration="664000" />
+      <workItem from="1709940521850" duration="1052000" />
     </task>
     <task id="LOCAL-00001" summary="//">
       <option name="closed" value="true" />
@@ -180,7 +142,15 @@
       <option name="project" value="LOCAL" />
       <updated>1709923086763</updated>
     </task>
-    <option name="localTasksCounter" value="5" />
+    <task id="LOCAL-00005" summary="//">
+      <option name="closed" value="true" />
+      <created>1709941927142</created>
+      <option name="number" value="00005" />
+      <option name="presentableId" value="LOCAL-00005" />
+      <option name="project" value="LOCAL" />
+      <updated>1709941927142</updated>
+    </task>
+    <option name="localTasksCounter" value="6" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
