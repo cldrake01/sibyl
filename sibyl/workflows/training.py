@@ -183,8 +183,6 @@ def train_model(
     val_loader: DataLoader,
     config: TrainingConfig,
 ):
-    loss_pkl: list = []
-
     model.to(config.device)
     config.criterion = config.criterion()
     config.optimizer = config.optimizer(model.parameters(), lr=config.learning_rate)
@@ -198,11 +196,8 @@ def train_model(
             config.optimizer.zero_grad()
             y_hat = model(X, y)
             loss = config.criterion(y_hat, y)
-            if isinstance(config.criterion, torch.nn.MSELoss):
-                with open("mse.pkl", "wb") as f:
-                    pickle.dump(loss_pkl, f)
-            # if window == 10_000:
-            #     return
+            if window == 20_000:
+                return
             loss.backward()
             config.optimizer.step()
             train_loss += loss.item()
@@ -356,7 +351,7 @@ def main():
         validation=True,
         epochs=10,
         learning_rate=0.001,
-        criterion="Stoch",
+        criterion="MAE",
         optimizer="AdamW",
         plot_loss=True,
         plot_predictions=True,

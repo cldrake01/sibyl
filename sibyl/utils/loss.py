@@ -9,10 +9,18 @@ class VarianceLoss(nn.Module):
     def __init__(
         self,
         dim: int = 1,
+        weighted: bool = True,
+        benchmark: bool = False,
     ):
         super(VarianceLoss, self).__init__()
         self.dim: int = dim
-        self.loss: list = []
+        self.variance_loss: list = []
+        self.sum_loss: list = []
+        self.func: callable = self._sum_loss if benchmark else self._variance_loss
+        self.weights: callable = self._weights if weighted else lambda x: x
+        self.file: str = (
+            ("w" if weighted else "") + ("s" if benchmark else "v") + ".pkl"
+        )
 
     def _weights(self, t: Tensor) -> Tensor:
         n = t.size(self.dim)
@@ -20,13 +28,22 @@ class VarianceLoss(nn.Module):
         w = torch.repeat_interleave(t, l, dim=self.dim)
         return w
 
+    def _variance_loss(self, y: Tensor, y_hat: Tensor) -> Tensor:
+        errors = (y - y_hat) ** 2
+        self.variance_loss.append(errors.sum().item())
+        pickle.dump(self.variance_loss, open(self.file, "wb"))
+        errors = self._weights(errors)
+        # return (errors * (y.var() - y_hat.var()).abs()).sum()
+        return (errors.var() * errors).sum()
+
+    def _sum_loss(self, y: Tensor, y_hat: Tensor) -> Tensor:
+        errors = (y - y_hat) ** 2
+        self.sum_loss.append(errors.abs().sum().item())
+        pickle.dump(self.sum_loss, open(self.file, "wb"))
+        return errors.mean()
+
     def forward(self, y_hat: Tensor, y: Tensor) -> Tensor:
-        errors: Tensor = self._weights(y - y_hat) ** 2
-        loss = errors.var()
-        self.loss.append(torch.nn.functional.mse_loss(y, y_hat).item())
-        with open("vl.pkl", "wb") as f:
-            pickle.dump(self.loss, f)
-        return loss
+        return self.func(y, y_hat)
 
 
 class EigenLoss(nn.Module):

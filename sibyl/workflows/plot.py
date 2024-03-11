@@ -3,8 +3,8 @@ import pickle
 import matplotlib.pyplot as plt
 import numpy as np
 
-vl: list = pickle.load(open("vl.pkl", "rb"))
-mse: list = pickle.load(open("mse.pkl", "rb"))
+vl: list = pickle.load(open("variance_loss.pkl", "rb"))
+mse: list = pickle.load(open("sum_loss.pkl", "rb"))
 
 plt.plot(vl, label="Variance Loss", color="red", alpha=0.5)
 plt.plot(mse, label="MSE Loss", color="blue", alpha=0.5)
