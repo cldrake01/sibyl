@@ -5,12 +5,8 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="a7ff77d1-7ecd-4619-8090-4ce640081a6c" name="Changes" comment="//">
-      <change beforePath="$PROJECT_DIR$/.idea/copilot/chatSessions/00000000000.xd" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/copilot/chatSessions/00000000000.xd" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/copilot/chatSessions/xd.lck" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/copilot/chatSessions/xd.lck" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.gitignore" beforeDir="false" afterPath="$PROJECT_DIR$/.gitignore" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/sibyl/utils/loss.py" beforeDir="false" afterPath="$PROJECT_DIR$/sibyl/utils/loss.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/sibyl/workflows/plot.py" beforeDir="false" afterPath="$PROJECT_DIR$/sibyl/workflows/plot.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/sibyl/workflows/training.py" beforeDir="false" afterPath="$PROJECT_DIR$/sibyl/workflows/training.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -118,6 +114,7 @@
       <workItem from="1709948784989" duration="1075000" />
       <workItem from="1710035557303" duration="588000" />
       <workItem from="1710087874414" duration="6385000" />
+      <workItem from="1710135065953" duration="191000" />
     </task>
     <task id="LOCAL-00001" summary="//">
       <option name="closed" value="true" />

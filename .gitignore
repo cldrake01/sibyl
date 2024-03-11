@@ -5,5 +5,6 @@ assets/pkl
 *.pkl
 *.env
 *.log
+*.DS_Store
 
 environment.yml
