@@ -3,7 +3,8 @@ from datetime import datetime, timedelta
 from alpaca.data import TimeFrame, StockBarsRequest, StockHistoricalDataClient
 from tqdm import tqdm
 
-from sibyl import ALPACA_API_KEY, ALPACA_API_SECRET, TimeSeriesConfig
+from sibyl import ALPACA_API_KEY, ALPACA_API_SECRET
+from sibyl.utils.configs import TimeSeriesConfig
 from sibyl.utils.tickers import tickers
 
 
@@ -52,7 +53,9 @@ def fetch_data(config: TimeSeriesConfig) -> list:
     config.log.info("Retrieving data from the Alpaca API...")
 
     # Partitioning the tickers
-    partitions = [tickers[i : i + config.rate] for i in range(0, len(tickers), config.rate)]
+    partitions = [
+        tickers[i : i + config.rate] for i in range(0, len(tickers), config.rate)
+    ]
     config.log.info(f"Partitioned tickers into {len(partitions)} partitions.")
 
     data = []

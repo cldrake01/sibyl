@@ -58,6 +58,7 @@ assert pkg_version.parse(triton_version) >= pkg_version.parse("2.1")
 import triton
 import triton.language as tl
 
+
 # taking the flash attention forwards from Tri's flash_attn repository
 # https://github.com/Dao-AILab/flash-attention/blob/main/flash_attn/flash_attn_triton.py
 # and modifying to return unnormalized accumulation, row maxes, row lse - reduced over passed rings

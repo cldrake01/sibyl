@@ -1,4 +1,3 @@
-from datetime import datetime
 from typing import Callable
 
 import numpy as np
@@ -6,7 +5,7 @@ import talib
 import torch
 from torch import Tensor
 
-from sibyl import TimeSeriesConfig
+from sibyl.utils.configs import TimeSeriesConfig
 
 
 def indicators(
@@ -23,7 +22,7 @@ def indicators(
     :return: tuple[Tensor, Tensor]: Two tensors representing feature windows and target windows.
     """
     # Extracting data points for indicators
-    datetimes = [bar.timestamp for bar in time_series]
+    # datetimes = [bar.timestamp for bar in time_series]
     opens = np.array([bar.open for bar in time_series], dtype=np.float64)
     closes = np.array([bar.close for bar in time_series], dtype=np.float64)
     highs = np.array([bar.high for bar in time_series], dtype=np.float64)
@@ -83,30 +82,30 @@ def indicators(
     feature_windows = windows[..., :feature_window_size]
     target_windows = windows[..., feature_window_size:]
 
-    def temporal_embedding(dt: datetime) -> Tensor:
-        """
-        Returns a tensor representing the temporal embedding for a given datetime object.
-
-        Note: All values are normalized to be between 0 and 1.
-        """
-        return Tensor(
-            [
-                dt.month / 12,
-                dt.weekday() / 7,
-                dt.day / 31,
-                dt.hour / 24,
-                dt.minute / 60,
-                dt.second / 60,
-            ],
-        ).to(config.device)
-
-    # Adding temporal embeddings if required
-    if config.include_temporal:
-        # Creating temporal embeddings
-        temporal_embeddings = torch.stack(
-            [temporal_embedding(dt) for dt in datetimes],
-            dim=0,
-        )
+    # def temporal_embedding(dt: datetime) -> Tensor:
+    #     """
+    #     Returns a tensor representing the temporal embedding for a given datetime object.
+    #
+    #     Note: All values are normalized to be between 0 and 1.
+    #     """
+    #     return Tensor(
+    #         [
+    #             dt.month / 12,
+    #             dt.weekday() / 7,
+    #             dt.day / 31,
+    #             dt.hour / 24,
+    #             dt.minute / 60,
+    #             dt.second / 60,
+    #         ],
+    #     ).to(config.device)
+    #
+    # # Adding temporal embeddings if required
+    # if config.include_temporal:
+    #     # Creating temporal embeddings
+    #     temporal_embeddings = torch.stack(
+    #         [temporal_embedding(dt) for dt in datetimes],
+    #         dim=0,
+    #     )
 
     return feature_windows.squeeze(0), target_windows.squeeze(0)
 
@@ -121,6 +120,13 @@ def windows(stock_data: dict, config: TimeSeriesConfig) -> tuple[list, list]:
     :return tuple[list, list]: A tuple of lists representing feature windows and target windows.
     """
     target_windows_list, feature_windows_list = [], []
+
+    # Filter based upon minimum length of time series
+    stock_data = {
+        ticker: time_series
+        for ticker, time_series in stock_data.items()
+        if len(time_series) > config.feature_window_size + config.target_window_size
+    }
 
     for ticker, time_series in stock_data.items():
         feature_windows, target_windows = indicators(
