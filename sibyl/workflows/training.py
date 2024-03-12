@@ -191,8 +191,9 @@ def train_model(
 
     for epoch in range(config.epochs):
         model.train()
-        training_losses = []
+        training_losses: list[float] = []
         train_loss = 0.0  # Reset train loss for the epoch
+
         for window, (X, y) in enumerate(tqdm(train_loader, desc="Training")):
             config.optimizer.zero_grad()
             y_hat = model(X, y)
@@ -203,10 +204,8 @@ def train_model(
             config.optimizer.step()
             train_loss += loss.item()
             training_losses.append(loss.item())
-
             # Gradient clipping
             torch.nn.utils.clip_grad_norm_(model.parameters(), 0.5)
-
             if window % config.plot_interval == 0:
                 plot(
                     X=X,
@@ -217,15 +216,15 @@ def train_model(
                 )
 
         model.eval()
-        validation_losses = []
+        validation_losses: list[float] = []
         val_loss = 0.0  # Reset validation loss for the epoch
+
         with torch.no_grad():
             for window, (X, y) in enumerate(tqdm(val_loader, desc="Validation")):
-                y_hat = model(X)
+                y_hat = model(X, y)
                 loss = config.criterion(y_hat, y)
                 val_loss += loss.item()
                 validation_losses.append(loss.item())
-
                 if window % config.plot_interval == 0:
                     plot(
                         X=X,
@@ -234,6 +233,7 @@ def train_model(
                         loss=validation_losses,
                         config=config,
                     )
+
     save_model(model)
 
 
@@ -317,10 +317,6 @@ def plot(
     # Show the combined plot
     if config.plot_predictions or config.plot_loss:
         plt.show()
-        # Save the combined plot to `plots/latest.png`
-        plt.savefig(
-            f"{find_root_dir(os.path.dirname(__file__), 'README.md')}/plots/latest.png"
-        )
 
 
 def main():
