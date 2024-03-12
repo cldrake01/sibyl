@@ -3,7 +3,8 @@ from datetime import datetime, timedelta
 from alpaca.data import TimeFrame, StockBarsRequest, StockHistoricalDataClient
 from tqdm import tqdm
 
-from sibyl import ALPACA_API_KEY, ALPACA_API_SECRET, TimeSeriesConfig
+from sibyl import ALPACA_API_KEY, ALPACA_API_SECRET
+from sibyl.utils.configs import TimeSeriesConfig
 from sibyl.utils.tickers import tickers
 
 

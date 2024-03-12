@@ -2,13 +2,15 @@ import os
 import pickle
 
 import pandas as pd
+import seaborn as sns
 import torch
 from matplotlib import pyplot as plt
 from torch import Tensor
 from torch.utils.data import TensorDataset, DataLoader, random_split
 from tqdm import tqdm
 
-from sibyl import logger, find_root_dir, TimeSeriesConfig, TrainingConfig
+from sibyl.utils.configs import TimeSeriesConfig, TrainingConfig
+from sibyl.utils.log import logger, find_root_dir
 from sibyl.utils.models.dimformer.model import Dimformer
 from sibyl.utils.models.informer.model import Informer, DecoderOnlyInformer
 from sibyl.utils.models.ring.model import Ring
@@ -191,13 +193,12 @@ def train_model(
         model.train()
         training_losses = []
         train_loss = 0.0  # Reset train loss for the epoch
-
-        for window, (X, y) in enumerate(tqdm(train_loader)):
+        for window, (X, y) in enumerate(tqdm(train_loader, desc="Training")):
             config.optimizer.zero_grad()
             y_hat = model(X, y)
             loss = config.criterion(y_hat, y)
-            if window == 20_000:
-                return
+            # if window == 20_000:
+            #     return
             loss.backward()
             config.optimizer.step()
             train_loss += loss.item()
@@ -215,25 +216,24 @@ def train_model(
                     config=config,
                 )
 
-        if config.validation:
-            model.eval()
-            validation_losses = []
-            val_loss = 0.0  # Reset validation loss for the epoch
-            with torch.no_grad():
-                for window, (X, y) in enumerate(val_loader):
-                    y_hat = model(X)
-                    loss = config.criterion(y_hat, y)
-                    val_loss += loss.item()
-                    validation_losses.append(loss.item())
+        model.eval()
+        validation_losses = []
+        val_loss = 0.0  # Reset validation loss for the epoch
+        with torch.no_grad():
+            for window, (X, y) in enumerate(tqdm(val_loader, desc="Validation")):
+                y_hat = model(X)
+                loss = config.criterion(y_hat, y)
+                val_loss += loss.item()
+                validation_losses.append(loss.item())
 
-                    if window % config.plot_interval == 0:
-                        plot(
-                            X=X,
-                            y=y,
-                            y_hat=y_hat,
-                            loss=validation_losses,
-                            config=config,
-                        )
+                if window % config.plot_interval == 0:
+                    plot(
+                        X=X,
+                        y=y,
+                        y_hat=y_hat,
+                        loss=validation_losses,
+                        config=config,
+                    )
     save_model(model)
 
 
@@ -264,6 +264,8 @@ def plot(
     # Clear existing figure
     plt.clf()
 
+    sns.set_theme(style="dark")
+
     # First subplot for predicted vs actual
     if config.plot_predictions:
         # 1 row, 2 columns, 1st subplot
@@ -280,8 +282,16 @@ def plot(
             features = range(X_.shape[1])
 
         for i in features:
-            plt.plot(torch.cat((X_[:, i], y_[:, i]), 0), "b", alpha=0.5)
-            plt.plot(torch.cat((X_[:, i], y_hat_[:, i]), 0), "r", alpha=0.5)
+            sns.lineplot(
+                data=pd.DataFrame({"y": torch.cat((X_[:, i], y_[:, i]), 0)}),
+                palette=["b"],
+                alpha=0.5,
+            ).legend().remove()
+            sns.lineplot(
+                data=pd.DataFrame({"y_hat": torch.cat((X_[:, i], y_hat_[:, i]), 0)}),
+                palette=["red"],
+                alpha=0.5,
+            ).legend().remove()
 
     # Second subplot for loss
     if config.plot_loss:
@@ -298,14 +308,11 @@ def plot(
         # Make it borderless
         plt.gca().spines["top"].set_alpha(0.0)
         # Plot the moving average of the loss using a pandas dataframe
-        plt.plot(
-            pd.DataFrame(loss).rolling(config.plot_interval).mean(),
-            "g",
+        sns.lineplot(
+            data=pd.DataFrame(loss).rolling(config.plot_interval).mean(),
+            palette=["g"],
             alpha=0.5,
-        )
-        # plt.xlabel(
-        #     f"Mean Loss: {(sum(last_fifty := loss[-50:]) / len(last_fifty)) if len(loss) > 50 else 'N/A'}"
-        # )
+        ).legend().remove()
 
     # Show the combined plot
     if config.plot_predictions or config.plot_loss:
@@ -342,7 +349,7 @@ def main():
             "ADX",
         ],
         log=log,
-        years=0.01,
+        years=0.0005,
     )
     features, targets = load_and_preprocess_data(time_series_config)
     X_norm, y_norm = normalize(features, targets)
@@ -351,7 +358,7 @@ def main():
         validation=True,
         epochs=10,
         learning_rate=0.001,
-        criterion="MAE",
+        criterion="Stoch",
         optimizer="AdamW",
         plot_loss=True,
         plot_predictions=True,
