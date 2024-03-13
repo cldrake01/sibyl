@@ -1,6 +1,3 @@
-import pickle
-
-import numpy as np
 import torch
 import torch.nn as nn
 from torch import Tensor
@@ -31,10 +28,9 @@ class VarianceLoss(nn.Module):
 
     def _variance_loss(self, y: Tensor, y_hat: Tensor) -> Tensor:
         errors = (y - y_hat).abs()
-        # self.variance_loss.append(errors.sum().item())
-        # pickle.dump(self.variance_loss, open(self.file, "wb"))
-        errors = self._weights(errors)
-        return errors.var()
+        return (y_hat.var(self.dim) - y.var(self.dim)).abs().max().exp() * self.weights(
+            errors
+        ).max()
 
     def _sum_loss(self, y: Tensor, y_hat: Tensor) -> Tensor:
         errors = (y - y_hat) ** 2
