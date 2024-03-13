@@ -272,16 +272,16 @@ def plot(
     if config.plot_predictions:
         # 1 row, 2 columns, 1st subplot
         sub = plt.subplot(1, 1, 1)
-        sub.xaxis.set_label_position("top")
+        # sub.xaxis.set_label_position("top")
         sub.xaxis.tick_top()
+        sub.yaxis.tick_left()
         X_, y_, y_hat_ = (
             X.detach().squeeze(0),
             y.detach().squeeze(0),
             y_hat.detach().squeeze(0),
         )
 
-        if features is None:
-            features = range(X_.shape[1])
+        features = features or range(X_.shape[1])
 
         for i in features:
             sns.lineplot(
@@ -301,7 +301,8 @@ def plot(
         if config.plot_predictions:
             sub = plt.subplot(2, 1, 2)
             # Place a label on the right side of the plot
-            sub.yaxis.set_label_position("right")
+            # sub.yaxis.set_label_position("right")
+            sub.xaxis.tick_bottom()
             sub.yaxis.tick_right()
         else:
             plt.subplot(1, 1, 1)
