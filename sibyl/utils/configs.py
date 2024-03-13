@@ -3,8 +3,9 @@ from logging import Logger
 
 import torch
 
-from sibyl import tickers, VarianceLoss
+from sibyl import tickers, MaxAE
 from sibyl.utils.log import NullLogger
+from sibyl.utils.loss import MaxSE
 
 
 @dataclass
@@ -60,7 +61,8 @@ class TrainingConfig:
         ```
         """
         loss_functions = {
-            "Stoch": VarianceLoss,
+            "MaxAE": MaxAE,
+            "MaxSE": MaxSE,
             "MSE": torch.nn.MSELoss,
             "MAE": torch.nn.L1Loss,
         }

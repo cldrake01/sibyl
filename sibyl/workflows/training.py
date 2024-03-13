@@ -1,3 +1,4 @@
+import atexit
 import os
 import pickle
 
@@ -5,7 +6,7 @@ import pandas as pd
 import seaborn as sns
 import torch
 from matplotlib import pyplot as plt
-from torch import Tensor
+from torch import Tensor, nn
 from torch.utils.data import TensorDataset, DataLoader, random_split
 from tqdm import tqdm
 
@@ -185,7 +186,6 @@ def train_model(
     val_loader: DataLoader,
     config: TrainingConfig,
 ):
-    model.to(config.device)
     config.criterion = config.criterion()
     config.optimizer = config.optimizer(model.parameters(), lr=config.learning_rate)
 
@@ -198,8 +198,8 @@ def train_model(
             config.optimizer.zero_grad()
             y_hat = model(X, y)
             loss = config.criterion(y_hat, y)
-            # if window == 20_000:
-            #     return
+            if window == 20_000:
+                return
             loss.backward()
             config.optimizer.step()
             train_loss += loss.item()
@@ -234,15 +234,17 @@ def train_model(
                         config=config,
                     )
 
-    save_model(model)
+    save_model(model=model, path=config.save_path)
 
 
-def save_model(model, path=None):
+@atexit.register
+def save_model(model: nn.Module, path: str | None = None):
     if path is None:
         path = f"{find_root_dir(os.path.dirname(__file__), 'README.md')}/assets/weights/informer.pt"
     torch.save(model.state_dict(), path)
 
 
+@atexit.register
 def plot(
     X: Tensor,
     y: Tensor,
@@ -316,6 +318,11 @@ def plot(
 
     # Show the combined plot
     if config.plot_predictions or config.plot_loss:
+        # Save the latest plot
+        plt.savefig(
+            f"{find_root_dir(os.path.dirname(__file__), 'README.md')}/assets/plots/latest.png",
+            dpi=300,
+        )
         plt.show()
 
 
@@ -345,7 +352,7 @@ def main():
             "ADX",
         ],
         log=log,
-        years=0.0005,
+        years=0.005,
     )
     features, targets = load_and_preprocess_data(time_series_config)
     X_norm, y_norm = normalize(features, targets)
@@ -354,7 +361,7 @@ def main():
         validation=True,
         epochs=10,
         learning_rate=0.001,
-        criterion="Stoch",
+        criterion="MSE",
         optimizer="AdamW",
         plot_loss=True,
         plot_predictions=True,

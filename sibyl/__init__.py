@@ -6,7 +6,7 @@ from logging import Logger
 import torch
 from dotenv import load_dotenv
 
-from sibyl.utils.loss import VarianceLoss
+from sibyl.utils.loss import MaxAE
 from sibyl.utils.models.informer.model import Informer
 from sibyl.utils.tickers import tickers
 

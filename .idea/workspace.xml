@@ -4,7 +4,15 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="a7ff77d1-7ecd-4619-8090-4ce640081a6c" name="Changes" comment="//" />
+    <list default="true" id="a7ff77d1-7ecd-4619-8090-4ce640081a6c" name="Changes" comment="//">
+      <change beforePath="$PROJECT_DIR$/.idea/copilot/chatSessions/00000000000.xd" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/copilot/chatSessions/00000000000.xd" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/copilot/chatSessions/xd.lck" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/copilot/chatSessions/xd.lck" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/sibyl/__init__.py" beforeDir="false" afterPath="$PROJECT_DIR$/sibyl/__init__.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/sibyl/utils/configs.py" beforeDir="false" afterPath="$PROJECT_DIR$/sibyl/utils/configs.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/sibyl/utils/loss.py" beforeDir="false" afterPath="$PROJECT_DIR$/sibyl/utils/loss.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/sibyl/workflows/training.py" beforeDir="false" afterPath="$PROJECT_DIR$/sibyl/workflows/training.py" afterDir="false" />
+    </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -52,6 +60,11 @@
     &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
   }
 }</component>
+  <component name="RecentsManager">
+    <key name="MoveFile.RECENT_KEYS">
+      <recent name="$PROJECT_DIR$/assets" />
+    </key>
+  </component>
   <component name="RunManager">
     <configuration name="training" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
       <module name="sibyl" />
@@ -119,7 +132,12 @@
       <workItem from="1710211726984" duration="2086000" />
       <workItem from="1710256127702" duration="1006000" />
       <workItem from="1710258151388" duration="689000" />
-      <workItem from="1710259058088" duration="1300000" />
+      <workItem from="1710259058088" duration="1383000" />
+      <workItem from="1710260900747" duration="753000" />
+      <workItem from="1710278829213" duration="21000" />
+      <workItem from="1710279017842" duration="268000" />
+      <workItem from="1710279297801" duration="290000" />
+      <workItem from="1710300256263" duration="1667000" />
     </task>
     <task id="LOCAL-00001" summary="//">
       <option name="closed" value="true" />
@@ -225,11 +243,30 @@
       <option name="project" value="LOCAL" />
       <updated>1710260371613</updated>
     </task>
-    <option name="localTasksCounter" value="14" />
+    <task id="LOCAL-00014" summary="//">
+      <option name="closed" value="true" />
+      <created>1710260508052</created>
+      <option name="number" value="00014" />
+      <option name="presentableId" value="LOCAL-00014" />
+      <option name="project" value="LOCAL" />
+      <updated>1710260508052</updated>
+    </task>
+    <option name="localTasksCounter" value="15" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
     <option name="version" value="3" />
+  </component>
+  <component name="Vcs.Log.Tabs.Properties">
+    <option name="TAB_STATES">
+      <map>
+        <entry key="MAIN">
+          <value>
+            <State />
+          </value>
+        </entry>
+      </map>
+    </option>
   </component>
   <component name="VcsManagerConfiguration">
     <option name="ADD_EXTERNAL_FILES_SILENTLY" value="true" />
@@ -240,6 +277,6 @@
   <component name="com.intellij.coverage.CoverageDataManagerImpl">
     <SUITE FILE_PATH="coverage/sibyl$setup.coverage" NAME="setup Coverage Results" MODIFIED="1709948761846" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
     <SUITE FILE_PATH="coverage/sibyl$plot.coverage" NAME="plot Coverage Results" MODIFIED="1710091283376" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/sibyl/workflows" />
-    <SUITE FILE_PATH="coverage/sibyl$training.coverage" NAME="training Coverage Results" MODIFIED="1710260202778" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/sibyl/workflows" />
+    <SUITE FILE_PATH="coverage/sibyl$training.coverage" NAME="training Coverage Results" MODIFIED="1710301962535" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/sibyl/workflows" />
   </component>
 </project>
