@@ -20,6 +20,9 @@ class MaxAE(nn.Module):
         #     ("w" if weighted else "") + ("s" if benchmark else "v") + ".pkl"
         # )
 
+    def __call__(self, *args, **kwargs):
+        return self._maxae(*args, **kwargs)
+
     def _weights(self, t: Tensor) -> Tensor:
         n = t.size(self.dim)
         l = torch.linspace(1, n, n).int()
@@ -58,6 +61,9 @@ class MaxSE(nn.Module):
         # self.file: str = (
         #     ("w" if weighted else "") + ("s" if benchmark else "v") + ".pkl"
         # )
+
+    def __call__(self, *args, **kwargs):
+        return self._maxse(*args, **kwargs)
 
     def _weights(self, t: Tensor) -> Tensor:
         n = t.size(self.dim)
