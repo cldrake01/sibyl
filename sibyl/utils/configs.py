@@ -32,7 +32,7 @@ class TrainingConfig:
     Configuration for training.
     """
 
-    validation: bool = False
+    validation: bool = True
     # Our dataset is quite large, so we don't need many epochs; especially on minute-by-minute data
     epochs: int = 10
     batch_size: int = 1

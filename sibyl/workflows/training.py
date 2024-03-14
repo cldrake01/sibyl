@@ -259,10 +259,9 @@ def main():
         years=0.005,
     )
     features, targets = load_and_preprocess_data(time_series_config)
-    X_norm, y_norm = normalize(features, targets)
-    model = initialize_model(X_norm, y_norm, Dimformer)
+    X, y = normalize(features, targets)
+    model = initialize_model(X, y, Dimformer)
     training_config = TrainingConfig(
-        validation=True,
         epochs=10,
         learning_rate=0.001,
         criterion="MaxAE",
@@ -272,7 +271,7 @@ def main():
         plot_interval=300,
         log=log,
     )
-    train_loader, val_loader = prepare_datasets(X_norm, y_norm, training_config)
+    train_loader, val_loader = prepare_datasets(X, y, training_config)
     train_model(
         model=model,
         train_loader=train_loader,

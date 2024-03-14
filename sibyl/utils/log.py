@@ -31,8 +31,7 @@ def logger(file_name: str) -> Logger:
     log_file_path = os.path.join(log_directory, f"{file_name}.log")
 
     # Create the log directory if it doesn't exist
-    if not os.path.exists(log_directory):
-        os.makedirs(log_directory)
+    os.makedirs(log_directory, exist_ok=True)
 
     # Create the log file if it doesn't exist
     if not os.path.exists(log_file_path):

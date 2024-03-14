@@ -5,14 +5,12 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="a7ff77d1-7ecd-4619-8090-4ce640081a6c" name="Changes" comment="//">
-      <change afterPath="$PROJECT_DIR$/sibyl/utils/plot.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/copilot/chatSessions/00000000000.xd" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/copilot/chatSessions/00000000000.xd" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/copilot/chatSessions/xd.lck" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/copilot/chatSessions/xd.lck" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/assets/plots/latest.png" beforeDir="false" afterPath="$PROJECT_DIR$/assets/plots/latest.png" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/sibyl/tests/lr.py" beforeDir="false" afterPath="$PROJECT_DIR$/sibyl/tests/lr.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/sibyl/tests/lr.py" beforeDir="false" afterPath="$PROJECT_DIR$/sibyl/tests/linear_regressor.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/sibyl/utils/configs.py" beforeDir="false" afterPath="$PROJECT_DIR$/sibyl/utils/configs.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/sibyl/utils/log.py" beforeDir="false" afterPath="$PROJECT_DIR$/sibyl/utils/log.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/sibyl/utils/loss.py" beforeDir="false" afterPath="$PROJECT_DIR$/sibyl/utils/loss.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/sibyl/utils/models/trans/__init__.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/sibyl/utils/models/trans/models.py" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/sibyl/workflows/training.py" beforeDir="false" afterPath="$PROJECT_DIR$/sibyl/workflows/training.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -144,7 +142,7 @@
       <workItem from="1710300256263" duration="4033000" />
       <workItem from="1710392009931" duration="79000" />
       <workItem from="1710392537950" duration="1001000" />
-      <workItem from="1710429802150" duration="4382000" />
+      <workItem from="1710429802150" duration="5257000" />
     </task>
     <task id="LOCAL-00001" summary="//">
       <option name="closed" value="true" />
@@ -282,7 +280,15 @@
       <option name="project" value="LOCAL" />
       <updated>1710304322041</updated>
     </task>
-    <option name="localTasksCounter" value="18" />
+    <task id="LOCAL-00018" summary="//">
+      <option name="closed" value="true" />
+      <created>1710434962681</created>
+      <option name="number" value="00018" />
+      <option name="presentableId" value="LOCAL-00018" />
+      <option name="project" value="LOCAL" />
+      <updated>1710434962682</updated>
+    </task>
+    <option name="localTasksCounter" value="19" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
