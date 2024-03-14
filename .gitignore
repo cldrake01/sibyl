@@ -7,7 +7,6 @@ assets/models
 *.pkl
 *.env
 *.log
-*.DS_Store
-.DS_Store
+**/.DS_Store
 
 environment.yml
