@@ -1,11 +1,8 @@
-import atexit
 import os
 import pickle
+import signal
 
-import pandas as pd
-import seaborn as sns
 import torch
-from matplotlib import pyplot as plt
 from torch import Tensor, nn
 from torch.utils.data import TensorDataset, DataLoader, random_split
 from tqdm import tqdm
@@ -16,7 +13,8 @@ from sibyl.utils.models.dimformer.model import Dimformer
 from sibyl.utils.models.informer.model import Informer, DecoderOnlyInformer
 from sibyl.utils.models.ring.model import Ring
 from sibyl.utils.models.ring.ring_attention import RingTransformer
-from sibyl.utils.preprocessing import indicator_tensors
+from sibyl.utils.plot import plot
+from sibyl.utils.preprocessing import indicator_tensors, normalize
 from sibyl.utils.retrieval import fetch_data
 
 
@@ -30,7 +28,7 @@ def setup_environment():
 def load_and_preprocess_data(
     config: TimeSeriesConfig, file_path: str | None = None
 ) -> tuple[Tensor, Tensor]:
-    root = find_root_dir(os.path.dirname(__file__), "README.md")
+    root = find_root_dir(os.path.dirname(__file__))
 
     file_path = file_path or f"{root}/assets/pkl/time_series.pkl"
 
@@ -144,27 +142,6 @@ def initialize_model(X: Tensor, y: Tensor, model: type) -> torch.nn.Module:
     return model_configurations[model]
 
 
-def normalize(*tensors: Tensor) -> tuple[Tensor, ...]:
-    r"""
-    See \frac{\left|T\right|}{T}\log_{10}\left(\left|T\right|+1\right), where T is the tensor
-    to be normalized.
-
-    This normalization preserves the sign of the tensor whilst normalizing it, as opposed to
-    methods available online, wherein the minimum is added to the tensor before normalizing it;
-    thereby shifting the tensor to the positive side of the number line, subsequently losing the
-    sign of the tensor.
-
-    :param tensors: The tensors to normalize.
-    :return: The normalized feature and target tensors.
-    """
-    return tuple(
-        torch.nan_to_num(
-            torch.sign(tensor) * torch.log10(torch.abs(tensor) + 1.0).float(), 0.0
-        )
-        for tensor in tensors
-    )
-
-
 def prepare_datasets(
     X: Tensor, y: Tensor, config: TrainingConfig
 ) -> tuple[DataLoader, DataLoader]:
@@ -181,7 +158,7 @@ def prepare_datasets(
 
 
 def train_model(
-    model: torch.nn.Module,
+    model: nn.Module,
     train_loader: DataLoader,
     val_loader: DataLoader,
     config: TrainingConfig,
@@ -189,9 +166,25 @@ def train_model(
     config.criterion = config.criterion()
     config.optimizer = config.optimizer(model.parameters(), lr=config.learning_rate)
 
+    # Define a function to save the model
+    def save_model(model: nn.Module, filepath: str):
+        config.log.info("Saving model...")
+        torch.save(model.state_dict(), filepath)
+        config.log.info("Model saved successfully.")
+
+    # Register a signal handler to save the model upon termination
+    def signal_handler(sig, frame):
+        config.log.info("Program interrupted.")
+        save_model(
+            model, f"{find_root_dir(os.path.dirname(__file__))}/assets/models/model.pt"
+        )
+        exit(0)
+
+    signal.signal(signal.SIGINT, signal_handler)
+
     for epoch in range(config.epochs):
         model.train()
-        training_losses: list[float] = []
+        training_losses: list = []
         train_loss = 0.0  # Reset train loss for the epoch
 
         for window, (X, y) in enumerate(tqdm(train_loader, desc="Training")):
@@ -220,7 +213,7 @@ def train_model(
         val_loss = 0.0  # Reset validation loss for the epoch
 
         with torch.no_grad():
-            for window, (X, y) in enumerate(tqdm(val_loader, desc="Validation")):
+            for window, (X, y) in enumerate(tqdm(val_loader, desc="Validating")):
                 y_hat = model(X, y)
                 loss = config.criterion(y_hat, y)
                 val_loss += loss.item()
@@ -233,98 +226,8 @@ def train_model(
                         loss=validation_losses,
                         config=config,
                     )
-
-    save_model(model=model, path=config.save_path)
-
-
-@atexit.register
-def save_model(model: nn.Module, path: str | None = None):
-    if path is None:
-        path = f"{find_root_dir(os.path.dirname(__file__), 'README.md')}/assets/weights/informer.pt"
-    torch.save(model.state_dict(), path)
-
-
-@atexit.register
-def plot(
-    X: Tensor,
-    y: Tensor,
-    y_hat: Tensor,
-    loss: list[float],
-    config: TrainingConfig,
-    features: list[int] = None,
-):
-    """
-    Plot both the predicted vs actual values and the loss on the same graph.
-
-    :param X: The context window preceding the target window.
-    :param y: The target window.
-    :param y_hat: The predicted target window.
-    :param loss: List of loss values.
-    :param config: TrainingConfig object.
-    :param features: List of features to plot.
-    """
-    # Clear existing figure
-    plt.clf()
-
-    sns.set_theme(style="dark")
-
-    # First subplot for predicted vs actual
-    if config.plot_predictions:
-        # 1 row, 2 columns, 1st subplot
-        sub = plt.subplot(1, 1, 1)
-        # sub.xaxis.set_label_position("top")
-        sub.xaxis.tick_top()
-        sub.yaxis.tick_left()
-        X_, y_, y_hat_ = (
-            X.detach().squeeze(0),
-            y.detach().squeeze(0),
-            y_hat.detach().squeeze(0),
-        )
-
-        features = features or range(X_.shape[1])
-
-        for i in features:
-            sns.lineplot(
-                data=pd.DataFrame({"y": torch.cat((X_[:, i], y_[:, i]), 0)}),
-                palette=["b"],
-                alpha=0.5,
-            ).legend().remove()
-            sns.lineplot(
-                data=pd.DataFrame({"y_hat": torch.cat((X_[:, i], y_hat_[:, i]), 0)}),
-                palette=["red"],
-                alpha=0.5,
-            ).legend().remove()
-
-    # Second subplot for loss
-    if config.plot_loss:
-        # 1 row, 2 columns, 2nd subplot
-        if config.plot_predictions:
-            sub = plt.subplot(2, 1, 2)
-            # Place a label on the right side of the plot
-            # sub.yaxis.set_label_position("right")
-            sub.xaxis.tick_bottom()
-            sub.yaxis.tick_right()
-        else:
-            plt.subplot(1, 1, 1)
-        # Make its background transparent
-        plt.gca().patch.set_alpha(0.0)
-        # Make it borderless
-        plt.gca().spines["top"].set_alpha(0.0)
-        # Plot the moving average of the loss using a pandas dataframe
-        sns.lineplot(
-            data=pd.DataFrame(loss).rolling(config.plot_interval).mean(),
-            palette=["g"],
-            alpha=0.5,
-        ).legend().remove()
-
-    # Show the combined plot
-    if config.plot_predictions or config.plot_loss:
-        # Save the latest plot
-        plt.savefig(
-            f"{find_root_dir(os.path.dirname(__file__), 'README.md')}/assets/plots/latest.png",
-            dpi=300,
-        )
-        plt.show()
+    config.log.info("Training complete.")
+    save_model(model, f"{find_root_dir(os.path.dirname(__file__))}/assets/model.pt")
 
 
 def main():
@@ -362,7 +265,7 @@ def main():
         validation=True,
         epochs=10,
         learning_rate=0.001,
-        criterion="MSE",
+        criterion="MaxAE",
         optimizer="AdamW",
         plot_loss=True,
         plot_predictions=True,

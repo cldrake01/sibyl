@@ -7,19 +7,22 @@ from torch import Tensor
 from sibyl.utils.loss import MaxSE
 
 
-class LinearRegression(nn.Module):
+class LinearRegressor(nn.Module):
     def __init__(self):
-        super(LinearRegression, self).__init__()
+        super(LinearRegressor, self).__init__()
         self.linear = nn.Linear(1, 1)
 
     def forward(self, x):
         return self.linear(x)
 
 
-def train_model(model, X_train, y_train, learning_rate=0.01, num_epochs=100):
-    # Convert data to PyTorch tensors
-    X_train_tensor = torch.tensor(X_train, dtype=torch.float32)
-    y_train_tensor = torch.tensor(y_train, dtype=torch.float32)
+def train_model(
+    model: nn.Module,
+    X: Tensor,
+    y: Tensor,
+    learning_rate: float = 0.01,
+    num_epochs: int = 100,
+):
     loss_function: callable = MaxSE()
 
     # Define optimizer
@@ -28,8 +31,8 @@ def train_model(model, X_train, y_train, learning_rate=0.01, num_epochs=100):
     # Training loop
     for epoch in range(num_epochs):
         # Forward pass
-        predictions = model(X_train_tensor)
-        loss = loss_function(y_train_tensor, predictions)
+        y_hat = model(X)
+        loss = loss_function(y, y_hat)
 
         # Backward pass and optimization
         optimizer.zero_grad()
@@ -37,3 +40,19 @@ def train_model(model, X_train, y_train, learning_rate=0.01, num_epochs=100):
         optimizer.step()
 
     return model
+
+
+def main():
+    np.random.seed(0)
+    X = torch.tensor(np.random.rand(100, 1))
+    y = torch.tensor(3 * X + 2 + np.random.randn(100, 1) * 0.1)
+
+    # Train the model
+    model = train_model(LinearRegressor(), X, y)
+
+    # Print the model parameters
+    print(list(model.parameters()))
+
+
+if __name__ == "__main__":
+    main()

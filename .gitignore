@@ -1,7 +1,9 @@
 logs
 notebooks
 assets/pkl
+assets/models
 
+*.pt
 *.pkl
 *.env
 *.log

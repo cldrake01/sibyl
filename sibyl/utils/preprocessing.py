@@ -199,3 +199,24 @@ def indicator_tensors(
     config.log.info(f"feature windows shape: {feature_windows_tensor.shape}")
 
     return feature_windows_tensor, target_windows_tensor
+
+
+def normalize(*tensors: Tensor) -> tuple[Tensor, ...]:
+    r"""
+    See \frac{\left|T\right|}{T}\log_{10}\left(\left|T\right|+1\right), where T is the tensor
+    to be normalized.
+
+    This normalization preserves the sign of the tensor whilst normalizing it, as opposed to
+    methods available online, wherein the minimum is added to the tensor before normalizing it;
+    thereby shifting the tensor to the positive side of the number line, subsequently losing the
+    sign of the tensor.
+
+    :param tensors: The tensors to normalize.
+    :return: The normalized feature and target tensors.
+    """
+    return tuple(
+        torch.nan_to_num(
+            torch.sign(tensor) * torch.log10(torch.abs(tensor) + 1.0).float(), 0.0
+        )
+        for tensor in tensors
+    )

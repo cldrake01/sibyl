@@ -26,7 +26,7 @@ def logger(file_name: str) -> Logger:
     :param file_name: Path to the log file
     """
     # Identify the root directory based on a marker file
-    root_dir = find_root_dir(os.path.dirname(__file__), "README.md")
+    root_dir = find_root_dir(os.path.dirname(__file__))
     log_directory = os.path.join(root_dir, "logs")
     log_file_path = os.path.join(log_directory, f"{file_name}.log")
 
@@ -63,7 +63,7 @@ def logger(file_name: str) -> Logger:
     return log
 
 
-def find_root_dir(current_path, marker_file) -> str:
+def find_root_dir(current_path, marker_file: str = "README.md") -> str:
     """
     Recursively find the root directory by looking for a marker file or directory.
     """
@@ -74,4 +74,4 @@ def find_root_dir(current_path, marker_file) -> str:
         if parent == current_path:
             # Root directory reached without finding the marker
             raise FileNotFoundError(f"Root directory marker '{marker_file}' not found.")
-        return find_root_dir(parent, marker_file)
+        return find_root_dir(parent)
