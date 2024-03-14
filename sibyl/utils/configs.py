@@ -21,7 +21,7 @@ class TimeSeriesConfig:
     rate: int = 125
     include_hashes: bool = False
     include_temporal: bool = False
-    included_indicators: list[str] = None
+    included_indicators: list[str] | None = None
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     log: NullLogger | Logger = NullLogger()
 
@@ -33,15 +33,14 @@ class TrainingConfig:
     """
 
     validation: bool = True
-    # Our dataset is quite large, so we don't need many epochs; especially on minute-by-minute data
     epochs: int = 10
     batch_size: int = 1
     train_val_split: float = 0.9
     learning_rate: float = 0.001
-    criterion: str | torch.nn.modules.loss._Loss = "MSE"
+    criterion: str | torch.nn.Module = "MSE"
     optimizer: str | torch.optim.Optimizer = "AdamW"
-    load_path: str = None
-    save_path: str = None
+    load_path: str | None = None
+    save_path: str | None = None
     plot_loss: bool = False
     plot_predictions: bool = False
     plot_interval: int = 20

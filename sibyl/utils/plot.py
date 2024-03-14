@@ -1,10 +1,10 @@
 import os
 
 import pandas as pd
+import seaborn as sns
 import torch
 from matplotlib import pyplot as plt
 from torch import Tensor
-import seaborn as sns
 
 from sibyl.utils.configs import TrainingConfig
 from sibyl.utils.log import find_root_dir

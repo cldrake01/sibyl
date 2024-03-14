@@ -18,7 +18,7 @@ from sibyl.utils.preprocessing import indicator_tensors, normalize
 from sibyl.utils.retrieval import fetch_data
 
 
-def setup_environment():
+def setup_environment() -> logger:
     # Check for macOS
     if os.name == "posix":
         os.environ["KMP_DUPLICATE_LIB_OK"] = "True"
@@ -184,7 +184,7 @@ def train_model(
 
     for epoch in range(config.epochs):
         model.train()
-        training_losses: list = []
+        training_losses: list[float] = []
         train_loss = 0.0  # Reset train loss for the epoch
 
         for window, (X, y) in enumerate(tqdm(train_loader, desc="Training")):
