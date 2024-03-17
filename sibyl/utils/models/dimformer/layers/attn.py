@@ -101,6 +101,20 @@ class StandardAttention(nn.Module):
         self.output_attention = output_attention
 
     def forward(self, query, key, value, mask=None):
+        # print(f"{ query.size() = }, { key.size() = }, { value.size() = }")
+        # print(f"{ query.size() = }, { key.size() = }, { value.size() = }")
+        # query_fft, key_fft, value_fft = (
+        #     torch.view_as_real(torch.fft.fft(query.squeeze(), dim=-1)).permute(2, 0, 1),
+        #     torch.view_as_real(torch.fft.fft(key.squeeze(), dim=-1)).permute(2, 0, 1),
+        #     torch.view_as_real(torch.fft.fft(value.squeeze(), dim=-1)).permute(2, 0, 1),
+        # )
+        # print(f"{ query_fft.size() = }, { key_fft.size() = }, { value_fft.size() = }")
+        # query, key, value = (
+        #     torch.cat((query, query_fft)),
+        #     torch.cat((key, key_fft)),
+        #     torch.cat((value, value_fft)),
+        # )
+        # print(f"{ query.size() = }, { key.size() = }, { value.size() = }")
         key_dim = key.size(-1)
         attn = torch.matmul(query / np.sqrt(key_dim), key.transpose(1, 2))
         if mask is not None:
