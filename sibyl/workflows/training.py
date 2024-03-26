@@ -12,7 +12,6 @@ from sibyl.utils.configs import TimeSeriesConfig, TrainingConfig
 from sibyl.utils.log import logger, find_root_dir
 from sibyl.utils.models.dimformer.model import Dimformer
 from sibyl.utils.models.informer.model import Informer, DecoderOnlyInformer
-from sibyl.utils.models.phaseformer.model import Phaseformer
 from sibyl.utils.models.ring.model import Ring
 from sibyl.utils.models.ring.ring_attention import RingTransformer
 from sibyl.utils.plot import plot
@@ -139,13 +138,6 @@ def initialize_model(X: Tensor, y: Tensor, model: Any) -> nn.Module:
             distil=True,
             mix=True,
         ),
-        Phaseformer: Phaseformer(
-            dimensions=num_features,
-            duration=feature_len,
-            feature_rank=1,
-            temporal_rank=2,
-            dropout=0.01,
-        ),
     }
 
     return model_configurations[model]
@@ -269,11 +261,11 @@ def main():
     )
     features, targets = load_and_preprocess_data(time_series_config)
     X, y = normalize(features, targets)
-    model = initialize_model(X, y, Phaseformer)
+    model = initialize_model(X, y, Dimformer)
     training_config = TrainingConfig(
         epochs=10,
         learning_rate=0.001,
-        criterion="MSE",
+        criterion="MaxAE",
         optimizer="AdamW",
         plot_loss=True,
         plot_predictions=True,
