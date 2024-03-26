@@ -265,11 +265,11 @@ def main():
     training_config = TrainingConfig(
         epochs=10,
         learning_rate=0.001,
-        criterion="MaxAE",
+        criterion="MaxSE",
         optimizer="AdamW",
         plot_loss=True,
         plot_predictions=True,
-        plot_interval=1,
+        plot_interval=300,
         log=log,
     )
     train_loader, val_loader = prepare_datasets(X, y, training_config)
