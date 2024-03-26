@@ -190,7 +190,7 @@ def train_model(
 
         for window, (X, y) in enumerate(tqdm(train_loader, desc="Training")):
             config.optimizer.zero_grad()
-            y_hat = model(X)
+            y_hat = model(X, y)
             loss = config.criterion(y_hat, y)
             if window == 20_000:
                 return
@@ -215,7 +215,7 @@ def train_model(
 
         with torch.no_grad():
             for window, (X, y) in enumerate(tqdm(val_loader, desc="Validating")):
-                y_hat = model(X)
+                y_hat = model(X, y)
                 loss = config.criterion(y_hat, y)
                 val_loss += loss.item()
                 validation_losses.append(loss.item())
