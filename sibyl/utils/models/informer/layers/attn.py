@@ -20,7 +20,7 @@ class FullAttention(nn.Module):
         """
         Implements Full Attention mechanism.
 
-        :param mask_flag: If True, masks future positions to enforce causality.
+        :param mask_flag: If True, it masks future positions to enforce causality.
         :param factor: Factor by which to reduce the number of keys.
         :param scale: Scale factor for the attention scores.
         :param attention_dropout: Dropout rate for attention weights.

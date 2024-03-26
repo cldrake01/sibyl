@@ -58,7 +58,7 @@ class Decoder(nn.Module):
         for layer in self.layers:
             x = layer(x, cross, x_mask=x_mask, cross_mask=cross_mask)
 
-        if self.norm is not None:
+        if self.norm:
             x = self.norm(x)
 
         return x

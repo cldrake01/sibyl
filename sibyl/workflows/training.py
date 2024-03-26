@@ -1,6 +1,7 @@
 import os
 import pickle
 import signal
+from typing import Any
 
 import torch
 from torch import Tensor, nn
@@ -11,6 +12,7 @@ from sibyl.utils.configs import TimeSeriesConfig, TrainingConfig
 from sibyl.utils.log import logger, find_root_dir
 from sibyl.utils.models.dimformer.model import Dimformer
 from sibyl.utils.models.informer.model import Informer, DecoderOnlyInformer
+from sibyl.utils.models.phaseformer.model import Phaseformer
 from sibyl.utils.models.ring.model import Ring
 from sibyl.utils.models.ring.ring_attention import RingTransformer
 from sibyl.utils.plot import plot
@@ -49,7 +51,7 @@ def load_and_preprocess_data(
     return features, targets
 
 
-def initialize_model(X: Tensor, y: Tensor, model: type) -> torch.nn.Module:
+def initialize_model(X: Tensor, y: Tensor, model: Any) -> nn.Module:
     num_features = X.size(2)
     num_targets = y.size(2)
     feature_len = X.size(1)
@@ -76,7 +78,7 @@ def initialize_model(X: Tensor, y: Tensor, model: type) -> torch.nn.Module:
             freq="h",
             activation="gelu",
             output_attention=False,
-            distil=True,
+            distil=False,
             mix=True,
             encoder=False,
         ),
@@ -137,6 +139,13 @@ def initialize_model(X: Tensor, y: Tensor, model: type) -> torch.nn.Module:
             distil=True,
             mix=True,
         ),
+        Phaseformer: Phaseformer(
+            dimensions=num_features,
+            duration=feature_len,
+            feature_rank=1,
+            temporal_rank=2,
+            dropout=0.01,
+        ),
     }
 
     return model_configurations[model]
@@ -178,7 +187,7 @@ def train_model(
         save_model(
             model, f"{find_root_dir(os.path.dirname(__file__))}/assets/models/model.pt"
         )
-        exit(0)
+        exit()
 
     signal.signal(signal.SIGINT, signal_handler)
 
@@ -189,7 +198,7 @@ def train_model(
 
         for window, (X, y) in enumerate(tqdm(train_loader, desc="Training")):
             config.optimizer.zero_grad()
-            y_hat = model(X, y)
+            y_hat = model(X)
             loss = config.criterion(y_hat, y)
             if window == 20_000:
                 return
@@ -198,7 +207,7 @@ def train_model(
             train_loss += loss.item()
             training_losses.append(loss.item())
             # Gradient clipping
-            torch.nn.utils.clip_grad_norm_(model.parameters(), 0.5)
+            nn.utils.clip_grad_norm_(model.parameters(), 0.5)
             if window % config.plot_interval == 0:
                 plot(
                     X=X,
@@ -214,7 +223,7 @@ def train_model(
 
         with torch.no_grad():
             for window, (X, y) in enumerate(tqdm(val_loader, desc="Validating")):
-                y_hat = model(X, y)
+                y_hat = model(X)
                 loss = config.criterion(y_hat, y)
                 val_loss += loss.item()
                 validation_losses.append(loss.item())
@@ -235,7 +244,7 @@ def main():
     Having a main function allows us to run the script within a Jupyter Notebook.
 
     ```py
-    from import sibyl.workflows.training import main
+    from sibyl.workflows.training import main
 
     main()
     ```
@@ -260,15 +269,15 @@ def main():
     )
     features, targets = load_and_preprocess_data(time_series_config)
     X, y = normalize(features, targets)
-    model = initialize_model(X, y, Dimformer)
+    model = initialize_model(X, y, Phaseformer)
     training_config = TrainingConfig(
         epochs=10,
         learning_rate=0.001,
-        criterion="MaxAE",
+        criterion="MSE",
         optimizer="AdamW",
         plot_loss=True,
         plot_predictions=True,
-        plot_interval=300,
+        plot_interval=1,
         log=log,
     )
     train_loader, val_loader = prepare_datasets(X, y, training_config)
