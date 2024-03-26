@@ -10,6 +10,6 @@ setup(
     long_description_content_type="text/markdown",
     url="https://github.com/cldrake01/sibyl",
     packages=find_packages(),
-    python_requires=">=3.12",
+    python_requires=">=3.10",
     include_package_data=True,
 )
