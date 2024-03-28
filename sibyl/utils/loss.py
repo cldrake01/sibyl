@@ -102,7 +102,7 @@ class MaxSE(nn.Module):
     def _maxse(self, y: Tensor, y_hat: Tensor) -> Tensor:
         r = (y - y_hat) ** 2
         w = torch.exp(
-            torch.abs(torch.var(y, dim=self.dim) - torch.var(y_hat, dim=self.dim))
+            (torch.var(y, dim=self.dim) - torch.var(y_hat, dim=self.dim)) ** 2
         )
         return w.max() * r.max()
 
