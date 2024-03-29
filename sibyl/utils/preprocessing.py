@@ -1,6 +1,7 @@
 from typing import Callable
 
 import numpy as np
+import pandas as pd
 import talib
 import torch
 from torch import Tensor
@@ -220,3 +221,48 @@ def normalize(*tensors: Tensor) -> tuple[Tensor, ...]:
         )
         for tensor in tensors
     )
+
+
+def ett(
+    config: TimeSeriesConfig,
+    directory: str = "/Users/collin/PycharmProjects/sibyl/assets/datasets/ETT-small",
+) -> tuple[Tensor, Tensor]:
+    """
+    Parse the ETT CSVs and return tensors of shape (batch, features, time).
+
+    :return: Feature windows, target windows
+    """
+    # Load the CSVs
+    X = pd.read_csv(f"{directory}/ETTh1.csv")
+    test = pd.read_csv(f"{directory}/ETTh2.csv")
+
+    # Remove the date column
+    X = X.drop(columns=["date"])
+    test = test.drop(columns=["date"])
+
+    # Convert to tensors
+    X = torch.tensor(X.to_numpy()).float()
+    y = torch.tensor(test.to_numpy()).float()
+
+    # Reshape the tensors
+    X = X.permute(1, 0)
+    y = y.permute(1, 0)
+
+    # Window the tensors
+    feature_window_size, target_window_size = (
+        config.feature_window_size,
+        config.target_window_size,
+    )
+    total_window_size = feature_window_size + target_window_size
+
+    X = X.unfold(-1, total_window_size, 1)
+    y = y.unfold(-1, total_window_size, 1)
+
+    # Split into features and targets
+    X = X[..., :feature_window_size]
+    y = y[..., feature_window_size:]
+
+    # (features, batch, time) -> (batch, time, features)
+    X, y = X.permute(1, 2, 0), y.permute(1, 2, 0)
+
+    return X, y

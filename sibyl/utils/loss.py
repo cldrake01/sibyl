@@ -3,6 +3,43 @@ import torch.nn as nn
 from torch import Tensor
 
 
+# def bias_variance_decomposition(y: Tensor, y_hat: Tensor) -> tuple[float, float, float]:
+#     """
+#     Compute the bias-variance decomposition of a model's predictions.
+#
+#     :param y: The true target values.
+#     :param y_hat: The predicted target values.
+#     :return: The bias-variance decomposition.
+#     """
+#     y, y_hat = y.squeeze(), y_hat.squeeze()
+#     y_bar = y.mean()
+#     y_hat_bar = y_hat.mean()
+#     bias = torch.sum((y_bar - y_hat) ** 2)
+#     variance = torch.sum((y_hat - y_hat_bar) ** 2)
+#     sum_ = torch.sum(bias + variance).item()
+#     return sum_, bias.item(), variance.item()
+
+
+def bias_variance_decomposition(
+    y: Tensor, y_hat: Tensor, num_rounds: int = 100
+) -> tuple[float, float, float]:
+    y, y_hat = y.squeeze(), y_hat.squeeze()
+
+    all_pred = y_hat[
+        torch.randint_like(y_hat, high=y.size(0), dtype=torch.int),
+        torch.randint_like(y_hat, high=y.size(1), dtype=torch.int),
+    ]
+
+    avg_expected_loss = torch.mean((all_pred - y) ** 2).item()
+
+    main_predictions = torch.mean(all_pred, dim=0)
+
+    avg_bias = torch.mean((main_predictions - y) ** 2).item()
+    avg_var = torch.mean((main_predictions - all_pred) ** 2).item()
+
+    return avg_expected_loss, avg_bias, avg_var
+
+
 class Fourier(nn.Module):
     def __init__(self, dim: int = 1, benchmark: bool = False):
         super(Fourier, self).__init__()

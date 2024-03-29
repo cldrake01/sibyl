@@ -10,13 +10,13 @@ from sibyl.utils.configs import TrainingConfig
 from sibyl.utils.log import find_root_dir
 
 
-def plot(
+def pred_plot(
     X: Tensor,
     y: Tensor,
     y_hat: Tensor,
     loss: list,
     config: TrainingConfig,
-    features: list[int] = None,
+    features: list[int] | None = None,
 ):
     """
     Plot both the predicted vs actual values and the loss on the same graph.
@@ -90,3 +90,29 @@ def plot(
             dpi=300,
         )
         plt.show()
+
+
+def bias_variance_plot(
+    bias_variance: list[float],
+    bias: list[float],
+    variance: list[float],
+    config: TrainingConfig,
+):
+    name = config.criterion.__class__.__name__
+
+    plt.plot(bias_variance, label="Total", alpha=0.25, color="green")
+    plt.plot(bias, label="Bias", alpha=0.25, color="blue")
+    plt.plot(variance, label="Variance", alpha=0.25, color="red")
+    plt.legend()
+    # Add the average of their last 100 values to the title
+    plt.title(
+        f"Bias-Variance Decomposition\n"
+        f"Total: {torch.mean(torch.tensor(bias_variance[-100:])).item():.4f} "
+        f"| Bias: {torch.mean(torch.tensor(bias[-100:])).item():.4f} "
+        f"| Variance: {torch.mean(torch.tensor(variance[-100:])).item():.4f}"
+    )
+    plt.savefig(
+        f"{find_root_dir(os.path.dirname(__file__))}/assets/plots/{name}.png",
+        dpi=500,
+    )
+    plt.show()

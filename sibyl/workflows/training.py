@@ -4,18 +4,20 @@ import signal
 from typing import Any
 
 import torch
+from matplotlib import pyplot as plt
 from torch import Tensor, nn
 from torch.utils.data import TensorDataset, DataLoader, random_split
 from tqdm import tqdm
 
 from sibyl.utils.configs import TimeSeriesConfig, TrainingConfig
 from sibyl.utils.log import logger, find_root_dir
+from sibyl.utils.loss import bias_variance_decomposition
 from sibyl.utils.models.dimformer.model import Dimformer
 from sibyl.utils.models.informer.model import Informer, DecoderOnlyInformer
 from sibyl.utils.models.ring.model import Ring
 from sibyl.utils.models.ring.ring_attention import RingTransformer
-from sibyl.utils.plot import plot
-from sibyl.utils.preprocessing import indicator_tensors, normalize
+from sibyl.utils.plot import pred_plot, bias_variance_plot
+from sibyl.utils.preprocessing import indicator_tensors, normalize, ett
 from sibyl.utils.retrieval import fetch_data
 
 
@@ -146,6 +148,7 @@ def initialize_model(X: Tensor, y: Tensor, model: Any) -> nn.Module:
 def prepare_datasets(
     X: Tensor, y: Tensor, config: TrainingConfig
 ) -> tuple[DataLoader, DataLoader]:
+    print(X.size(), y.size())
     total_samples = len(X)
     train_size = int(total_samples * config.train_val_split)
     val_size = total_samples - train_size
@@ -167,6 +170,9 @@ def train_model(
     config.criterion = config.criterion()
     config.optimizer = config.optimizer(model.parameters(), lr=config.learning_rate)
 
+    for param in model.parameters():
+        param.requires_grad = True
+
     # Define a function to save the model
     def save_model(model: nn.Module, filepath: str):
         config.log.info("Saving model...")
@@ -186,22 +192,37 @@ def train_model(
     for epoch in range(config.epochs):
         model.train()
         training_losses: list[float] = []
+        mae, mse, rs = [], [], []
+        bias_variance, bias, variance = [], [], []
         train_loss = 0.0  # Reset train loss for the epoch
 
         for window, (X, y) in enumerate(tqdm(train_loader, desc="Training")):
             config.optimizer.zero_grad()
             y_hat = model(X, y)
             loss = config.criterion(y_hat, y)
-            if window == 20_000:
-                return
             loss.backward()
             config.optimizer.step()
             train_loss += loss.item()
             training_losses.append(loss.item())
+            # mae.append(torch.nn.functional.l1_loss(y_hat, y).item())
+            # mse.append(torch.nn.functional.mse_loss(y_hat, y).item())
+            # rs.append(torch.sum(torch.abs(y - y_hat)).item())
+            b_v = bias_variance_decomposition(y_hat, y)
+            bias_variance.append(b_v[0])
+            bias.append(b_v[1])
+            variance.append(b_v[2])
+            if window == 20_000:
+                bias_variance_plot(
+                    bias_variance,
+                    bias,
+                    variance,
+                    config,
+                )
+                return
             # Gradient clipping
             nn.utils.clip_grad_norm_(model.parameters(), 0.5)
             if window % config.plot_interval == 0:
-                plot(
+                pred_plot(
                     X=X,
                     y=y,
                     y_hat=y_hat,
@@ -220,7 +241,7 @@ def train_model(
                 val_loss += loss.item()
                 validation_losses.append(loss.item())
                 if window % config.plot_interval == 0:
-                    plot(
+                    pred_plot(
                         X=X,
                         y=y,
                         y_hat=y_hat,
@@ -259,7 +280,7 @@ def main():
         log=log,
         years=0.005,
     )
-    features, targets = load_and_preprocess_data(time_series_config)
+    features, targets = ett(time_series_config)
     X, y = normalize(features, targets)
     model = initialize_model(X, y, Dimformer)
     training_config = TrainingConfig(
