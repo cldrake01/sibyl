@@ -175,7 +175,8 @@ def train_model(
     def signal_handler(sig, frame):
         config.log.info("Program interrupted.")
         save_model(
-            model, f"{find_root_dir(os.path.dirname(__file__))}/assets/models/{config.dataset}-model.pt"
+            model,
+            f"{find_root_dir(os.path.dirname(__file__))}/assets/models/{config.dataset}-model.pt",
         )
         exit()
 
