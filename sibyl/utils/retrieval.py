@@ -4,7 +4,7 @@ from alpaca.data import TimeFrame, StockBarsRequest, StockHistoricalDataClient
 from tqdm import tqdm
 
 from sibyl import ALPACA_API_KEY, ALPACA_API_SECRET
-from sibyl.utils.configs import TimeSeriesConfig
+from sibyl.utils.config import Config
 from sibyl.utils.tickers import tickers
 
 
@@ -43,11 +43,11 @@ def alpaca_time_series(
     return client.get_stock_bars(params).data
 
 
-def fetch_data(config: TimeSeriesConfig) -> list:
+def fetch_data(config: Config) -> list:
     """
     Retrieve data from the Alpaca API for a given number of years using multiple worker-threads.
 
-    :param config: (TimeSeriesConfig): A configuration object for time series data.
+    :param config: (TrainingConfig): A configuration object for time series data.
     :return: list: A list of bars for a given stock.
     """
     config.log.info("Retrieving data from the Alpaca API...")

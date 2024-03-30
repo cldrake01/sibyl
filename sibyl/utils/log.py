@@ -19,15 +19,18 @@ class NullLogger:
     def error(self, *args, **kwargs): ...
 
 
-def logger(file_name: str) -> Logger:
+def logger(file_name: str, dataset: str = "") -> Logger:
     """
     Setup logging configuration
 
     :param file_name: Path to the log file
+    :param dataset: Name of the dataset
+
+    :return: Logger object
     """
     # Identify the root directory based on a marker file
     root_dir = find_root_dir(os.path.dirname(__file__))
-    log_directory = os.path.join(root_dir, "logs")
+    log_directory = os.path.join(root_dir, f"logs/{dataset}" if dataset else "logs")
     log_file_path = os.path.join(log_directory, f"{file_name}.log")
 
     # Create the log directory if it doesn't exist

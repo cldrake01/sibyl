@@ -1,17 +1,18 @@
+import os
 from dataclasses import dataclass
 from logging import Logger
 
 import torch
 
 from sibyl import tickers
-from sibyl.utils.log import NullLogger
+from sibyl.utils.log import NullLogger, logger
 from sibyl.utils.loss import MaxSE, MaxAE, MaxAPE, Fourier
 
 
 @dataclass
-class TimeSeriesConfig:
+class Config:
     """
-    Configuration for time series data.
+    Configuration for training.
     """
 
     years: float = 0.05
@@ -22,16 +23,6 @@ class TimeSeriesConfig:
     include_hashes: bool = False
     include_temporal: bool = False
     included_indicators: list[str] | None = None
-    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-    log: NullLogger | Logger = NullLogger()
-
-
-@dataclass
-class TrainingConfig:
-    """
-    Configuration for training.
-    """
-
     validation: bool = True
     epochs: int = 10
     batch_size: int = 1
@@ -45,7 +36,9 @@ class TrainingConfig:
     plot_predictions: bool = False
     plot_interval: int = 20
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+    dataset: str = "alpaca"
     log: NullLogger | Logger = NullLogger()
+    logger_name: str = ""
 
     def __post_init__(self):
         """
@@ -59,6 +52,10 @@ class TrainingConfig:
         optimizer = self.optimizer()
         ```
         """
+        # Check for macOS and set environment variable to avoid MKL errors
+        if os.name == "posix":
+            os.environ["KMP_DUPLICATE_LIB_OK"] = "True"
+
         loss_functions = {
             "Fourier": Fourier,
             "MaxAE": MaxAE,
@@ -74,3 +71,6 @@ class TrainingConfig:
             "AdamW": torch.optim.AdamW,
         }
         self.optimizer = optimizers[self.optimizer]
+
+        if self.logger_name:
+            self.log = logger(self.logger_name, self.dataset)

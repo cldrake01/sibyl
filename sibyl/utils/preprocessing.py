@@ -6,20 +6,20 @@ import talib
 import torch
 from torch import Tensor
 
-from sibyl.utils.configs import TimeSeriesConfig
+from sibyl.utils.config import Config
 
 
 def indicators(
     time_series: list,
     stock_id: int,
-    config: TimeSeriesConfig,
+    config: Config,
 ) -> tuple[Tensor, Tensor]:
     """
     Calculates technical indicators for a given stock and returns feature and target windows.
 
     :param time_series: (list): A list of bars for a given stock.
     :param stock_id: (int): A unique identifier for the stock. Which must be passed to indi
-    :param config: (TimeSeriesConfig): A configuration object for time series data.
+    :param config: (TrainingConfig): A configuration object for time series data.
     :return: tuple[Tensor, Tensor]: Two tensors representing feature windows and target windows.
     """
     # Extracting data points for indicators
@@ -111,13 +111,13 @@ def indicators(
     return feature_windows.squeeze(0), target_windows.squeeze(0)
 
 
-def windows(stock_data: dict, config: TimeSeriesConfig) -> tuple[list, list]:
+def windows(stock_data: dict, config: Config) -> tuple[list, list]:
     """
     Applies the `indicators` function to each stock in the input dictionary and aggregates the resulting feature and
     target windows into lists.
 
     :param stock_data: (dict): A dictionary of stock data.
-    :param config: (TimeSeriesConfig): A configuration object for time series data.
+    :param config: (TrainingConfig): A configuration object for time series data.
     :return tuple[list, list]: A tuple of lists representing feature windows and target windows.
     """
     target_windows_list, feature_windows_list = [], []
@@ -143,7 +143,7 @@ def windows(stock_data: dict, config: TimeSeriesConfig) -> tuple[list, list]:
 
 def window_function(
     stock_data: dict | list,
-) -> Callable[[dict | list, TimeSeriesConfig], tuple[list, list]]:
+) -> Callable[[dict | list, Config], tuple[list, list]]:
     """
     A higher-order function that applies the `indicators` function to each stock in the input dictionary and
     aggregates the resulting feature and target windows into lists.
@@ -157,7 +157,7 @@ def window_function(
         return windows
     elif isinstance(stock_data, list):
 
-        def list_indicators(s_d: list, c: TimeSeriesConfig):
+        def list_indicators(s_d: list, c: Config):
             # Handling case where stock_data is a list of dictionaries
             aggregated_data = {
                 ticker: data
@@ -175,14 +175,14 @@ def window_function(
 
 def indicator_tensors(
     stock_data: dict | list,
-    config: TimeSeriesConfig,
+    config: Config,
 ) -> tuple[Tensor, Tensor]:
     """
     Applies the `indicators` function to each stock in the input dictionary and aggregates the resulting feature and
     target windows into tensors.
 
     :param stock_data: (dict or list): A dictionary of stock data or a list of dictionaries of stock data.
-    :param config: (TimeSeriesConfig): A configuration object for time series data.
+    :param config: (TrainingConfig): A configuration object for time series data.
     :return: tuple[Tensor, Tensor]: Two tensors representing feature windows and target windows.
     """
     # Aggregating feature and target windows
@@ -224,29 +224,26 @@ def normalize(*tensors: Tensor) -> tuple[Tensor, ...]:
 
 
 def ett(
-    config: TimeSeriesConfig,
+    config: Config,
     directory: str = "/Users/collin/PycharmProjects/sibyl/assets/datasets/ETT-small",
-) -> tuple[Tensor, Tensor]:
+    file: str = "ETTh1.csv",
+) -> tuple[Tensor, ...]:
     """
     Parse the ETT CSVs and return tensors of shape (batch, features, time).
 
     :return: Feature windows, target windows
     """
     # Load the CSVs
-    X = pd.read_csv(f"{directory}/ETTh1.csv")
-    test = pd.read_csv(f"{directory}/ETTh2.csv")
+    X = pd.read_csv(f"{directory}/{file}")
 
     # Remove the date column
     X = X.drop(columns=["date"])
-    test = test.drop(columns=["date"])
 
     # Convert to tensors
     X = torch.tensor(X.to_numpy()).float()
-    y = torch.tensor(test.to_numpy()).float()
 
     # Reshape the tensors
     X = X.permute(1, 0)
-    y = y.permute(1, 0)
 
     # Window the tensors
     feature_window_size, target_window_size = (
@@ -256,13 +253,12 @@ def ett(
     total_window_size = feature_window_size + target_window_size
 
     X = X.unfold(-1, total_window_size, 1)
-    y = y.unfold(-1, total_window_size, 1)
-
-    # Split into features and targets
-    X = X[..., :feature_window_size]
-    y = y[..., feature_window_size:]
 
     # (features, batch, time) -> (batch, time, features)
-    X, y = X.permute(1, 2, 0), y.permute(1, 2, 0)
+    X = X.permute(1, 2, 0)
 
-    return X, y
+    # Split into features and targets
+    train = X[:, :feature_window_size, :]
+    test = X[:, feature_window_size:, :]
+
+    return train, test

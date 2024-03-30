@@ -6,7 +6,7 @@ import torch
 from matplotlib import pyplot as plt
 from torch import Tensor
 
-from sibyl.utils.configs import TrainingConfig
+from sibyl.utils.config import Config
 from sibyl.utils.log import find_root_dir
 
 
@@ -15,7 +15,7 @@ def pred_plot(
     y: Tensor,
     y_hat: Tensor,
     loss: list,
-    config: TrainingConfig,
+    config: Config,
     features: list[int] | None = None,
 ):
     """
@@ -28,6 +28,8 @@ def pred_plot(
     :param config: TrainingConfig object.
     :param features: List of features to plot.
     """
+    criterion = config.criterion.__class__.__name__
+
     # Clear existing figure
     plt.clf()
 
@@ -82,12 +84,18 @@ def pred_plot(
             alpha=0.5,
         ).legend().remove()
 
+    path: str = find_root_dir(os.path.dirname(__file__)) + f"/assets/plots/"
+    if config.dataset:
+        path += f"{config.dataset}/"
+    os.makedirs(path, exist_ok=True)
+    path += f"latest-{criterion}.png"
+
     # Show the combined plot
     if config.plot_predictions or config.plot_loss:
         # Save the latest plot
         plt.savefig(
-            f"{find_root_dir(os.path.dirname(__file__))}/assets/plots/latest.png",
-            dpi=300,
+            path,
+            dpi=500,
         )
         plt.show()
 
@@ -96,11 +104,12 @@ def bias_variance_plot(
     bias_variance: list[float],
     bias: list[float],
     variance: list[float],
-    config: TrainingConfig,
+    residuals: list[float],
+    config: Config,
 ):
-    name = config.criterion.__class__.__name__
-
+    criterion = config.criterion.__class__.__name__
     plt.plot(bias_variance, label="Total", alpha=0.25, color="green")
+
     plt.plot(bias, label="Bias", alpha=0.25, color="blue")
     plt.plot(variance, label="Variance", alpha=0.25, color="red")
     plt.legend()
@@ -109,10 +118,19 @@ def bias_variance_plot(
         f"Bias-Variance Decomposition\n"
         f"Total: {torch.mean(torch.tensor(bias_variance[-100:])).item():.4f} "
         f"| Bias: {torch.mean(torch.tensor(bias[-100:])).item():.4f} "
-        f"| Variance: {torch.mean(torch.tensor(variance[-100:])).item():.4f}"
+        f"| Variance: {torch.mean(torch.tensor(variance[-100:])).item():.4f}\n"
+        # f"Residuals: {torch.mean(torch.tensor(residuals[-100:])).item():.4f} "
+        # f"| Residual Sum: {torch.sum(torch.tensor(residuals[-100:])).item():.4f}"
     )
+
+    path: str = find_root_dir(os.path.dirname(__file__)) + f"/assets/plots/"
+    if config.dataset:
+        path += f"{config.dataset}/"
+    os.makedirs(path, exist_ok=True)
+    path += f"{criterion}.png"
+
     plt.savefig(
-        f"{find_root_dir(os.path.dirname(__file__))}/assets/plots/{name}.png",
+        path,
         dpi=500,
     )
     plt.show()

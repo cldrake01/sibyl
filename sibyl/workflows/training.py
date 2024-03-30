@@ -9,7 +9,7 @@ from torch import Tensor, nn
 from torch.utils.data import TensorDataset, DataLoader, random_split
 from tqdm import tqdm
 
-from sibyl.utils.configs import TimeSeriesConfig, TrainingConfig
+from sibyl.utils.config import Config, Config
 from sibyl.utils.log import logger, find_root_dir
 from sibyl.utils.loss import bias_variance_decomposition
 from sibyl.utils.models.dimformer.model import Dimformer
@@ -21,15 +21,8 @@ from sibyl.utils.preprocessing import indicator_tensors, normalize, ett
 from sibyl.utils.retrieval import fetch_data
 
 
-def setup_environment() -> logger:
-    # Check for macOS
-    if os.name == "posix":
-        os.environ["KMP_DUPLICATE_LIB_OK"] = "True"
-    return logger("training.py")
-
-
 def load_and_preprocess_data(
-    config: TimeSeriesConfig, file_path: str | None = None
+    config: Config, file_path: str | None = None
 ) -> tuple[Tensor, Tensor]:
     root = find_root_dir(os.path.dirname(__file__))
 
@@ -146,9 +139,8 @@ def initialize_model(X: Tensor, y: Tensor, model: Any) -> nn.Module:
 
 
 def prepare_datasets(
-    X: Tensor, y: Tensor, config: TrainingConfig
+    X: Tensor, y: Tensor, config: Config
 ) -> tuple[DataLoader, DataLoader]:
-    print(X.size(), y.size())
     total_samples = len(X)
     train_size = int(total_samples * config.train_val_split)
     val_size = total_samples - train_size
@@ -165,7 +157,7 @@ def train_model(
     model: nn.Module,
     train_loader: DataLoader,
     val_loader: DataLoader,
-    config: TrainingConfig,
+    config: Config,
 ):
     config.criterion = config.criterion()
     config.optimizer = config.optimizer(model.parameters(), lr=config.learning_rate)
@@ -183,7 +175,7 @@ def train_model(
     def signal_handler(sig, frame):
         config.log.info("Program interrupted.")
         save_model(
-            model, f"{find_root_dir(os.path.dirname(__file__))}/assets/models/model.pt"
+            model, f"{find_root_dir(os.path.dirname(__file__))}/assets/models/{config.dataset}-model.pt"
         )
         exit()
 
@@ -206,7 +198,7 @@ def train_model(
             training_losses.append(loss.item())
             # mae.append(torch.nn.functional.l1_loss(y_hat, y).item())
             # mse.append(torch.nn.functional.mse_loss(y_hat, y).item())
-            # rs.append(torch.sum(torch.abs(y - y_hat)).item())
+            rs.append(torch.sum(torch.abs(y - y_hat)).item())
             b_v = bias_variance_decomposition(y_hat, y)
             bias_variance.append(b_v[0])
             bias.append(b_v[1])
@@ -216,6 +208,7 @@ def train_model(
                     bias_variance,
                     bias,
                     variance,
+                    rs,
                     config,
                 )
                 return
@@ -265,8 +258,15 @@ def main():
     You can, for example, import your Sibyl fork from a private GitHub repository as a package and run the main
     function. You must override `setup.py` if you intend to utilize Sibyl as a custom package.
     """
-    log = setup_environment()
-    time_series_config = TimeSeriesConfig(
+    config = Config(
+        epochs=10,
+        learning_rate=0.001,
+        criterion="MAE",
+        optimizer="AdamW",
+        plot_loss=False,
+        plot_predictions=False,
+        plot_interval=300,
+        dataset="alpaca",
         feature_window_size=120,
         target_window_size=15,
         include_hashes=False,
@@ -277,28 +277,19 @@ def main():
             # "MFI",
             "ADX",
         ],
-        log=log,
         years=0.005,
+        logger_name=os.path.basename(__file__),
     )
-    features, targets = ett(time_series_config)
+    # features, targets = ett(config, file="ETTm2.csv")
+    features, targets = load_and_preprocess_data(config)
     X, y = normalize(features, targets)
     model = initialize_model(X, y, Dimformer)
-    training_config = TrainingConfig(
-        epochs=10,
-        learning_rate=0.001,
-        criterion="MaxSE",
-        optimizer="AdamW",
-        plot_loss=True,
-        plot_predictions=True,
-        plot_interval=300,
-        log=log,
-    )
-    train_loader, val_loader = prepare_datasets(X, y, training_config)
+    train_loader, val_loader = prepare_datasets(X, y, config)
     train_model(
         model=model,
         train_loader=train_loader,
         val_loader=val_loader,
-        config=training_config,
+        config=config,
     )
 
 
