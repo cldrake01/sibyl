@@ -10,6 +10,7 @@ from torch.utils.data import TensorDataset, DataLoader, random_split
 from tqdm import tqdm
 
 from sibyl.utils.config import Config, Config
+from sibyl.utils.datasets import eld
 from sibyl.utils.log import logger, find_root_dir
 from sibyl.utils.loss import bias_variance_decomposition
 from sibyl.utils.models.dimformer.model import Dimformer
@@ -17,32 +18,8 @@ from sibyl.utils.models.informer.model import Informer, DecoderOnlyInformer
 from sibyl.utils.models.ring.model import Ring
 from sibyl.utils.models.ring.ring_attention import RingTransformer
 from sibyl.utils.plot import pred_plot, bias_variance_plot
-from sibyl.utils.preprocessing import indicator_tensors, normalize, ett
+from sibyl.utils.preprocessing import indicator_tensors, normalize
 from sibyl.utils.retrieval import fetch_data
-
-
-def load_and_preprocess_data(
-    config: Config, file_path: str | None = None
-) -> tuple[Tensor, Tensor]:
-    root = find_root_dir(os.path.dirname(__file__))
-
-    file_path = file_path or f"{root}/assets/pkl/time_series.pkl"
-
-    if os.path.exists(file_path):
-        config.log.info("Loading pickle file...")
-        with open(file_path, "rb") as f:
-            time_series = pickle.load(f)
-    else:
-        time_series = fetch_data(config=config)
-        config.log.info("Creating pickle file...")
-        if not os.path.exists(os.path.dirname(file_path)):
-            os.makedirs(os.path.dirname(file_path))
-        with open(file_path, "wb") as f:
-            pickle.dump(time_series, f)
-
-    config.log.info("Creating tensors...")
-    features, targets = indicator_tensors(time_series, config=config)
-    return features, targets
 
 
 def initialize_model(X: Tensor, y: Tensor, model: Any) -> nn.Module:
@@ -176,7 +153,7 @@ def train_model(
         config.log.info("Program interrupted.")
         save_model(
             model,
-            f"{find_root_dir(os.path.dirname(__file__))}/assets/models/{config.dataset}-model.pt",
+            f"{find_root_dir(os.path.dirname(__file__))}/assets/models/{config.dataset_name}-model.pt",
         )
         exit()
 
@@ -262,12 +239,12 @@ def main():
     config = Config(
         epochs=10,
         learning_rate=0.001,
-        criterion="MAE",
+        criterion="MaxSE",
         optimizer="AdamW",
-        plot_loss=False,
-        plot_predictions=False,
+        plot_loss=True,
+        plot_predictions=True,
         plot_interval=300,
-        dataset="alpaca",
+        dataset_name="eld",
         feature_window_size=120,
         target_window_size=15,
         include_hashes=False,
@@ -281,8 +258,7 @@ def main():
         years=0.005,
         logger_name=os.path.basename(__file__),
     )
-    # features, targets = ett(config, file="ETTm2.csv")
-    features, targets = load_and_preprocess_data(config)
+    features, targets = config.dataset
     X, y = normalize(features, targets)
     model = initialize_model(X, y, Dimformer)
     train_loader, val_loader = prepare_datasets(X, y, config)

@@ -3,8 +3,10 @@ from dataclasses import dataclass
 from logging import Logger
 
 import torch
+from torch import Tensor
 
 from sibyl import tickers
+from sibyl.utils.datasets import alpaca, ett, eld
 from sibyl.utils.log import NullLogger, logger
 from sibyl.utils.loss import MaxSE, MaxAE, MaxAPE, Fourier
 
@@ -36,7 +38,8 @@ class Config:
     plot_predictions: bool = False
     plot_interval: int = 20
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-    dataset: str = "alpaca"
+    dataset_name: str | tuple[Tensor, Tensor] = "alpaca"
+    dataset: tuple[Tensor, Tensor] | None = None
     log: NullLogger | Logger = NullLogger()
     logger_name: str = ""
 
@@ -73,4 +76,12 @@ class Config:
         self.optimizer = optimizers[self.optimizer]
 
         if self.logger_name:
-            self.log = logger(self.logger_name, self.dataset)
+            self.log = logger(self.logger_name, self.dataset_name)
+
+        datasets = {
+            "alpaca": alpaca,
+            "ett": ett,
+            "eld": eld,
+        }
+
+        self.dataset = datasets[self.dataset_name](self)

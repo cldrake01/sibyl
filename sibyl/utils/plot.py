@@ -16,7 +16,7 @@ def pred_plot(
     y_hat: Tensor,
     loss: list,
     config: Config,
-    features: list[int] | None = None,
+    features: list[int] = [],
 ):
     """
     Plot both the predicted vs actual values and the loss on the same graph.
@@ -51,13 +51,15 @@ def pred_plot(
         features = features or range(X_.shape[1])
 
         for i in features:
+            actual = pd.DataFrame(torch.cat((X_[:, i], y_[:, i]), 0))
+            predicted = pd.DataFrame(torch.cat((X_[:, i], y_hat_[:, i]), 0))
             sns.lineplot(
-                data=pd.DataFrame({"y": torch.cat((X_[:, i], y_[:, i]), 0)}),
-                palette=["b"],
+                data=actual,
+                palette=["blue"],
                 alpha=0.5,
             ).legend().remove()
             sns.lineplot(
-                data=pd.DataFrame({"y_hat": torch.cat((X_[:, i], y_hat_[:, i]), 0)}),
+                data=predicted,
                 palette=["red"],
                 alpha=0.5,
             ).legend().remove()
@@ -85,8 +87,8 @@ def pred_plot(
         ).legend().remove()
 
     path: str = find_root_dir(os.path.dirname(__file__)) + f"/assets/plots/"
-    if config.dataset:
-        path += f"{config.dataset}/"
+    if config.dataset_name:
+        path += f"{config.dataset_name}/"
     os.makedirs(path, exist_ok=True)
     path += f"latest-{criterion}.png"
 
@@ -114,18 +116,21 @@ def bias_variance_plot(
     plt.plot(variance, label="Variance", alpha=0.25, color="red")
     plt.legend()
     # Add the average of their last 100 values to the title
+    m_b_v = torch.mean(torch.tensor(bias_variance[-100:])).item()
+    b = torch.mean(torch.tensor(bias[-100:])).item()
+    v = torch.mean(torch.tensor(variance[-100:])).item()
     plt.title(
         f"Bias-Variance Decomposition\n"
-        f"Total: {torch.mean(torch.tensor(bias_variance[-100:])).item():.4f} "
-        f"| Bias: {torch.mean(torch.tensor(bias[-100:])).item():.4f} "
-        f"| Variance: {torch.mean(torch.tensor(variance[-100:])).item():.4f}\n"
+        f"Total: {m_b_v:.4f} "
+        f"| Bias: {b:.4f} "
+        f"| Variance: {v:.4f}\n"
         # f"Residuals: {torch.mean(torch.tensor(residuals[-100:])).item():.4f} "
         # f"| Residual Sum: {torch.sum(torch.tensor(residuals[-100:])).item():.4f}"
     )
 
     path: str = find_root_dir(os.path.dirname(__file__)) + f"/assets/plots/"
-    if config.dataset:
-        path += f"{config.dataset}/"
+    if config.dataset_name:
+        path += f"{config.dataset_name}/"
     os.makedirs(path, exist_ok=True)
     path += f"{criterion}.png"
 
@@ -134,3 +139,7 @@ def bias_variance_plot(
         dpi=500,
     )
     plt.show()
+
+    config.log.info(
+        f"Model Synopsis: {criterion} - Bias: {b:.4f} - Variance: {v:.4f} - Total: {m_b_v:.4f}"
+    )
