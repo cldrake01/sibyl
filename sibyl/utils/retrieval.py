@@ -51,11 +51,16 @@ def fetch_data(config: "Config") -> list:
     """
     config.log.info("Retrieving data from the Alpaca API...")
 
-    # Partitioning the tickers
-    partitions = [
-        tickers[i : i + config.rate] for i in range(0, len(tickers), config.rate)
-    ]
-    config.log.info(f"Partitioned tickers into {len(partitions)} partitions.")
+    # On weekends, we must adjust the date range to avoid errors
+    match datetime.today().weekday():
+        case 5:
+            end = datetime.today() - timedelta(1)
+            config.log.warning("It's Saturday. Adjusting the date range...")
+        case 6:
+            end = datetime.today() - timedelta(2)
+            config.log.warning("It's Sunday. Adjusting the date range...")
+        case _:
+            end = datetime.today()
 
     data = []
 
@@ -63,8 +68,8 @@ def fetch_data(config: "Config") -> list:
         data.append(
             alpaca_time_series(
                 [ticker],
-                datetime.today() - timedelta(365 * config.years),
-                datetime.today(),
+                end - timedelta(365 * config.years),
+                end,
             )
         )
 

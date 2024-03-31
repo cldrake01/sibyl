@@ -50,7 +50,7 @@ def logger(file_name: str, dataset: str = "") -> Logger:
 
     # Create a formatter to format log messages
     formatter = logging.Formatter(
-        "%(asctime)s - %(levelname)s - [%(funcName)-30s] \t %(message)s"
+        "%(asctime)s - %(levelname)-8s - %(funcName)-20s \t %(message)s"
     )
 
     # Set the formatter for the file handler

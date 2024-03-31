@@ -239,12 +239,12 @@ def main():
     config = Config(
         epochs=10,
         learning_rate=0.001,
-        criterion="MaxSE",
+        criterion="MaxAE",
         optimizer="AdamW",
         plot_loss=True,
         plot_predictions=True,
         plot_interval=300,
-        dataset_name="eld",
+        dataset_name="alpaca",
         feature_window_size=120,
         target_window_size=15,
         include_hashes=False,
@@ -255,7 +255,7 @@ def main():
             # "MFI",
             "ADX",
         ],
-        years=0.005,
+        years=0.01,
         logger_name=os.path.basename(__file__),
     )
     features, targets = config.dataset

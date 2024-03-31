@@ -101,7 +101,8 @@ class MaxAE(nn.Module):
     def _maxae(self, y: Tensor, y_hat: Tensor) -> Tensor:
         r = (y - y_hat).abs()
         w = torch.abs(torch.var(y, dim=self.dim) - torch.var(y_hat, dim=self.dim)) + 1
-        return w.max() * r.max()
+        # r_max = torch.max(r, dim=self.dim).values
+        return r.max() * w.max()
 
     @staticmethod
     def _mae(y: Tensor, y_hat: Tensor) -> Tensor:

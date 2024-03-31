@@ -10,31 +10,37 @@ from sibyl.utils.preprocessing import indicator_tensors
 from sibyl.utils.retrieval import fetch_data
 
 
-def alpaca(config: "Config", file_path: str | None = None) -> tuple[Tensor, Tensor]:
-    root = find_root_dir(os.path.dirname(__file__))
+def cache(func):
+    def wrapper(*args, **kwargs):
+        config = args[0]
+        root = find_root_dir(os.path.dirname(__file__))
+        file_path = f"{root}/assets/pkl/{func.__name__}.pkl"
+        if os.path.exists(file_path):
+            config.log.info(f"Loading cached data from {file_path}...")
+            with open(file_path, "rb") as f:
+                return pickle.load(f)
+        else:
+            config.log.info(f"Caching data to {file_path}...")
+            data = func(*args, **kwargs)
+            with open(file_path, "wb") as f:
+                pickle.dump(data, f)
+            return data
 
-    file_path = file_path or f"{root}/assets/pkl/time_series.pkl"
+    return wrapper
 
-    if os.path.exists(file_path):
-        config.log.info("Loading pickle file...")
-        with open(file_path, "rb") as f:
-            time_series = pickle.load(f)
-    else:
-        time_series = fetch_data(config=config)
-        config.log.info("Creating pickle file...")
-        if not os.path.exists(os.path.dirname(file_path)):
-            os.makedirs(os.path.dirname(file_path))
-        with open(file_path, "wb") as f:
-            pickle.dump(time_series, f)
 
+@cache
+def alpaca(config: "Config") -> tuple[Tensor, Tensor]:
+    time_series = fetch_data(config=config)
     config.log.info("Creating tensors...")
     features, targets = indicator_tensors(time_series, config=config)
     return features, targets
 
 
+@cache
 def ett(
     config: "Config",
-    directory: str = "/Users/collin/PycharmProjects/sibyl/assets/datasets/ETT-small",
+    directory: str = "sibyl/assets/datasets/ETT-small",
     file: str = "ETTh1.csv",
 ) -> tuple[Tensor, Tensor]:
     """
@@ -73,6 +79,7 @@ def ett(
     return train, test
 
 
+@cache
 def eld(
     config: "Config",
     directory: str = "/Users/collin/PycharmProjects/sibyl/assets/datasets/ELD",
@@ -107,5 +114,9 @@ def eld(
     # Split into features and targets
     train = X[:, :feature_window_size, :]
     test = X[:, feature_window_size:, :]
+
+    # Due to its sheer size, we'll only use the first 15 features
+    train = train[..., :15]
+    test = test[..., :15]
 
     return train, test

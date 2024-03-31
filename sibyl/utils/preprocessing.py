@@ -194,7 +194,12 @@ def indicator_tensors(
     feature_windows_tensor = feature_windows_tensor.permute(1, 2, 0)
     target_windows_tensor = target_windows_tensor.permute(1, 2, 0)
 
-    config.log.info(f"feature windows shape: {feature_windows_tensor.shape}")
+    config.log.info(
+        f"The alpaca dataset has {feature_windows_tensor.size(0):,} samples, "
+        + f"{feature_windows_tensor.size(1):,} feature time steps, "
+        + f"{feature_windows_tensor.size(1):,} target time steps, and "
+        + f"{feature_windows_tensor.size(2):,} features."
+    )
 
     return feature_windows_tensor, target_windows_tensor
 
