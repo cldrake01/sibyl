@@ -38,7 +38,7 @@ class Config:
     plot_predictions: bool = False
     plot_interval: int = 20
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-    dataset_name: str | tuple[Tensor, Tensor] = "alpaca"
+    dataset_name: str = "alpaca"
     dataset: tuple[Tensor, Tensor] | None = None
     log: NullLogger | Logger = NullLogger()
     logger_name: str = ""
