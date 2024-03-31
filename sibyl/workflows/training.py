@@ -1,25 +1,21 @@
 import os
-import pickle
 import signal
 from typing import Any
 
 import torch
-from matplotlib import pyplot as plt
 from torch import Tensor, nn
 from torch.utils.data import TensorDataset, DataLoader, random_split
 from tqdm import tqdm
 
-from sibyl.utils.config import Config, Config
-from sibyl.utils.datasets import eld
-from sibyl.utils.log import logger, find_root_dir
+from sibyl.utils.config import Config
+from sibyl.utils.log import find_root_dir
 from sibyl.utils.loss import bias_variance_decomposition
 from sibyl.utils.models.dimformer.model import Dimformer
 from sibyl.utils.models.informer.model import Informer, DecoderOnlyInformer
 from sibyl.utils.models.ring.model import Ring
 from sibyl.utils.models.ring.ring_attention import RingTransformer
 from sibyl.utils.plot import pred_plot, bias_variance_plot
-from sibyl.utils.preprocessing import indicator_tensors, normalize
-from sibyl.utils.retrieval import fetch_data
+from sibyl.utils.preprocessing import normalize
 
 
 def initialize_model(X: Tensor, y: Tensor, model: Any) -> nn.Module:

@@ -86,11 +86,11 @@ def pred_plot(
             alpha=0.5,
         ).legend().remove()
 
-    path: str = find_root_dir(os.path.dirname(__file__)) + f"/assets/plots/"
-    if config.dataset_name:
-        path += f"{config.dataset_name}/"
+    path: str = find_root_dir(os.path.dirname(__file__))
+    path += f"/assets/plots/forecasts/"
+    path += f"{config.dataset_name}/"
     os.makedirs(path, exist_ok=True)
-    path += f"latest-{criterion}.png"
+    path += f"{criterion}.png"
 
     # Show the combined plot
     if config.plot_predictions or config.plot_loss:
@@ -128,9 +128,9 @@ def bias_variance_plot(
         # f"| Residual Sum: {torch.sum(torch.tensor(residuals[-100:])).item():.4f}"
     )
 
-    path: str = find_root_dir(os.path.dirname(__file__)) + f"/assets/plots/"
-    if config.dataset_name:
-        path += f"{config.dataset_name}/"
+    path: str = find_root_dir(os.path.dirname(__file__))
+    path += f"/assets/plots/bias-variance/"
+    path += f"b-v-{config.dataset_name}/"
     os.makedirs(path, exist_ok=True)
     path += f"{criterion}.png"
 
