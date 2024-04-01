@@ -1,6 +1,8 @@
 import torch
 import torch.nn as nn
+from scipy.signal import coherence
 from torch import Tensor
+import torch.nn.functional as F
 
 
 # def bias_variance_decomposition(y: Tensor, y_hat: Tensor) -> tuple[float, float, float]:
@@ -106,7 +108,7 @@ class MaxAE(nn.Module):
 
     @staticmethod
     def _mae(y: Tensor, y_hat: Tensor) -> Tensor:
-        return torch.nn.functional.l1_loss(y, y_hat)
+        return F.l1_loss(y, y_hat)
 
     def forward(self, y_hat: Tensor, y: Tensor) -> Tensor:
         loss = self.loss(y, y_hat)
@@ -144,7 +146,7 @@ class MaxSE(nn.Module):
 
     @staticmethod
     def _mse(y: Tensor, y_hat: Tensor) -> Tensor:
-        return torch.nn.functional.mse_loss(y, y_hat)
+        return F.mse_loss(y, y_hat)
 
     def forward(self, y_hat: Tensor, y: Tensor) -> Tensor:
         return self.loss(y, y_hat)
@@ -182,6 +184,80 @@ class MaxAPE(nn.Module):
     @staticmethod
     def _mape(y: Tensor, y_hat: Tensor) -> Tensor:
         return (y - y_hat).abs() / y
+
+    def forward(self, y_hat: Tensor, y: Tensor) -> Tensor:
+        return self.loss(y, y_hat)
+
+
+class CMaxSE(nn.Module):
+    def __init__(
+        self,
+        dim: int = 1,
+        weighted: bool = True,
+        benchmark: bool = False,
+    ):
+        super(CMaxSE, self).__init__()
+        self.dim: int = dim
+        self.loss: callable = self._mse if benchmark else self._cmaxse
+        self.weights: callable = self._weights if weighted else lambda x: x
+
+    def __call__(self, *args, **kwargs):
+        return self._cmaxse(*args, **kwargs)
+
+    def _weights(self, t: Tensor) -> Tensor:
+        n = t.size(self.dim)
+        l = torch.linspace(1, n, n).int()
+        t = torch.repeat_interleave(t, l, dim=self.dim)
+        t = torch.exp(t)
+        return t
+
+    def _cmaxse(self, y: Tensor, y_hat: Tensor) -> Tensor:
+        r = (y - y_hat) ** 2
+        _, c = coherence(
+            y.detach(), y_hat.detach(), axis=self.dim, nperseg=y_hat.size(self.dim)
+        )
+        return r.max() / c.mean()
+
+    @staticmethod
+    def _mse(y: Tensor, y_hat: Tensor) -> Tensor:
+        return F.mse_loss(y, y_hat)
+
+    def forward(self, y_hat: Tensor, y: Tensor) -> Tensor:
+        return self.loss(y, y_hat)
+
+
+class CMaxAE(nn.Module):
+    def __init__(
+        self,
+        dim: int = 1,
+        weighted: bool = True,
+        benchmark: bool = False,
+    ):
+        super(CMaxAE, self).__init__()
+        self.dim: int = dim
+        self.loss: callable = self._mae if benchmark else self._cmaxae
+        self.weights: callable = self._weights if weighted else lambda x: x
+
+    def __call__(self, *args, **kwargs):
+        return self._cmaxae(*args, **kwargs)
+
+    def _weights(self, t: Tensor) -> Tensor:
+        n = t.size(self.dim)
+        l = torch.linspace(1, n, n).int()
+        t = torch.repeat_interleave(t, l, dim=self.dim)
+        t = torch.exp(t)
+        return t
+
+    def _cmaxae(self, y: Tensor, y_hat: Tensor) -> Tensor:
+        r = (y - y_hat).abs()
+        _, c = coherence(
+            y.detach(), y_hat.detach(), axis=self.dim, nperseg=y_hat.size(self.dim)
+        )
+        return r.max() / c.mean()
+
+    @staticmethod
+    def _mae(y: Tensor, y_hat: Tensor) -> Tensor:
+        return F.l1_loss(y, y_hat)
 
     def forward(self, y_hat: Tensor, y: Tensor) -> Tensor:
         return self.loss(y, y_hat)

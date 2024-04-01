@@ -9,7 +9,7 @@ from tqdm import tqdm
 
 from sibyl.utils.config import Config
 from sibyl.utils.log import find_root_dir
-from sibyl.utils.loss import bias_variance_decomposition
+from sibyl.utils.loss import bias_variance_decomposition, MaxAPE
 from sibyl.utils.models.dimformer.model import Dimformer
 from sibyl.utils.models.informer.model import Informer, DecoderOnlyInformer
 from sibyl.utils.models.ring.model import Ring
@@ -155,6 +155,8 @@ def train_model(
 
     signal.signal(signal.SIGINT, signal_handler)
 
+    maxape = MaxAPE(benchmark=True)
+
     for epoch in range(config.epochs):
         model.train()
         training_losses: list[float] = []
@@ -172,7 +174,7 @@ def train_model(
             training_losses.append(loss.item())
             # mae.append(torch.nn.functional.l1_loss(y_hat, y).item())
             # mse.append(torch.nn.functional.mse_loss(y_hat, y).item())
-            rs.append(torch.sum(torch.abs(y - y_hat)).item())
+            rs.append(torch.sum(maxape(y_hat, y)).item())
             b_v = bias_variance_decomposition(y_hat, y)
             bias_variance.append(b_v[0])
             bias.append(b_v[1])
@@ -235,7 +237,7 @@ def main():
     config = Config(
         epochs=10,
         learning_rate=0.001,
-        criterion="MaxAE",
+        criterion="MSE",
         optimizer="AdamW",
         plot_loss=True,
         plot_predictions=True,

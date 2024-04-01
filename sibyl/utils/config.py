@@ -8,7 +8,7 @@ from torch import Tensor
 from sibyl import tickers
 from sibyl.utils.datasets import alpaca, ett, eld
 from sibyl.utils.log import NullLogger, logger
-from sibyl.utils.loss import MaxSE, MaxAE, MaxAPE, Fourier
+from sibyl.utils.loss import MaxSE, MaxAE, MaxAPE, Fourier, CMaxSE
 
 
 @dataclass
@@ -66,6 +66,7 @@ class Config:
             "MaxAPE": MaxAPE,
             "MSE": torch.nn.MSELoss,
             "MAE": torch.nn.L1Loss,
+            "CMaxSE": CMaxSE,
         }
         self.criterion = loss_functions[self.criterion]
 

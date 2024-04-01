@@ -6,7 +6,11 @@
   <component name="ChangeListManager">
     <list default="true" id="a7ff77d1-7ecd-4619-8090-4ce640081a6c" name="Changes" comment="//">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/sibyl/__init__.py" beforeDir="false" afterPath="$PROJECT_DIR$/sibyl/__init__.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/poetry.lock" beforeDir="false" afterPath="$PROJECT_DIR$/poetry.lock" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/pyproject.toml" beforeDir="false" afterPath="$PROJECT_DIR$/pyproject.toml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/sibyl/utils/config.py" beforeDir="false" afterPath="$PROJECT_DIR$/sibyl/utils/config.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/sibyl/utils/loss.py" beforeDir="false" afterPath="$PROJECT_DIR$/sibyl/utils/loss.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/sibyl/utils/plot.py" beforeDir="false" afterPath="$PROJECT_DIR$/sibyl/utils/plot.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/sibyl/workflows/training.py" beforeDir="false" afterPath="$PROJECT_DIR$/sibyl/workflows/training.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -204,7 +208,12 @@
       <workItem from="1711834243901" duration="2488000" />
       <workItem from="1711848318887" duration="337000" />
       <workItem from="1711859086030" duration="4839000" />
-      <workItem from="1711895100282" duration="1882000" />
+      <workItem from="1711895100282" duration="2356000" />
+      <workItem from="1711942198060" duration="162000" />
+      <workItem from="1711942467752" duration="554000" />
+      <workItem from="1711943189816" duration="942000" />
+      <workItem from="1711946125065" duration="103000" />
+      <workItem from="1711982392269" duration="1881000" />
     </task>
     <task id="LOCAL-00001" summary="//">
       <option name="closed" value="true" />
@@ -526,7 +535,15 @@
       <option name="project" value="LOCAL" />
       <updated>1711895719326</updated>
     </task>
-    <option name="localTasksCounter" value="41" />
+    <task id="LOCAL-00041" summary="//">
+      <option name="closed" value="true" />
+      <created>1711912072714</created>
+      <option name="number" value="00041" />
+      <option name="presentableId" value="LOCAL-00041" />
+      <option name="project" value="LOCAL" />
+      <updated>1711912072714</updated>
+    </task>
+    <option name="localTasksCounter" value="42" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -552,7 +569,7 @@
   <component name="com.intellij.coverage.CoverageDataManagerImpl">
     <SUITE FILE_PATH="coverage/sibyl$setup.coverage" NAME="setup Coverage Results" MODIFIED="1709948761846" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
     <SUITE FILE_PATH="coverage/sibyl$plot.coverage" NAME="plot Coverage Results" MODIFIED="1710091283376" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/sibyl/workflows" />
-    <SUITE FILE_PATH="coverage/sibyl$training.coverage" NAME="training Coverage Results" MODIFIED="1711863470516" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/sibyl/workflows" />
+    <SUITE FILE_PATH="coverage/sibyl$training.coverage" NAME="training Coverage Results" MODIFIED="1711984314135" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/sibyl/workflows" />
     <SUITE FILE_PATH="coverage/sibyl$preprocessing.coverage" NAME="preprocessing Coverage Results" MODIFIED="1711836545571" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/sibyl/utils" />
   </component>
 </project>

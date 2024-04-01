@@ -16,12 +16,12 @@ def pred_plot(
     y_hat: Tensor,
     loss: list,
     config: Config,
-    features: list[int] = [],
+    features: list[int] | None = None,
 ):
     """
-    Plot both the predicted vs actual values and the loss on the same graph.
+    Plot both the predicted vs. actual values and the loss on the same graph.
 
-    :param X: The context window preceding the target window.
+    :param X: The context window which precedes the target window.
     :param y: The target window.
     :param y_hat: The predicted target window.
     :param loss: List of loss values.
@@ -87,7 +87,7 @@ def pred_plot(
         ).legend().remove()
 
     path: str = find_root_dir(os.path.dirname(__file__))
-    path += f"/assets/plots/forecasts/"
+    path += "/assets/plots/forecasts/"
     path += f"{config.dataset_name}/"
     os.makedirs(path, exist_ok=True)
     path += f"{criterion}.png"
@@ -124,13 +124,12 @@ def bias_variance_plot(
         f"Total: {m_b_v:.4f} "
         f"| Bias: {b:.4f} "
         f"| Variance: {v:.4f}\n"
-        # f"Residuals: {torch.mean(torch.tensor(residuals[-100:])).item():.4f} "
-        # f"| Residual Sum: {torch.sum(torch.tensor(residuals[-100:])).item():.4f}"
+        f"MAPE Residual Sum: {torch.sum(torch.tensor(residuals[-100:])).item():.4f} "
     )
 
     path: str = find_root_dir(os.path.dirname(__file__))
-    path += f"/assets/plots/bias-variance/"
-    path += f"b-v-{config.dataset_name}/"
+    path += "/assets/plots/bias-variance/"
+    path += f"{config.dataset_name}/"
     os.makedirs(path, exist_ok=True)
     path += f"{criterion}.png"
 
