@@ -62,16 +62,10 @@ def fetch_data(config: "Config") -> list:
         case _:
             end = datetime.today()
 
-    data = []
-
-    for ticker in tqdm(tickers, desc="Retrieving Data"):
-        data.append(
-            alpaca_time_series(
-                [ticker],
-                end - timedelta(365 * config.years),
-                end,
-            )
-        )
+    data = [
+        alpaca_time_series([ticker], end - timedelta(365 * config.years), end)
+        for ticker in tqdm(tickers, desc="Fetching data...")
+    ]
 
     config.log.info("Retrieved data from the Alpaca API.")
 

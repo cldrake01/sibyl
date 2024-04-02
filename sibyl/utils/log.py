@@ -18,6 +18,8 @@ class NullLogger:
 
     def error(self, *args, **kwargs): ...
 
+    def metric(self, *args, **kwargs): ...
+
 
 def logger(file_name: str, dataset: str = "") -> Logger:
     """
@@ -44,6 +46,16 @@ def logger(file_name: str, dataset: str = "") -> Logger:
     # Create a logger
     log = logging.getLogger("my_logger")
     log.setLevel(logging.DEBUG)
+
+    # Add a "metric" level to the logger
+    logging.METRIC = 25
+    logging.addLevelName(logging.METRIC, "METRIC")
+
+    def metric(self, message, *args, **kws):
+        if self.isEnabledFor(logging.METRIC):
+            self._log(logging.METRIC, message, args, **kws)
+
+    logging.Logger.metric = metric
 
     # Create a file handler to log to a log file
     file_handler = logging.FileHandler(log_file_path)

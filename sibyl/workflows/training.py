@@ -240,13 +240,13 @@ def main():
     """
     loss_functions = (
         # "Fourier",
-        "CMaxAE",
         "MaxAE",
         "MaxSE",
         # "MaxAPE",
         "MSE",
         "MAE",
-        "CMaxSE",
+        # "CMaxSE",
+        # "CMaxAE",
     )
 
     # for loss in loss_functions:

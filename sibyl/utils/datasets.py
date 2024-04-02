@@ -40,7 +40,7 @@ def alpaca(config: "Config") -> tuple[Tensor, Tensor]:
 @cache
 def ett(
     config: "Config",
-    directory: str = "sibyl/assets/datasets/ETT-small",
+    directory: str | None = None,
     file: str = "ETTh1.csv",
 ) -> tuple[Tensor, Tensor]:
     """
@@ -48,6 +48,10 @@ def ett(
 
     :return: Feature windows, target windows
     """
+    directory = directory or os.path.join(
+        find_root_dir(os.path.dirname(__file__)), "assets", "datasets", "ett"
+    )
+
     # Load the CSVs
     X = pd.read_csv(f"{directory}/{file}")
 
@@ -82,12 +86,16 @@ def ett(
 @cache
 def eld(
     config: "Config",
-    directory: str = "/Users/collin/PycharmProjects/sibyl/assets/datasets/ELD",
+    directory: str | None = None,
     file: str = "LD2011_2014.txt",
 ) -> tuple[Tensor, Tensor]:
     """
     Parse the ELD text file and return tensors of shape (batch, features, time).
     """
+    directory = directory or os.path.join(
+        find_root_dir(os.path.dirname(__file__)), "assets", "datasets", "eld"
+    )
+
     X = pd.read_csv(f"{directory}/{file}", delimiter=";", decimal=",")
 
     # Remove the date column
