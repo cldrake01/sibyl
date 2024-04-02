@@ -121,13 +121,20 @@ def bias_variance_plot(
     m_b_v = torch.mean(torch.tensor(bias_variance[-100:])).item()
     b = torch.mean(torch.tensor(bias[-100:])).item()
     v = torch.mean(torch.tensor(variance[-100:])).item()
+    residual_sum = torch.sum(torch.tensor(residuals[-100:])).item()
+
+    config.log.metric(
+        f"Synopsis - {config.dataset_name} - {criterion}\n"
+        + f"Bias: {b:.4f} - Variance: {v:.4f} - Total: {m_b_v:.4f}\n"
+        + f"Residual Sum: {residual_sum:.0f}"
+    )
 
     plt.title(
         f"Bias-Variance Decomposition\n"
         f"Total: {m_b_v:.4f} "
         f"| Bias: {b:.4f} "
         f"| Variance: {v:.4f}\n"
-        f"Residual Sum: {torch.sum(torch.tensor(residuals[-100:])).item():.4f} "
+        f"Residual Sum: {residual_sum:.4f} "
     )
 
     path: str = find_root_dir(os.path.dirname(__file__))
@@ -141,7 +148,3 @@ def bias_variance_plot(
         dpi=500,
     )
     plt.show()
-
-    config.log.info(
-        f"Model Synopsis: {criterion} - Bias: {b:.4f} - Variance: {v:.4f} - Total: {m_b_v:.4f}"
-    )
