@@ -110,8 +110,10 @@ def bias_variance_plot(
     config: Config,
 ):
     criterion = config.criterion.__class__.__name__
-    plt.plot(bias_variance, label="Total", alpha=0.25, color="green")
 
+    assert bias_variance and bias and variance
+
+    plt.plot(bias_variance, label="Total", alpha=0.25, color="green")
     plt.plot(bias, label="Bias", alpha=0.25, color="blue")
     plt.plot(variance, label="Variance", alpha=0.25, color="red")
     plt.legend()
@@ -119,12 +121,13 @@ def bias_variance_plot(
     m_b_v = torch.mean(torch.tensor(bias_variance[-100:])).item()
     b = torch.mean(torch.tensor(bias[-100:])).item()
     v = torch.mean(torch.tensor(variance[-100:])).item()
+
     plt.title(
         f"Bias-Variance Decomposition\n"
         f"Total: {m_b_v:.4f} "
         f"| Bias: {b:.4f} "
         f"| Variance: {v:.4f}\n"
-        f"MAPE Residual Sum: {torch.sum(torch.tensor(residuals[-100:])).item():.4f} "
+        f"Residual Sum: {torch.sum(torch.tensor(residuals[-100:])).item():.4f} "
     )
 
     path: str = find_root_dir(os.path.dirname(__file__))

@@ -1,8 +1,8 @@
 import torch
 import torch.nn as nn
+import torch.nn.functional as F
 from scipy.signal import coherence
 from torch import Tensor
-import torch.nn.functional as F
 
 
 # def bias_variance_decomposition(y: Tensor, y_hat: Tensor) -> tuple[float, float, float]:
@@ -22,9 +22,7 @@ import torch.nn.functional as F
 #     return sum_, bias.item(), variance.item()
 
 
-def bias_variance_decomposition(
-    y: Tensor, y_hat: Tensor, num_rounds: int = 100
-) -> tuple[float, float, float]:
+def bias_variance_decomposition(y: Tensor, y_hat: Tensor) -> tuple[float, float, float]:
     y, y_hat = y.squeeze(), y_hat.squeeze()
 
     all_pred = y_hat[
@@ -38,6 +36,8 @@ def bias_variance_decomposition(
 
     avg_bias = torch.mean((main_predictions - y) ** 2).item()
     avg_var = torch.mean((main_predictions - all_pred) ** 2).item()
+
+    assert avg_expected_loss and avg_bias and avg_var
 
     return avg_expected_loss, avg_bias, avg_var
 
