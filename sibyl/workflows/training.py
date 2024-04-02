@@ -249,39 +249,39 @@ def main():
         "CMaxSE",
     )
 
-    for loss in loss_functions:
-        config = Config(
-            epochs=10,
-            learning_rate=0.001,
-            criterion=loss,
-            optimizer="AdamW",
-            plot_loss=False,
-            plot_predictions=False,
-            plot_interval=300,
-            dataset_name="alpaca",
-            feature_window_size=120,
-            target_window_size=15,
-            include_hashes=False,
-            include_temporal=False,
-            included_indicators=[
-                "ROC",
-                "RSI",
-                # "MFI",
-                "ADX",
-            ],
-            years=0.01,
-            logger_name=os.path.basename(__file__),
-        )
-        features, targets = config.dataset
-        X, y = normalize(features, targets)
-        model = initialize_model(X, y, Dimformer)
-        train_loader, val_loader = prepare_datasets(X, y, config)
-        train_model(
-            model=model,
-            train_loader=train_loader,
-            val_loader=val_loader,
-            config=config,
-        )
+    # for loss in loss_functions:
+    config = Config(
+        epochs=10,
+        learning_rate=0.001,
+        criterion="WaveletLoss",
+        optimizer="AdamW",
+        plot_loss=False,
+        plot_predictions=False,
+        plot_interval=300,
+        dataset_name="alpaca",
+        feature_window_size=120,
+        target_window_size=15,
+        include_hashes=False,
+        include_temporal=False,
+        included_indicators=[
+            "ROC",
+            "RSI",
+            # "MFI",
+            "ADX",
+        ],
+        years=0.01,
+        logger_name=os.path.basename(__file__),
+    )
+    features, targets = config.dataset
+    X, y = normalize(features, targets)
+    model = initialize_model(X, y, Dimformer)
+    train_loader, val_loader = prepare_datasets(X, y, config)
+    train_model(
+        model=model,
+        train_loader=train_loader,
+        val_loader=val_loader,
+        config=config,
+    )
 
 
 if __name__ == "__main__":

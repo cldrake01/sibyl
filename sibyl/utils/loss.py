@@ -1,8 +1,10 @@
+import numpy as np
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
 from scipy.signal import coherence
 from torch import Tensor
+import pywt
 
 
 # def bias_variance_decomposition(y: Tensor, y_hat: Tensor) -> tuple[float, float, float]:
@@ -76,6 +78,49 @@ class Fourier(nn.Module):
 
     def forward(self, y_hat: Tensor, y: Tensor) -> Tensor:
         return self._fourier(y, y_hat)
+
+
+class WaveletLoss(nn.Module):
+    def __init__(
+        self,
+        dim: int = 1,
+        weighted: bool = True,
+        benchmark: bool = False,
+    ):
+        super(WaveletLoss, self).__init__()
+        self.dim = dim
+
+    def __call__(self, *args, **kwargs):
+        return self._wavelet_loss(*args, **kwargs)
+
+    def _wavelet_loss(self, y: Tensor, y_hat: Tensor) -> Tensor:
+        print(y.size())
+
+        # maybe use a fourier transform to find maximum frequencies for the range
+        y_interpolated = (
+            F.interpolate(y, self.dim, mode="linear", align_corners=False)
+            .detach()
+            .numpy()
+        )
+        y_hat_interpolated = (
+            F.interpolate(y_hat, self.dim, mode="linear", align_corners=False)
+            .detach()
+            .numpy()
+        )
+
+        # Perform Continuous Wavelet Transform (CWT) for both tensors
+        cwt_y, _ = pywt.cwt(y_interpolated, np.arange(1, 100), "morl")
+        cwt_y_hat, _ = pywt.cwt(y_hat_interpolated, np.arange(1, 100), "morl")
+        cwt_y = torch.tensor(cwt_y)
+        cwt_y_hat = torch.tensor(cwt_y_hat)
+        # Calculate the absolute difference between the two CWT results
+        cwt_diff = torch.abs(cwt_y - cwt_y_hat)
+
+        # Integrate the absolute difference using trapezoidal rule
+        integral = torch.trapz(cwt_diff)
+
+        # Convert the result to a PyTorch tensor and return
+        return integral
 
 
 class MaxAE(nn.Module):
