@@ -1,0 +1,14 @@
+<changelist name="Uncommitted_changes_before_Update_at_4_2_24,_11_55 AM_[Changes]" date="1712080504968" recycled="false" toDelete="true">
+  <option name="PATH" value="$PROJECT_DIR$/.idea/shelf/Uncommitted_changes_before_Update_at_4_2_24,_11_55 AM_[Changes]/shelved.patch" />
+  <option name="DESCRIPTION" value="Uncommitted changes before Update at 4/2/24, 11:55 AM [Changes]" />
+  <binary>
+    <option name="BEFORE_PATH" value="assets/plots/bias-variance/alpaca/L1Loss.png" />
+    <option name="AFTER_PATH" value="assets/plots/bias-variance/alpaca/L1Loss.png" />
+    <option name="SHELVED_PATH" value="$PROJECT_DIR$/.idea/shelf/Uncommitted_changes_before_Update_at_4_2_24,_11_55 AM_[Changes]/L1Loss.png" />
+  </binary>
+  <binary>
+    <option name="BEFORE_PATH" value="assets/plots/bias-variance/alpaca/MSELoss.png" />
+    <option name="AFTER_PATH" value="assets/plots/bias-variance/alpaca/MSELoss.png" />
+    <option name="SHELVED_PATH" value="$PROJECT_DIR$/.idea/shelf/Uncommitted_changes_before_Update_at_4_2_24,_11_55 AM_[Changes]/MSELoss.png" />
+  </binary>
+</changelist>
