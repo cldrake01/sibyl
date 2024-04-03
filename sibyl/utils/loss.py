@@ -138,7 +138,6 @@ class VMaxAE(nn.Module):
         super(VMaxAE, self).__init__()
         self.dim: int = dim
         self.loss: callable = self._mae if benchmark else self._vmaxae
-        self.weights: callable = self._weights if weighted else lambda x: x
 
     def __call__(self, *args, **kwargs):
         return self._vmaxae(*args, **kwargs)
@@ -168,7 +167,6 @@ class VMaxSE(nn.Module):
         super(VMaxSE, self).__init__()
         self.dim: int = dim
         self.loss: callable = self._mse if benchmark else self._vmaxse
-        self.weights: callable = self._weights if weighted else lambda x: x
 
     def __call__(self, *args, **kwargs):
         return self._vmaxse(*args, **kwargs)
