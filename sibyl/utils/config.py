@@ -11,12 +11,6 @@ from sibyl.utils.log import NullLogger, logger
 from sibyl.utils.loss import (
     VMaxSE,
     VMaxAE,
-    MaxAPE,
-    Fourier,
-    CMaxSE,
-    CMaxAE,
-    Wave,
-    WVMaxAE,
 )
 
 
