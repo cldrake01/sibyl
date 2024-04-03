@@ -8,7 +8,16 @@ from torch import Tensor
 from sibyl import tickers
 from sibyl.utils.datasets import alpaca, ett, eld
 from sibyl.utils.log import NullLogger, logger
-from sibyl.utils.loss import MaxSE, MaxAE, MaxAPE, Fourier, CMaxSE, CMaxAE, WaveletLoss
+from sibyl.utils.loss import (
+    VMaxSE,
+    VMaxAE,
+    MaxAPE,
+    Fourier,
+    CMaxSE,
+    CMaxAE,
+    Wave,
+    WVMaxAE,
+)
 
 
 @dataclass
@@ -60,15 +69,15 @@ class Config:
             os.environ["KMP_DUPLICATE_LIB_OK"] = "True"
 
         loss_functions = {
-            "Fourier": Fourier,
-            "MaxAE": MaxAE,
-            "MaxSE": MaxSE,
-            "MaxAPE": MaxAPE,
+            # "Fourier": Fourier,
+            "VMaxAE": VMaxAE,
+            "VMaxSE": VMaxSE,
+            # "MaxAPE": MaxAPE,
             "MSE": torch.nn.MSELoss,
             "MAE": torch.nn.L1Loss,
-            "CMaxSE": CMaxSE,
-            "CMaxAE": CMaxAE,
-            "WaveletLoss": WaveletLoss,
+            # "CMaxSE": CMaxSE,
+            # "CMaxAE": CMaxAE,
+            # "WaveletLoss": Wave,
         }
         self.criterion = loss_functions[self.criterion]
 

@@ -237,8 +237,9 @@ def main():
     """
     loss_functions = (
         # "Fourier",
-        "MaxAE",
-        "MaxSE",
+        # "WaveletLoss",
+        "VMaxAE",
+        "VMaxSE",
         # "MaxAPE",
         "MSE",
         "MAE",

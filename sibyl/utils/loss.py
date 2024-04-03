@@ -81,20 +81,20 @@ class Fourier(nn.Module):
         return self._fourier(y, y_hat)
 
 
-class WaveletLoss(nn.Module):
+class Wave(nn.Module):
     def __init__(
         self,
         dim: int = 1,
         weighted: bool = True,
         benchmark: bool = False,
     ):
-        super(WaveletLoss, self).__init__()
+        super(Wave, self).__init__()
         self.dim = dim
 
     def __call__(self, *args, **kwargs):
-        return self._wavelet_loss(*args, **kwargs)
+        return self._wave(*args, **kwargs)
 
-    def _wavelet_loss(self, y: Tensor, y_hat: Tensor) -> Tensor:
+    def _wave(self, y: Tensor, y_hat: Tensor) -> Tensor:
         # maybe use a fourier transform to find maximum frequencies for the range
         y = F.interpolate(y, self.dim, mode="linear", align_corners=False)
         y_hat = F.interpolate(y_hat, self.dim, mode="linear", align_corners=False)
@@ -124,30 +124,26 @@ class WaveletLoss(nn.Module):
         # Convert the result to a PyTorch tensor and return
         return cwt_diff
 
+    def forward(self, y_hat: Tensor, y: Tensor) -> Tensor:
+        return self._wave(y, y_hat)
 
-class MaxAE(nn.Module):
+
+class VMaxAE(nn.Module):
     def __init__(
         self,
         dim: int = 1,
         weighted: bool = True,
         benchmark: bool = False,
     ):
-        super(MaxAE, self).__init__()
+        super(VMaxAE, self).__init__()
         self.dim: int = dim
-        self.loss: callable = self._mae if benchmark else self._maxae
+        self.loss: callable = self._mae if benchmark else self._vmaxae
         self.weights: callable = self._weights if weighted else lambda x: x
 
     def __call__(self, *args, **kwargs):
-        return self._maxae(*args, **kwargs)
+        return self._vmaxae(*args, **kwargs)
 
-    def _weights(self, t: Tensor) -> Tensor:
-        n = t.size(self.dim)
-        l = torch.linspace(1, n, n).int()
-        t = torch.repeat_interleave(t, l, dim=self.dim)
-        t = torch.exp(t)
-        return t
-
-    def _maxae(self, y: Tensor, y_hat: Tensor) -> Tensor:
+    def _vmaxae(self, y: Tensor, y_hat: Tensor) -> Tensor:
         r = (y - y_hat).abs()
         w = torch.abs(torch.var(y, dim=self.dim) - torch.var(y_hat, dim=self.dim)) + 1
         # r_max = torch.max(r, dim=self.dim).values
@@ -162,29 +158,22 @@ class MaxAE(nn.Module):
         return loss
 
 
-class MaxSE(nn.Module):
+class VMaxSE(nn.Module):
     def __init__(
         self,
         dim: int = 1,
         weighted: bool = True,
         benchmark: bool = False,
     ):
-        super(MaxSE, self).__init__()
+        super(VMaxSE, self).__init__()
         self.dim: int = dim
-        self.loss: callable = self._mse if benchmark else self._maxse
+        self.loss: callable = self._mse if benchmark else self._vmaxse
         self.weights: callable = self._weights if weighted else lambda x: x
 
     def __call__(self, *args, **kwargs):
-        return self._maxse(*args, **kwargs)
+        return self._vmaxse(*args, **kwargs)
 
-    def _weights(self, t: Tensor) -> Tensor:
-        n = t.size(self.dim)
-        l = torch.linspace(1, n, n).int()
-        t = torch.repeat_interleave(t, l, dim=self.dim)
-        t = torch.exp(t)
-        return t
-
-    def _maxse(self, y: Tensor, y_hat: Tensor) -> Tensor:
+    def _vmaxse(self, y: Tensor, y_hat: Tensor) -> Tensor:
         r = (y - y_hat) ** 2
         w = torch.exp(
             (torch.var(y, dim=self.dim) - torch.var(y_hat, dim=self.dim)) ** 2

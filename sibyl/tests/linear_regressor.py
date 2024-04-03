@@ -4,7 +4,7 @@ import torch.nn as nn
 import torch.optim as optim
 from torch import Tensor
 
-from sibyl.utils.loss import MaxSE
+from sibyl.utils.loss import VMaxSE
 
 
 class LinearRegressor(nn.Module):
@@ -23,7 +23,7 @@ def train_model(
     learning_rate: float = 0.01,
     num_epochs: int = 100,
 ):
-    loss_function: callable = MaxSE()
+    loss_function: callable = VMaxSE()
 
     # Define optimizer
     optimizer = optim.SGD(model.parameters(), lr=learning_rate)

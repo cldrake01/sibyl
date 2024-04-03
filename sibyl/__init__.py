@@ -2,7 +2,7 @@ import os.path
 
 from dotenv import load_dotenv
 
-from sibyl.utils.loss import MaxAE
+from sibyl.utils.loss import VMaxAE
 from sibyl.utils.models.informer.model import Informer
 from sibyl.utils.tickers import tickers
 
