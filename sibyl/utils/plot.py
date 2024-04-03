@@ -28,6 +28,9 @@ def pred_plot(
     :param config: TrainingConfig object.
     :param features: List of features to plot.
     """
+    if not config.plot_predictions and not config.plot_loss:
+        return
+
     criterion = config.criterion.__class__.__name__
 
     # Clear existing figure
@@ -92,59 +95,47 @@ def pred_plot(
     os.makedirs(path, exist_ok=True)
     path += f"{criterion}.png"
 
-    # Show the combined plot
-    if config.plot_predictions or config.plot_loss:
-        # Save the latest plot
-        plt.savefig(
-            path,
-            dpi=500,
-        )
-        plt.show()
+    plt.savefig(
+        path,
+        dpi=500,
+    )
+    plt.show()
 
 
 def bias_variance_plot(
-    bias_variance: list[float],
-    bias: list[float],
-    variance: list[float],
-    residuals: list[float],
+    sr: list[float],
+    step: str,
     config: Config,
-):
+) -> tuple[float, float]:
     criterion = config.criterion.__class__.__name__
 
-    assert bias_variance and bias and variance
+    srt = torch.tensor(sr)
+    ssr = torch.sum(srt).item()
+    msr = torch.mean(srt).item()
 
-    plt.plot(bias_variance, label="Total", alpha=0.25, color="green")
-    plt.plot(bias, label="Bias", alpha=0.25, color="blue")
-    plt.plot(variance, label="Variance", alpha=0.25, color="red")
+    plt.plot(sr, label="Residuals")
+
     plt.legend()
     # Add the average of their last 100 values to the title
-    m_b_v = torch.mean(torch.tensor(bias_variance[-100:])).item()
-    b = torch.mean(torch.tensor(bias[-100:])).item()
-    v = torch.mean(torch.tensor(variance[-100:])).item()
-    residual_sum = torch.sum(torch.tensor(residuals[-100:])).item()
 
     config.log.metric(
-        f"Synopsis - {config.dataset_name} - {criterion}\n"
-        + f"Bias: {b:.4f} - Variance: {v:.4f} - Total: {m_b_v:.4f}\n"
-        + f"Residual Sum: {residual_sum:.0f}"
+        f"{config.dataset_name} - {criterion} - {step} | SSR: {ssr:.2f} - MSR: {msr:.2f}"
     )
 
     plt.title(
-        f"Bias-Variance Decomposition\n"
-        f"Total: {m_b_v:.4f} "
-        f"| Bias: {b:.4f} "
-        f"| Variance: {v:.4f}\n"
-        f"Residual Sum: {residual_sum:.4f} "
+        f"Bias-Variance Decomposition\n" f"Total SSR: {ssr:.2f} | Mean SSR: {msr:.2f}"
     )
 
     path: str = find_root_dir(os.path.dirname(__file__))
     path += "/assets/plots/bias-variance/"
     path += f"{config.dataset_name}/"
     os.makedirs(path, exist_ok=True)
-    path += f"{criterion}.png"
+    path += f"{step}-{criterion}.png"
 
     plt.savefig(
         path,
         dpi=500,
     )
     plt.show()
+
+    return ssr, msr

@@ -86,5 +86,4 @@ class Config:
             "ett": ett,
             "eld": eld,
         }
-
         self.dataset = datasets[self.dataset_name](self)

@@ -9,7 +9,6 @@ from tqdm import tqdm
 
 from sibyl.utils.config import Config
 from sibyl.utils.log import find_root_dir
-from sibyl.utils.loss import bias_variance_decomposition, MaxAPE
 from sibyl.utils.models.dimformer.model import Dimformer
 from sibyl.utils.models.informer.model import Informer, DecoderOnlyInformer
 from sibyl.utils.models.ring.model import Ring
@@ -158,40 +157,23 @@ def train_model(
     # maxape = MaxAPE(benchmark=True)
 
     for epoch in range(config.epochs):
+
         model.train()
         training_losses: list[float] = []
-        mae, mse, rs = [], [], []
-        bias_variance, bias, variance = [], [], []
+        tssr: list[float] = []
         train_loss = 0.0  # Reset train loss for the epoch
 
         for window, (X, y) in enumerate(tqdm(train_loader, desc="Training")):
             config.optimizer.zero_grad()
             y_hat = model(X, y)
             loss = config.criterion(y_hat, y)
+            tssr.append(torch.sum((y - y_hat) ** 2).item())
             loss.backward()
             config.optimizer.step()
             train_loss += loss.item()
-
             training_losses.append(loss.item())
-            # mae.append(torch.nn.functional.l1_loss(y_hat, y).item())
-            # mse.append(torch.nn.functional.mse_loss(y_hat, y).item())
-            rs.append(torch.sum(torch.abs(y - y_hat)).item())
-
-            b_v = bias_variance_decomposition(y_hat, y)
-            bias_variance.append(b_v[0])
-            bias.append(b_v[1])
-            variance.append(b_v[2])
-
-            if window == 20_000:
-                bias_variance_plot(
-                    bias_variance,
-                    bias,
-                    variance,
-                    rs,
-                    config,
-                )
-                return
-
+            # if window == 20_000:
+            #     return
             # Gradient clipping
             nn.utils.clip_grad_norm_(model.parameters(), 0.5)
             if window % config.plot_interval == 0:
@@ -203,14 +185,22 @@ def train_model(
                     config=config,
                 )
 
+        bias_variance_plot(
+            sr=tssr,
+            step="Training",
+            config=config,
+        )
+
         model.eval()
         validation_losses: list[float] = []
+        vssr: list[float] = []
         val_loss = 0.0  # Reset validation loss for the epoch
 
         with torch.no_grad():
             for window, (X, y) in enumerate(tqdm(val_loader, desc="Validating")):
                 y_hat = model(X, y)
                 loss = config.criterion(y_hat, y)
+                vssr.append(torch.sum((y - y_hat) ** 2).item())
                 val_loss += loss.item()
                 validation_losses.append(loss.item())
                 if window % config.plot_interval == 0:
@@ -221,6 +211,13 @@ def train_model(
                         loss=validation_losses,
                         config=config,
                     )
+
+        bias_variance_plot(
+            sr=vssr,
+            step="Validation",
+            config=config,
+        )
+
     config.log.info("Training complete.")
     save_model(model, f"{find_root_dir(os.path.dirname(__file__))}/assets/model.pt")
 
@@ -249,39 +246,39 @@ def main():
         # "CMaxAE",
     )
 
-    # for loss in loss_functions:
-    config = Config(
-        epochs=10,
-        learning_rate=0.001,
-        criterion="WaveletLoss",
-        optimizer="AdamW",
-        plot_loss=False,
-        plot_predictions=False,
-        plot_interval=300,
-        dataset_name="alpaca",
-        feature_window_size=120,
-        target_window_size=15,
-        include_hashes=False,
-        include_temporal=False,
-        included_indicators=[
-            "ROC",
-            "RSI",
-            # "MFI",
-            "ADX",
-        ],
-        years=0.01,
-        logger_name=os.path.basename(__file__),
-    )
-    features, targets = config.dataset
-    X, y = normalize(features, targets)
-    model = initialize_model(X, y, Dimformer)
-    train_loader, val_loader = prepare_datasets(X, y, config)
-    train_model(
-        model=model,
-        train_loader=train_loader,
-        val_loader=val_loader,
-        config=config,
-    )
+    for loss in loss_functions:
+        config = Config(
+            epochs=1,
+            learning_rate=0.001,
+            criterion=loss,
+            optimizer="AdamW",
+            plot_loss=False,
+            plot_predictions=False,
+            plot_interval=300,
+            dataset_name="alpaca",
+            feature_window_size=120,
+            target_window_size=15,
+            include_hashes=False,
+            include_temporal=False,
+            included_indicators=[
+                "ROC",
+                "RSI",
+                # "MFI",
+                "ADX",
+            ],
+            years=0.0009,
+            logger_name=os.path.basename(__file__),
+        )
+        features, targets = config.dataset
+        X, y = normalize(features, targets)
+        model = initialize_model(X, y, Dimformer)
+        train_loader, val_loader = prepare_datasets(X, y, config)
+        train_model(
+            model=model,
+            train_loader=train_loader,
+            val_loader=val_loader,
+            config=config,
+        )
 
 
 if __name__ == "__main__":

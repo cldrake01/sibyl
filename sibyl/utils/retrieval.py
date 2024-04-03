@@ -62,10 +62,17 @@ def fetch_data(config: "Config") -> list:
         case _:
             end = datetime.today()
 
-    data = [
+    data: list[dict] = [
         alpaca_time_series([ticker], end - timedelta(365 * config.years), end)
         for ticker in tqdm(tickers, desc="Fetching data...")
     ]
+
+    unfiltered_len = len(data)
+
+    data = list(filter(lambda x: len(x.values()) < config.feature_window_size, data))
+
+    if unfiltered_len - len(data) > 0:
+        config.log.warning(f"Filtered out {unfiltered_len - len(data)} results.")
 
     config.log.info("Retrieved data from the Alpaca API.")
 

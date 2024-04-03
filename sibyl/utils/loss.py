@@ -1,10 +1,11 @@
 import numpy as np
+import pywt
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
+from scipy.optimize import optimize
 from scipy.signal import coherence
 from torch import Tensor
-import pywt
 
 
 # def bias_variance_decomposition(y: Tensor, y_hat: Tensor) -> tuple[float, float, float]:
@@ -94,33 +95,34 @@ class WaveletLoss(nn.Module):
         return self._wavelet_loss(*args, **kwargs)
 
     def _wavelet_loss(self, y: Tensor, y_hat: Tensor) -> Tensor:
-        print(y.size())
-
         # maybe use a fourier transform to find maximum frequencies for the range
-        y_interpolated = (
-            F.interpolate(y, self.dim, mode="linear", align_corners=False)
-            .detach()
-            .numpy()
-        )
-        y_hat_interpolated = (
-            F.interpolate(y_hat, self.dim, mode="linear", align_corners=False)
-            .detach()
-            .numpy()
-        )
+        y = F.interpolate(y, self.dim, mode="linear", align_corners=False)
+        y_hat = F.interpolate(y_hat, self.dim, mode="linear", align_corners=False)
+
+        y = y.detach().numpy()
+        y_hat = y_hat.detach().numpy()
 
         # Perform Continuous Wavelet Transform (CWT) for both tensors
-        cwt_y, _ = pywt.cwt(y_interpolated, np.arange(1, 100), "morl")
-        cwt_y_hat, _ = pywt.cwt(y_hat_interpolated, np.arange(1, 100), "morl")
-        cwt_y = torch.tensor(cwt_y)
-        cwt_y_hat = torch.tensor(cwt_y_hat)
+        cwt_y, _ = pywt.cwt(y, np.arange(1, 100), "morl")
+        cwt_y_hat, _ = pywt.cwt(y_hat, np.arange(1, 100), "morl")
+
+        cwt_y = torch.tensor(cwt_y, requires_grad=True).squeeze()
+        cwt_y_hat = torch.tensor(cwt_y_hat, requires_grad=True).squeeze()
+
         # Calculate the absolute difference between the two CWT results
         cwt_diff = torch.abs(cwt_y - cwt_y_hat)
 
-        # Integrate the absolute difference using trapezoidal rule
-        integral = torch.trapz(cwt_diff)
+        cwt_diff = torch.sum(cwt_diff)
+
+        # # Integrate the absolute difference using trapezoidal rule
+        # integral = torch.trapezoid(cwt_diff, dim=self.dim)
+        #
+        # integral = torch.trapezoid(integral)
+        #
+        # integral = torch.sum(integral)
 
         # Convert the result to a PyTorch tensor and return
-        return integral
+        return cwt_diff
 
 
 class MaxAE(nn.Module):
