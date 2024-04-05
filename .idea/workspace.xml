@@ -6,11 +6,17 @@
   <component name="ChangeListManager">
     <list default="true" id="a7ff77d1-7ecd-4619-8090-4ce640081a6c" name="Changes" comment="//">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/assets/plots/forecasts/alpaca/WaveletLoss.png" beforeDir="false" afterPath="$PROJECT_DIR$/assets/plots/forecasts/alpaca/WaveletLoss.png" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/sibyl/__init__.py" beforeDir="false" afterPath="$PROJECT_DIR$/sibyl/__init__.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/sibyl/tests/linear_regressor.py" beforeDir="false" afterPath="$PROJECT_DIR$/sibyl/tests/linear_regressor.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/assets/plots/bias-variance/alpaca/Training-L1Loss.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/assets/plots/bias-variance/alpaca/Training-MSELoss.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/assets/plots/bias-variance/alpaca/Training-MaxAE.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/assets/plots/bias-variance/alpaca/Training-MaxSE.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/assets/plots/bias-variance/alpaca/Validation-L1Loss.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/assets/plots/bias-variance/alpaca/Validation-MSELoss.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/assets/plots/bias-variance/alpaca/Validation-MaxAE.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/assets/plots/bias-variance/alpaca/Validation-MaxSE.png" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/sibyl/utils/config.py" beforeDir="false" afterPath="$PROJECT_DIR$/sibyl/utils/config.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/sibyl/utils/loss.py" beforeDir="false" afterPath="$PROJECT_DIR$/sibyl/utils/loss.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/sibyl/utils/plot.py" beforeDir="false" afterPath="$PROJECT_DIR$/sibyl/utils/plot.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/sibyl/workflows/training.py" beforeDir="false" afterPath="$PROJECT_DIR$/sibyl/workflows/training.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -227,6 +233,10 @@
       <workItem from="1712150453227" duration="40000" />
       <workItem from="1712157416289" duration="587000" />
       <workItem from="1712181737854" duration="1539000" />
+      <workItem from="1712183292090" duration="1441000" />
+      <workItem from="1712247020560" duration="204000" />
+      <workItem from="1712269112885" duration="3600000" />
+      <workItem from="1712274899294" duration="6997000" />
     </task>
     <task id="LOCAL-00001" summary="//">
       <option name="closed" value="true" />
@@ -596,7 +606,31 @@
       <option name="project" value="LOCAL" />
       <updated>1712162768059</updated>
     </task>
-    <option name="localTasksCounter" value="47" />
+    <task id="LOCAL-00047" summary="//">
+      <option name="closed" value="true" />
+      <created>1712183321943</created>
+      <option name="number" value="00047" />
+      <option name="presentableId" value="LOCAL-00047" />
+      <option name="project" value="LOCAL" />
+      <updated>1712183321943</updated>
+    </task>
+    <task id="LOCAL-00048" summary="//">
+      <option name="closed" value="true" />
+      <created>1712183368730</created>
+      <option name="number" value="00048" />
+      <option name="presentableId" value="LOCAL-00048" />
+      <option name="project" value="LOCAL" />
+      <updated>1712183368730</updated>
+    </task>
+    <task id="LOCAL-00049" summary="//">
+      <option name="closed" value="true" />
+      <created>1712183419425</created>
+      <option name="number" value="00049" />
+      <option name="presentableId" value="LOCAL-00049" />
+      <option name="project" value="LOCAL" />
+      <updated>1712183419425</updated>
+    </task>
+    <option name="localTasksCounter" value="50" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -633,7 +667,7 @@
   <component name="com.intellij.coverage.CoverageDataManagerImpl">
     <SUITE FILE_PATH="coverage/sibyl$setup.coverage" NAME="setup Coverage Results" MODIFIED="1709948761846" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
     <SUITE FILE_PATH="coverage/sibyl$plot.coverage" NAME="plot Coverage Results" MODIFIED="1710091283376" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/sibyl/workflows" />
-    <SUITE FILE_PATH="coverage/sibyl$training.coverage" NAME="training Coverage Results" MODIFIED="1712183269224" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/sibyl/workflows" />
+    <SUITE FILE_PATH="coverage/sibyl$training.coverage" NAME="training Coverage Results" MODIFIED="1712275743541" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/sibyl/workflows" />
     <SUITE FILE_PATH="coverage/sibyl$preprocessing.coverage" NAME="preprocessing Coverage Results" MODIFIED="1711836545571" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/sibyl/utils" />
   </component>
 </project>

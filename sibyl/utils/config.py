@@ -30,6 +30,7 @@ class Config:
     included_indicators: list[str] | None = None
     validation: bool = True
     epochs: int = 10
+    epoch: int = 0
     batch_size: int = 1
     train_val_split: float = 0.9
     learning_rate: float = 0.001

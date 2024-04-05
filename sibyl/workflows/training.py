@@ -9,6 +9,7 @@ from tqdm import tqdm
 
 from sibyl.utils.config import Config
 from sibyl.utils.log import find_root_dir
+from sibyl.utils.loss import bias_variance_decomposition
 from sibyl.utils.models.dimformer.model import Dimformer
 from sibyl.utils.models.informer.model import Informer, DecoderOnlyInformer
 from sibyl.utils.models.ring.model import Ring
@@ -158,16 +159,20 @@ def train_model(
 
     for epoch in range(config.epochs):
 
+        config.epoch = epoch
         model.train()
         training_losses: list[float] = []
-        tssr: list[float] = []
+        bias: list[float] = []
+        variance: list[float] = []
         train_loss = 0.0  # Reset train loss for the epoch
 
         for window, (X, y) in enumerate(tqdm(train_loader, desc="Training")):
             config.optimizer.zero_grad()
             y_hat = model(X, y)
             loss = config.criterion(y_hat, y)
-            tssr.append(torch.sum((y - y_hat) ** 2).item())
+            _, b, v = bias_variance_decomposition(y, y_hat)
+            bias.append(b)
+            variance.append(v)
             loss.backward()
             config.optimizer.step()
             train_loss += loss.item()
@@ -186,22 +191,26 @@ def train_model(
                 )
 
         bias_variance_plot(
-            sr=tssr,
+            bias,
+            variance,
             step="Training",
             config=config,
         )
 
         model.eval()
         validation_losses: list[float] = []
-        vssr: list[float] = []
+        bias: list[float] = []
+        variance: list[float] = []
         val_loss = 0.0  # Reset validation loss for the epoch
 
         with torch.no_grad():
             for window, (X, y) in enumerate(tqdm(val_loader, desc="Validating")):
                 y_hat = model(X, y)
                 loss = config.criterion(y_hat, y)
-                vssr.append(torch.sum((y - y_hat) ** 2).item())
                 val_loss += loss.item()
+                _, b, v = bias_variance_decomposition(y, y_hat)
+                bias.append(b)
+                variance.append(v)
                 validation_losses.append(loss.item())
                 if window % config.plot_interval == 0:
                     pred_plot(
@@ -213,7 +222,8 @@ def train_model(
                     )
 
         bias_variance_plot(
-            sr=vssr,
+            bias,
+            variance,
             step="Validation",
             config=config,
         )
@@ -249,7 +259,7 @@ def main():
 
     for loss in loss_functions:
         config = Config(
-            epochs=1,
+            epochs=10,
             learning_rate=0.001,
             criterion=loss,
             optimizer="AdamW",

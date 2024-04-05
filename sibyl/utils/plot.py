@@ -103,39 +103,35 @@ def pred_plot(
 
 
 def bias_variance_plot(
-    sr: list[float],
+    *lists: list[float],
     step: str,
     config: Config,
-) -> tuple[float, float]:
+):
     criterion = config.criterion.__class__.__name__
 
-    srt = torch.tensor(sr)
-    ssr = torch.sum(srt).item()
-    msr = torch.mean(srt).item()
+    sns.set_theme(style="dark")
 
-    plt.plot(sr, label="Residuals")
+    lists = [pd.DataFrame(lst).rolling(config.plot_interval).mean() for lst in lists]
 
-    plt.legend()
-    # Add the average of their last 100 values to the title
-
-    config.log.metric(
-        f"{config.dataset_name} - {criterion} - {step} | SSR: {ssr:.2f} - MSR: {msr:.2f}"
-    )
+    for lst in lists:
+        plt.plot(lst, alpha=0.5)
+        config.log.metric(
+            f"{config.dataset_name} - {criterion} - {step} | {lst.mean().item():.2f}"
+        )
 
     plt.title(
-        f"Bias-Variance Decomposition\n" f"Total SSR: {ssr:.2f} | Mean SSR: {msr:.2f}"
+        f"{criterion} {step} Bias-Variance Decomposition at Epoch {config.epoch}\n"
+        + " | ".join([f"{lst.mean().item():.5f}" for lst in lists])
     )
 
     path: str = find_root_dir(os.path.dirname(__file__))
     path += "/assets/plots/bias-variance/"
     path += f"{config.dataset_name}/"
     os.makedirs(path, exist_ok=True)
-    path += f"{step}-{criterion}.png"
+    path += f"{step}-{criterion}-{config.epoch}.png"
 
     plt.savefig(
         path,
         dpi=500,
     )
     plt.show()
-
-    return ssr, msr

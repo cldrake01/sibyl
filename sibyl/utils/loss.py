@@ -153,8 +153,7 @@ class VMaxAE(nn.Module):
         return F.l1_loss(y, y_hat)
 
     def forward(self, y_hat: Tensor, y: Tensor) -> Tensor:
-        loss = self.loss(y, y_hat)
-        return loss
+        return self.loss(y, y_hat)
 
 
 class VMaxSE(nn.Module):
