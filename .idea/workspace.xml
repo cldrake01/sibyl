@@ -6,26 +6,7 @@
   <component name="ChangeListManager">
     <list default="true" id="a7ff77d1-7ecd-4619-8090-4ce640081a6c" name="Changes" comment="//">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/assets/plots/bias/alpaca/Validation-VMaxAE-0.png" beforeDir="false" afterPath="$PROJECT_DIR$/assets/plots/bias/alpaca/Validation-VMaxAE-0.png" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/assets/plots/bias/alpaca/Validation-VMaxAE-1.png" beforeDir="false" afterPath="$PROJECT_DIR$/assets/plots/bias/alpaca/Validation-VMaxAE-1.png" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/assets/plots/bias/alpaca/Validation-VMaxAE-2.png" beforeDir="false" afterPath="$PROJECT_DIR$/assets/plots/bias/alpaca/Validation-VMaxAE-2.png" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/assets/plots/bias/alpaca/Validation-VMaxAE-3.png" beforeDir="false" afterPath="$PROJECT_DIR$/assets/plots/bias/alpaca/Validation-VMaxAE-3.png" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/assets/plots/bias/alpaca/Validation-VMaxAE-4.png" beforeDir="false" afterPath="$PROJECT_DIR$/assets/plots/bias/alpaca/Validation-VMaxAE-4.png" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/assets/plots/bias/alpaca/Validation-VMaxAE-5.png" beforeDir="false" afterPath="$PROJECT_DIR$/assets/plots/bias/alpaca/Validation-VMaxAE-5.png" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/assets/plots/bias/alpaca/Validation-VMaxAE-6.png" beforeDir="false" afterPath="$PROJECT_DIR$/assets/plots/bias/alpaca/Validation-VMaxAE-6.png" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/assets/plots/variance/alpaca/Validation-VMaxAE-0.png" beforeDir="false" afterPath="$PROJECT_DIR$/assets/plots/variance/alpaca/Validation-VMaxAE-0.png" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/assets/plots/variance/alpaca/Validation-VMaxAE-1.png" beforeDir="false" afterPath="$PROJECT_DIR$/assets/plots/variance/alpaca/Validation-VMaxAE-1.png" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/assets/plots/variance/alpaca/Validation-VMaxAE-2.png" beforeDir="false" afterPath="$PROJECT_DIR$/assets/plots/variance/alpaca/Validation-VMaxAE-2.png" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/assets/plots/variance/alpaca/Validation-VMaxAE-3.png" beforeDir="false" afterPath="$PROJECT_DIR$/assets/plots/variance/alpaca/Validation-VMaxAE-3.png" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/assets/plots/variance/alpaca/Validation-VMaxAE-4.png" beforeDir="false" afterPath="$PROJECT_DIR$/assets/plots/variance/alpaca/Validation-VMaxAE-4.png" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/assets/plots/variance/alpaca/Validation-VMaxAE-5.png" beforeDir="false" afterPath="$PROJECT_DIR$/assets/plots/variance/alpaca/Validation-VMaxAE-5.png" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/assets/plots/variance/alpaca/Validation-VMaxAE-6.png" beforeDir="false" afterPath="$PROJECT_DIR$/assets/plots/variance/alpaca/Validation-VMaxAE-6.png" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/poetry.lock" beforeDir="false" afterPath="$PROJECT_DIR$/poetry.lock" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/pyproject.toml" beforeDir="false" afterPath="$PROJECT_DIR$/pyproject.toml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/sibyl/utils/benchmarking.py" beforeDir="false" afterPath="$PROJECT_DIR$/sibyl/utils/benchmarking.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/sibyl/utils/loss.py" beforeDir="false" afterPath="$PROJECT_DIR$/sibyl/utils/loss.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/sibyl/utils/plot.py" beforeDir="false" afterPath="$PROJECT_DIR$/sibyl/utils/plot.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/sibyl/workflows/training.py" beforeDir="false" afterPath="$PROJECT_DIR$/sibyl/workflows/training.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/README.md" beforeDir="false" afterPath="$PROJECT_DIR$/README.md" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -267,47 +248,8 @@
       <workItem from="1712676116696" duration="239000" />
       <workItem from="1712783347438" duration="7661000" />
       <workItem from="1712794365766" duration="14727000" />
-      <workItem from="1712848578438" duration="5353000" />
-    </task>
-    <task id="LOCAL-00004" summary="//">
-      <option name="closed" value="true" />
-      <created>1709923086763</created>
-      <option name="number" value="00004" />
-      <option name="presentableId" value="LOCAL-00004" />
-      <option name="project" value="LOCAL" />
-      <updated>1709923086763</updated>
-    </task>
-    <task id="LOCAL-00005" summary="//">
-      <option name="closed" value="true" />
-      <created>1709941927142</created>
-      <option name="number" value="00005" />
-      <option name="presentableId" value="LOCAL-00005" />
-      <option name="project" value="LOCAL" />
-      <updated>1709941927142</updated>
-    </task>
-    <task id="LOCAL-00006" summary="//">
-      <option name="closed" value="true" />
-      <created>1709942677108</created>
-      <option name="number" value="00006" />
-      <option name="presentableId" value="LOCAL-00006" />
-      <option name="project" value="LOCAL" />
-      <updated>1709942677108</updated>
-    </task>
-    <task id="LOCAL-00007" summary="//">
-      <option name="closed" value="true" />
-      <created>1709943776092</created>
-      <option name="number" value="00007" />
-      <option name="presentableId" value="LOCAL-00007" />
-      <option name="project" value="LOCAL" />
-      <updated>1709943776092</updated>
-    </task>
-    <task id="LOCAL-00008" summary="//">
-      <option name="closed" value="true" />
-      <created>1709943856342</created>
-      <option name="number" value="00008" />
-      <option name="presentableId" value="LOCAL-00008" />
-      <option name="project" value="LOCAL" />
-      <updated>1709943856342</updated>
+      <workItem from="1712848578438" duration="6822000" />
+      <workItem from="1712867567538" duration="183000" />
     </task>
     <task id="LOCAL-00009" summary="//">
       <option name="closed" value="true" />
@@ -661,7 +603,47 @@
       <option name="project" value="LOCAL" />
       <updated>1712848888893</updated>
     </task>
-    <option name="localTasksCounter" value="53" />
+    <task id="LOCAL-00053" summary="//">
+      <option name="closed" value="true" />
+      <created>1712866441206</created>
+      <option name="number" value="00053" />
+      <option name="presentableId" value="LOCAL-00053" />
+      <option name="project" value="LOCAL" />
+      <updated>1712866441206</updated>
+    </task>
+    <task id="LOCAL-00054" summary="//">
+      <option name="closed" value="true" />
+      <created>1712866899854</created>
+      <option name="number" value="00054" />
+      <option name="presentableId" value="LOCAL-00054" />
+      <option name="project" value="LOCAL" />
+      <updated>1712866899854</updated>
+    </task>
+    <task id="LOCAL-00055" summary="//">
+      <option name="closed" value="true" />
+      <created>1712867077147</created>
+      <option name="number" value="00055" />
+      <option name="presentableId" value="LOCAL-00055" />
+      <option name="project" value="LOCAL" />
+      <updated>1712867077147</updated>
+    </task>
+    <task id="LOCAL-00056" summary="//">
+      <option name="closed" value="true" />
+      <created>1712867209394</created>
+      <option name="number" value="00056" />
+      <option name="presentableId" value="LOCAL-00056" />
+      <option name="project" value="LOCAL" />
+      <updated>1712867209394</updated>
+    </task>
+    <task id="LOCAL-00057" summary="//">
+      <option name="closed" value="true" />
+      <created>1712867361970</created>
+      <option name="number" value="00057" />
+      <option name="presentableId" value="LOCAL-00057" />
+      <option name="project" value="LOCAL" />
+      <updated>1712867361970</updated>
+    </task>
+    <option name="localTasksCounter" value="58" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
