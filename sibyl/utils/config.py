@@ -1,17 +1,21 @@
 import os
 from dataclasses import dataclass
 from logging import Logger
+from typing import Any
 
 import torch
-from torch import Tensor
+from torch import Tensor, nn
 
-from sibyl import tickers
+from sibyl import tickers, Informer
 from sibyl.utils.datasets import alpaca, ett, eld
 from sibyl.utils.log import NullLogger, Log
 from sibyl.utils.loss import (
     VMaxSE,
     VMaxAE,
 )
+from sibyl.utils.models.dimformer.model import Dimformer
+from sibyl.utils.models.informer.model import DecoderOnlyInformer
+from sibyl.utils.models.ring.ring_attention import RingTransformer
 
 
 @dataclass
@@ -95,3 +99,103 @@ class Config:
             "eld": eld,
         }
         self.dataset = datasets[self.dataset_name](self)
+
+
+def initialize_model(X: Tensor, y: Tensor, model: Any) -> nn.Module:
+    """
+    Initialize the model based on the configuration.
+
+    :param X: The features.
+    :param y: The targets.
+    :param model: The model to initialize.
+    """
+    num_features = X.size(2)
+    num_targets = y.size(2)
+    feature_len = X.size(1)
+    target_len = y.size(1)
+
+    model_configurations = {
+        Dimformer: Dimformer(
+            enc_in=num_features,
+            dec_in=num_features,
+            # c_out=num_features,
+            c_out=target_len,
+            seq_len=feature_len,
+            label_len=target_len,
+            out_len=target_len,
+            factor=5,
+            d_model=512,
+            n_heads=num_features,
+            e_layers=3,
+            d_layers=2,
+            d_ff=512,
+            dropout=0.05,
+            attn="self",
+            embed="fixed",
+            freq="h",
+            activation="gelu",
+            output_attention=False,
+            distil=False,
+            mix=True,
+            encoder=False,
+        ),
+        Informer: Informer(
+            enc_in=num_features,
+            dec_in=num_features,
+            c_out=num_features,
+            seq_len=feature_len,
+            label_len=target_len,
+            out_len=target_len,
+            factor=5,
+            d_model=512,
+            n_heads=num_features,
+            e_layers=3,
+            d_layers=2,
+            d_ff=512,
+            dropout=0.05,
+            attn="prob",
+            embed="fixed",
+            freq="h",
+            activation="gelu",
+            output_attention=False,
+            distil=True,
+            mix=True,
+        ),
+        DecoderOnlyInformer: DecoderOnlyInformer(
+            dec_in=num_features,
+            c_out=num_targets,
+            seq_len=feature_len,
+            out_len=target_len,
+            factor=5,
+            d_model=512,
+            n_heads=num_features,
+            d_layers=2,
+            d_ff=512,
+            dropout=0.01,
+            activation="gelu",
+        ),
+        RingTransformer: Ring(
+            enc_in=num_features,
+            dec_in=num_features,
+            c_out=num_targets,
+            seq_len=feature_len,
+            label_len=target_len,
+            out_len=target_len,
+            factor=5,
+            d_model=512,
+            n_heads=num_features,
+            e_layers=3,
+            d_layers=2,
+            d_ff=512,
+            dropout=0.01,
+            attn="prob",
+            embed="fixed",
+            freq="h",
+            activation="gelu",
+            output_attention=False,
+            distil=True,
+            mix=True,
+        ),
+    }
+
+    return model_configurations[model]

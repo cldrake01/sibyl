@@ -8,7 +8,7 @@ from torch.utils.data import TensorDataset, DataLoader, random_split
 from tqdm import tqdm
 
 from sibyl.utils.benchmarking import stats, bias, variance
-from sibyl.utils.config import Config
+from sibyl.utils.config import Config, initialize_model
 from sibyl.utils.log import find_root_dir
 from sibyl.utils.models.dimformer.model import Dimformer
 from sibyl.utils.models.informer.model import Informer, DecoderOnlyInformer
@@ -16,106 +16,6 @@ from sibyl.utils.models.ring.model import Ring
 from sibyl.utils.models.ring.ring_attention import RingTransformer
 from sibyl.utils.plot import predicted_vs_actual, metrics_table, metrics
 from sibyl.utils.preprocessing import normalize
-
-
-def initialize_model(X: Tensor, y: Tensor, model: Any) -> nn.Module:
-    """
-    Initialize the model based on the configuration.
-
-    :param X: The features.
-    :param y: The targets.
-    :param model: The model to initialize.
-    """
-    num_features = X.size(2)
-    num_targets = y.size(2)
-    feature_len = X.size(1)
-    target_len = y.size(1)
-
-    model_configurations = {
-        Dimformer: Dimformer(
-            enc_in=num_features,
-            dec_in=num_features,
-            # c_out=num_features,
-            c_out=target_len,
-            seq_len=feature_len,
-            label_len=target_len,
-            out_len=target_len,
-            factor=5,
-            d_model=512,
-            n_heads=num_features,
-            e_layers=3,
-            d_layers=2,
-            d_ff=512,
-            dropout=0.05,
-            attn="self",
-            embed="fixed",
-            freq="h",
-            activation="gelu",
-            output_attention=False,
-            distil=False,
-            mix=True,
-            encoder=False,
-        ),
-        Informer: Informer(
-            enc_in=num_features,
-            dec_in=num_features,
-            c_out=num_features,
-            seq_len=feature_len,
-            label_len=target_len,
-            out_len=target_len,
-            factor=5,
-            d_model=512,
-            n_heads=num_features,
-            e_layers=3,
-            d_layers=2,
-            d_ff=512,
-            dropout=0.05,
-            attn="prob",
-            embed="fixed",
-            freq="h",
-            activation="gelu",
-            output_attention=False,
-            distil=True,
-            mix=True,
-        ),
-        DecoderOnlyInformer: DecoderOnlyInformer(
-            dec_in=num_features,
-            c_out=num_targets,
-            seq_len=feature_len,
-            out_len=target_len,
-            factor=5,
-            d_model=512,
-            n_heads=num_features,
-            d_layers=2,
-            d_ff=512,
-            dropout=0.01,
-            activation="gelu",
-        ),
-        RingTransformer: Ring(
-            enc_in=num_features,
-            dec_in=num_features,
-            c_out=num_targets,
-            seq_len=feature_len,
-            label_len=target_len,
-            out_len=target_len,
-            factor=5,
-            d_model=512,
-            n_heads=num_features,
-            e_layers=3,
-            d_layers=2,
-            d_ff=512,
-            dropout=0.01,
-            attn="prob",
-            embed="fixed",
-            freq="h",
-            activation="gelu",
-            output_attention=False,
-            distil=True,
-            mix=True,
-        ),
-    }
-
-    return model_configurations[model]
 
 
 def prepare_datasets(
@@ -156,7 +56,7 @@ def train(
     losses: list[float] = []
     train_loss = 0.0  # Reset train loss for the epoch
 
-    for window, (X, y) in enumerate(tqdm(loader, desc="Training")):
+    for step, (X, y) in enumerate(tqdm(loader, desc="Training")):
         config.optimizer.zero_grad()
         y_hat = model(X, y)
         loss = config.criterion(y_hat, y)
@@ -164,11 +64,8 @@ def train(
         config.optimizer.step()
         train_loss += loss.item()
         losses.append(loss.item())
-        # if window == 20_000:
-        #     return
-        # Gradient clipping
         nn.utils.clip_grad_norm_(model.parameters(), 0.5)
-        if window % config.plot_interval == 0:
+        if step % config.plot_interval == 0:
             predicted_vs_actual(
                 X=X,
                 y=y,
@@ -176,8 +73,6 @@ def train(
                 loss=losses,
                 config=config,
             )
-        # We yield the predictions and the true values so that we can compute various metrics
-        # using decorators later on
         yield y, y_hat
 
 
@@ -195,15 +90,15 @@ def validate(
     config.stage = "Validation"
     model.eval()
     losses: list[float] = []
-    val_loss = 0.0  # Reset validation loss for the epoch
+    val_loss = 0.0
 
     with torch.no_grad():
-        for window, (X, y) in enumerate(tqdm(loader, desc="Validating")):
+        for step, (X, y) in enumerate(tqdm(loader, desc="Validating")):
             y_hat = model(X, y)
             loss = config.criterion(y_hat, y)
             val_loss += loss.item()
             losses.append(loss.item())
-            if window % config.plot_interval == 0:
+            if step % config.plot_interval == 0:
                 predicted_vs_actual(
                     X=X,
                     y=y,
@@ -211,8 +106,6 @@ def validate(
                     loss=losses,
                     config=config,
                 )
-            # We yield the predictions and the true values so that we can compute various metrics
-            # using decorators later on
             yield y, y_hat
 
 
@@ -283,14 +176,9 @@ def main():
     function. You must override `setup.py` if you intend to utilize Sibyl as a custom package.
     """
 
-    loss_functions = {
-        "VMaxAE": [],
-        "VMaxSE": [],
-        "MSE": [],
-        "MAE": [],
-    }
+    loss_functions = ("VMaxAE", "VMaxSE", "MSE", "MAE")
 
-    for loss in loss_functions.keys():
+    for loss in loss_functions:
         config = Config(
             epochs=1,
             learning_rate=0.001,
@@ -307,7 +195,6 @@ def main():
             included_indicators=[
                 "ROC",
                 "RSI",
-                # "MFI",
                 "ADX",
             ],
             years=0.0009,
@@ -317,12 +204,6 @@ def main():
         X, y = normalize(features, targets)
         model = initialize_model(X, y, Dimformer)
         train_loader, val_loader = prepare_datasets(X, y, config)
-        # train_model(
-        #     model=model,
-        #     train_loader=train_loader,
-        #     val_loader=val_loader,
-        #     config=config,
-        # )
         build_model(
             model=model,
             train_loader=train_loader,
