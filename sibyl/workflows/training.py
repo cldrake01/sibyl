@@ -2,6 +2,8 @@ import os
 import signal
 from typing import Any
 
+import matplotlib.pyplot as plt
+import seaborn as sns
 import torch
 from torch import Tensor, nn
 from torch.utils.data import TensorDataset, DataLoader, random_split
@@ -131,7 +133,7 @@ def train_model(
     train_loader: DataLoader,
     val_loader: DataLoader,
     config: Config,
-):
+) -> tuple[float, float, float, float]:
     config.criterion = config.criterion()
     config.optimizer = config.optimizer(model.parameters(), lr=config.learning_rate)
 
@@ -190,7 +192,7 @@ def train_model(
                     config=config,
                 )
 
-        bias_variance_plot(
+        t_e_b, t_e_v = bias_variance_plot(
             bias,
             variance,
             step="Training",
@@ -221,7 +223,7 @@ def train_model(
                         config=config,
                     )
 
-        bias_variance_plot(
+        v_e_b, v_e_v = bias_variance_plot(
             bias,
             variance,
             step="Validation",
@@ -230,6 +232,8 @@ def train_model(
 
     config.log.info("Training complete.")
     save_model(model, f"{find_root_dir(os.path.dirname(__file__))}/assets/model.pt")
+
+    return t_e_b, t_e_v, v_e_b, v_e_v
 
 
 def main():
@@ -245,23 +249,19 @@ def main():
     You can, for example, import your Sibyl fork from a private GitHub repository as a package and run the main
     function. You must override `setup.py` if you intend to utilize Sibyl as a custom package.
     """
-    loss_functions = (
-        # "Fourier",
-        # "WaveletLoss",
-        "VMaxAE",
-        "VMaxSE",
-        # "MaxAPE",
-        "MSE",
-        "MAE",
-        # "CMaxSE",
-        # "CMaxAE",
-    )
 
-    for loss in loss_functions:
+    loss_functions = {
+        "VMaxAE": [],
+        "VMaxSE": [],
+        "MSE": [],
+        "MAE": [],
+    }
+
+    for loss in loss_functions.keys():
         config = Config(
             epochs=10,
             learning_rate=0.001,
-            criterion=loss,
+            criterion=str(loss),
             optimizer="AdamW",
             plot_loss=False,
             plot_predictions=False,
@@ -284,12 +284,27 @@ def main():
         X, y = normalize(features, targets)
         model = initialize_model(X, y, Dimformer)
         train_loader, val_loader = prepare_datasets(X, y, config)
-        train_model(
+        # train_model(
+        #     model=model,
+        #     train_loader=train_loader,
+        #     val_loader=val_loader,
+        #     config=config,
+        # )
+        t_e_b, t_e_v, v_e_b, v_e_v = train_model(
             model=model,
             train_loader=train_loader,
             val_loader=val_loader,
             config=config,
         )
+        loss_functions[loss] += [t_e_b, t_e_v, v_e_b, v_e_v]
+
+        sns.set_theme(style="dark")
+        plt.clf()
+        plt.plot(loss_functions[loss])
+        plt.savefig(
+            f"{find_root_dir(os.path.dirname(__file__))}/assets/plots/{loss}.png"
+        )
+        plt.show()
 
 
 if __name__ == "__main__":

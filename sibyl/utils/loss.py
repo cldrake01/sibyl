@@ -3,7 +3,6 @@ import pywt
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
-from scipy.optimize import optimize
 from scipy.signal import coherence
 from torch import Tensor
 
@@ -25,6 +24,7 @@ from torch import Tensor
 #     return sum_, bias.item(), variance.item()
 
 
+@torch.jit.script
 def bias_variance_decomposition(y: Tensor, y_hat: Tensor) -> tuple[float, float, float]:
     y, y_hat = y.squeeze(), y_hat.squeeze()
 
@@ -40,45 +40,7 @@ def bias_variance_decomposition(y: Tensor, y_hat: Tensor) -> tuple[float, float,
     avg_bias = torch.mean((main_predictions - y) ** 2).item()
     avg_var = torch.mean((main_predictions - all_pred) ** 2).item()
 
-    assert avg_expected_loss and avg_bias and avg_var
-
     return avg_expected_loss, avg_bias, avg_var
-
-
-class Fourier(nn.Module):
-    def __init__(self, dim: int = 1, benchmark: bool = False):
-        super(Fourier, self).__init__()
-        self.dim: int = dim
-
-    def __call__(self, *args, **kwargs):
-        return self._fourier(*args, **kwargs)
-
-    @staticmethod
-    def _complex_cosine_similarity(y: Tensor, y_hat: Tensor) -> Tensor:
-        """
-        PyTorch does not natively support cosine similarity for complex numbers.
-        This method computes the cosine similarity between two complex tensors.
-        Note that our tensors are also multidimensional.
-        """
-        real = torch.sum(y * y_hat)
-        y_norm = torch.norm(y)
-        y_hat_norm = torch.norm(y_hat)
-        ccs = real / (y_norm * y_hat_norm)
-        cs = torch.view_as_real(ccs).prod()
-        return cs
-
-    def _fourier(self, y: Tensor, y_hat: Tensor) -> Tensor:
-        ccs = torch.max(
-            torch.exp(
-                self._complex_cosine_similarity(
-                    torch.fft.fft(y, dim=self.dim), torch.fft.fft(y_hat, dim=self.dim)
-                )
-            )
-        )
-        return torch.max(torch.abs(y - y_hat)) * ccs
-
-    def forward(self, y_hat: Tensor, y: Tensor) -> Tensor:
-        return self._fourier(y, y_hat)
 
 
 class Wave(nn.Module):
@@ -132,7 +94,6 @@ class VMaxAE(nn.Module):
     def __init__(
         self,
         dim: int = 1,
-        weighted: bool = True,
         benchmark: bool = False,
     ):
         super(VMaxAE, self).__init__()
@@ -160,7 +121,6 @@ class VMaxSE(nn.Module):
     def __init__(
         self,
         dim: int = 1,
-        weighted: bool = True,
         benchmark: bool = False,
     ):
         super(VMaxSE, self).__init__()

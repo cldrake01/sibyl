@@ -106,18 +106,20 @@ def bias_variance_plot(
     *lists: list[float],
     step: str,
     config: Config,
-):
+) -> tuple[float, ...]:
+
     criterion = config.criterion.__class__.__name__
 
     sns.set_theme(style="dark")
 
-    lists = [pd.DataFrame(lst).rolling(config.plot_interval).mean() for lst in lists]
+    lists = tuple(
+        pd.DataFrame(lst).rolling(config.plot_interval).mean() for lst in lists
+    )
+    means = tuple(lst[: config.plot_interval].mean().item() for lst in lists)
 
-    for lst in lists:
-        plt.plot(lst, alpha=0.5)
-        config.log.metric(
-            f"{config.dataset_name} - {criterion} - {step} | {lst.mean().item():.2f}"
-        )
+    for l, m in zip(lists, means):
+        plt.plot(l, alpha=0.5)
+        config.log.metric(f"{config.dataset_name} - {criterion} - {step} | {m:.2f}")
 
     plt.title(
         f"{criterion} {step} Bias-Variance Decomposition at Epoch {config.epoch}\n"
@@ -135,3 +137,5 @@ def bias_variance_plot(
         dpi=500,
     )
     plt.show()
+
+    return means

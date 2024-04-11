@@ -21,60 +21,74 @@ class NullLogger:
     def metric(self, *args, **kwargs): ...
 
 
-def logger(file_name: str, dataset: str = "") -> Logger:
-    """
-    Setup logging configuration
+class Log:
+    _instance = None
 
-    :param file_name: Path to the log file
-    :param dataset: Name of the dataset
+    def __new__(cls, *args, **kwargs):
+        if cls._instance is None:
+            cls._instance = super(Log, cls).__new__(cls)
+        return cls._instance
 
-    :return: Logger object
-    """
-    # Identify the root directory based on a marker file
-    root_dir = find_root_dir(os.path.dirname(__file__))
-    log_directory = os.path.join(root_dir, f"logs/{dataset}" if dataset else "logs")
-    log_file_path = os.path.join(log_directory, f"{file_name}.log")
+    def __init__(self, file_name: str, dataset: str = None):
+        self.logger: Logger = self._setup_logger(file_name, dataset)
 
-    # Create the log directory if it doesn't exist
-    os.makedirs(log_directory, exist_ok=True)
+    def _setup_logger(self, file_name: str, dataset: str) -> Logger:
+        """
+        Setup logging configuration
 
-    # Create the log file if it doesn't exist
-    if not os.path.exists(log_file_path):
-        with open(log_file_path, "w") as f:
-            f.write("")
+        :param file_name: Path to the log file
+        :param dataset: Name of the dataset
 
-    # Create a logger
-    log = logging.getLogger("my_logger")
-    log.setLevel(logging.DEBUG)
+        :return: Logger object
+        """
+        if getattr(self, "logger", None):
+            return self.logger
 
-    # Add a "metric" level to the logger
-    logging.METRIC = 25
-    logging.addLevelName(logging.METRIC, "METRIC")
+        # Identify the root directory based on a marker file
+        root_dir = find_root_dir(os.path.dirname(__file__))
+        log_directory = os.path.join(root_dir, f"logs/{dataset}" if dataset else "logs")
+        log_file_path = os.path.join(log_directory, f"{file_name}.log")
 
-    def metric(self, message, *args, **kws):
-        if self.isEnabledFor(logging.METRIC):
-            self._log(logging.METRIC, message, args, **kws)
+        # Create the log directory if it doesn't exist
+        os.makedirs(log_directory, exist_ok=True)
 
-    logging.Logger.metric = metric
+        # Create the log file if it doesn't exist
+        if not os.path.exists(log_file_path):
+            with open(log_file_path, "w") as f:
+                f.write("")
 
-    # Create a file handler to log to a log file
-    file_handler = logging.FileHandler(log_file_path)
+        # Create a logger
+        log = logging.getLogger("my_logger")
+        log.setLevel(logging.DEBUG)
 
-    # Create a formatter to format log messages
-    formatter = logging.Formatter(
-        "%(asctime)s - %(levelname)-8s - %(funcName)-20s \t %(message)s"
-    )
+        # Add a "metric" level to the logger
+        logging.METRIC = 25
+        logging.addLevelName(logging.METRIC, "METRIC")
 
-    # Set the formatter for the file handler
-    file_handler.setFormatter(formatter)
+        def metric(self, message, *args, **kws):
+            if self.isEnabledFor(logging.METRIC):
+                self._log(logging.METRIC, message, args, **kws)
 
-    # Add the file handler to the logger
-    log.addHandler(file_handler)
+        logging.Logger.metric = metric
 
-    # Send an initial message
-    log.info(f"Logging to {file_name}")
+        # Create a file handler to log to a log file
+        file_handler = logging.FileHandler(log_file_path)
 
-    return log
+        # Create a formatter to format log messages
+        formatter = logging.Formatter(
+            "%(asctime)s - %(levelname)-8s - %(funcName)-20s \t %(message)s"
+        )
+
+        # Set the formatter for the file handler
+        file_handler.setFormatter(formatter)
+
+        # Add the file handler to the logger
+        log.addHandler(file_handler)
+
+        # Send an initial message
+        log.info(f"Logging to {file_name}")
+
+        return log
 
 
 def find_root_dir(current_path, marker_file: str = "README.md") -> str:

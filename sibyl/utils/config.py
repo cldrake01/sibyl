@@ -7,7 +7,7 @@ from torch import Tensor
 
 from sibyl import tickers
 from sibyl.utils.datasets import alpaca, ett, eld
-from sibyl.utils.log import NullLogger, logger
+from sibyl.utils.log import NullLogger, Log
 from sibyl.utils.loss import (
     VMaxSE,
     VMaxAE,
@@ -83,7 +83,7 @@ class Config:
         self.optimizer = optimizers[self.optimizer]
 
         if self.logger_name:
-            self.log = logger(self.logger_name, self.dataset_name)
+            self.log = Log(self.logger_name, self.dataset_name).logger
 
         datasets = {
             "alpaca": alpaca,
