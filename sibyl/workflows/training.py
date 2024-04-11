@@ -8,13 +8,13 @@ from torch.utils.data import TensorDataset, DataLoader, random_split
 from tqdm import tqdm
 
 from sibyl.utils.benchmarking import stats, bias, variance
-from sibyl.utils.config import Config, initialize_model
-from sibyl.utils.log import find_root_dir
+from sibyl.utils.configuration import Config, initialize_model
+from sibyl.utils.logging import find_root_dir
 from sibyl.utils.models.dimformer.model import Dimformer
 from sibyl.utils.models.informer.model import Informer, DecoderOnlyInformer
 from sibyl.utils.models.ring.model import Ring
 from sibyl.utils.models.ring.ring_attention import RingTransformer
-from sibyl.utils.plot import predicted_vs_actual, metrics_table, metrics
+from sibyl.utils.plotting import predicted_vs_actual, metrics_table, metrics
 from sibyl.utils.preprocessing import normalize
 
 

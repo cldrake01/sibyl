@@ -3,7 +3,7 @@ from typing import Callable, Any, Iterable
 
 from torch import Tensor
 
-from sibyl.utils.config import Config
+from sibyl.utils.configuration import Config
 
 
 def stats(

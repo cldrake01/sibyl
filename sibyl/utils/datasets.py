@@ -6,7 +6,7 @@ import pandas as pd
 import torch
 from torch import Tensor
 
-from sibyl.utils.log import find_root_dir
+from sibyl.utils.logging import find_root_dir
 from sibyl.utils.preprocessing import indicator_tensors
 from sibyl.utils.retrieval import fetch_data
 

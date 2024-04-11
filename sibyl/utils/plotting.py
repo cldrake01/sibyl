@@ -7,8 +7,8 @@ from great_tables import GT
 from matplotlib import pyplot as plt
 from torch import Tensor
 
-from sibyl.utils.config import Config
-from sibyl.utils.log import find_root_dir
+from sibyl.utils.configuration import Config
+from sibyl.utils.logging import find_root_dir
 
 
 def predicted_vs_actual(

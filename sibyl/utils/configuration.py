@@ -8,7 +8,7 @@ from torch import Tensor, nn
 
 from sibyl import tickers, Informer
 from sibyl.utils.datasets import alpaca, ett, eld
-from sibyl.utils.log import NullLogger, Log
+from sibyl.utils.logging import NullLogger, Log
 from sibyl.utils.loss import (
     VMaxSE,
     VMaxAE,
