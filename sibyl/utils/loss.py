@@ -24,25 +24,6 @@ from torch import Tensor
 #     return sum_, bias.item(), variance.item()
 
 
-@torch.jit.script
-def bias_variance_decomposition(y: Tensor, y_hat: Tensor) -> tuple[float, float, float]:
-    y, y_hat = y.squeeze(), y_hat.squeeze()
-
-    all_pred = y_hat[
-        torch.randint_like(y_hat, high=y.size(0), dtype=torch.int),
-        torch.randint_like(y_hat, high=y.size(1), dtype=torch.int),
-    ]
-
-    avg_expected_loss = torch.mean((all_pred - y) ** 2).item()
-
-    main_predictions = torch.mean(all_pred, dim=0)
-
-    avg_bias = torch.mean((main_predictions - y) ** 2).item()
-    avg_var = torch.mean((main_predictions - all_pred) ** 2).item()
-
-    return avg_expected_loss, avg_bias, avg_var
-
-
 class Wave(nn.Module):
     def __init__(
         self,

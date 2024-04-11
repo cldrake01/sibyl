@@ -46,6 +46,8 @@ class Config:
     dataset: tuple[Tensor, Tensor] | None = None
     log: NullLogger | Logger = NullLogger()
     logger_name: str = ""
+    metrics: dict[str, list[float]] | None = None
+    stage: str = "Preprocessing"
 
     def __post_init__(self):
         """
@@ -62,6 +64,8 @@ class Config:
         # Check for macOS and set environment variable to avoid MKL errors
         if os.name == "posix":
             os.environ["KMP_DUPLICATE_LIB_OK"] = "True"
+
+        self.metrics = self.metrics or {}
 
         loss_functions = {
             # "Fourier": Fourier,

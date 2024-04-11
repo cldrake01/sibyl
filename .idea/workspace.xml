@@ -5,99 +5,9 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="a7ff77d1-7ecd-4619-8090-4ce640081a6c" name="Changes" comment="//">
-      <change afterPath="$PROJECT_DIR$/.idea/modules.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/shelf/Uncommitted_changes_before_Update_at_4_2_24,_8_47_AM_[Changes]/shelved.patch" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/shelf/Uncommitted_changes_before_Update_at_4_2_24__8_47_AM__Changes_.xml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/sibyl.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/sibyl.iml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/sibyl/utils/benchmarking.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/assets/plots/bias-variance/alpaca/Training-L1Loss-0.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/assets/plots/bias-variance/alpaca/Training-L1Loss-1.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/assets/plots/bias-variance/alpaca/Training-L1Loss-2.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/assets/plots/bias-variance/alpaca/Training-L1Loss-3.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/assets/plots/bias-variance/alpaca/Training-L1Loss-4.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/assets/plots/bias-variance/alpaca/Training-L1Loss-5.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/assets/plots/bias-variance/alpaca/Training-L1Loss-6.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/assets/plots/bias-variance/alpaca/Training-L1Loss-7.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/assets/plots/bias-variance/alpaca/Training-L1Loss-8.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/assets/plots/bias-variance/alpaca/Training-L1Loss-9.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/assets/plots/bias-variance/alpaca/Training-MSELoss-0.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/assets/plots/bias-variance/alpaca/Training-MSELoss-1.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/assets/plots/bias-variance/alpaca/Training-MSELoss-2.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/assets/plots/bias-variance/alpaca/Training-MSELoss-3.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/assets/plots/bias-variance/alpaca/Training-MSELoss-4.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/assets/plots/bias-variance/alpaca/Training-MSELoss-5.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/assets/plots/bias-variance/alpaca/Training-MSELoss-6.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/assets/plots/bias-variance/alpaca/Training-MSELoss-7.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/assets/plots/bias-variance/alpaca/Training-MSELoss-8.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/assets/plots/bias-variance/alpaca/Training-MSELoss-9.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/assets/plots/bias-variance/alpaca/Training-VMaxAE-1.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/assets/plots/bias-variance/alpaca/Training-VMaxAE-2.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/assets/plots/bias-variance/alpaca/Training-VMaxAE-3.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/assets/plots/bias-variance/alpaca/Training-VMaxAE-4.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/assets/plots/bias-variance/alpaca/Training-VMaxAE-5.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/assets/plots/bias-variance/alpaca/Training-VMaxAE-6.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/assets/plots/bias-variance/alpaca/Training-VMaxAE-7.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/assets/plots/bias-variance/alpaca/Training-VMaxAE-8.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/assets/plots/bias-variance/alpaca/Training-VMaxAE-9.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/assets/plots/bias-variance/alpaca/Training-VMaxSE-0.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/assets/plots/bias-variance/alpaca/Training-VMaxSE-1.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/assets/plots/bias-variance/alpaca/Training-VMaxSE-2.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/assets/plots/bias-variance/alpaca/Training-VMaxSE-3.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/assets/plots/bias-variance/alpaca/Training-VMaxSE-4.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/assets/plots/bias-variance/alpaca/Training-VMaxSE-5.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/assets/plots/bias-variance/alpaca/Training-VMaxSE-6.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/assets/plots/bias-variance/alpaca/Training-VMaxSE-7.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/assets/plots/bias-variance/alpaca/Training-VMaxSE-8.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/assets/plots/bias-variance/alpaca/Training-VMaxSE-9.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/assets/plots/bias-variance/alpaca/Validation-L1Loss-0.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/assets/plots/bias-variance/alpaca/Validation-L1Loss-1.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/assets/plots/bias-variance/alpaca/Validation-L1Loss-2.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/assets/plots/bias-variance/alpaca/Validation-L1Loss-3.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/assets/plots/bias-variance/alpaca/Validation-L1Loss-4.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/assets/plots/bias-variance/alpaca/Validation-L1Loss-5.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/assets/plots/bias-variance/alpaca/Validation-L1Loss-6.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/assets/plots/bias-variance/alpaca/Validation-L1Loss-7.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/assets/plots/bias-variance/alpaca/Validation-L1Loss-8.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/assets/plots/bias-variance/alpaca/Validation-L1Loss-9.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/assets/plots/bias-variance/alpaca/Validation-MSELoss-0.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/assets/plots/bias-variance/alpaca/Validation-MSELoss-1.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/assets/plots/bias-variance/alpaca/Validation-MSELoss-2.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/assets/plots/bias-variance/alpaca/Validation-MSELoss-3.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/assets/plots/bias-variance/alpaca/Validation-MSELoss-4.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/assets/plots/bias-variance/alpaca/Validation-MSELoss-5.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/assets/plots/bias-variance/alpaca/Validation-MSELoss-6.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/assets/plots/bias-variance/alpaca/Validation-MSELoss-7.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/assets/plots/bias-variance/alpaca/Validation-MSELoss-8.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/assets/plots/bias-variance/alpaca/Validation-MSELoss-9.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/assets/plots/bias-variance/alpaca/Validation-VMaxAE-1.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/assets/plots/bias-variance/alpaca/Validation-VMaxAE-2.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/assets/plots/bias-variance/alpaca/Validation-VMaxAE-3.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/assets/plots/bias-variance/alpaca/Validation-VMaxAE-4.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/assets/plots/bias-variance/alpaca/Validation-VMaxAE-5.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/assets/plots/bias-variance/alpaca/Validation-VMaxAE-6.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/assets/plots/bias-variance/alpaca/Validation-VMaxAE-7.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/assets/plots/bias-variance/alpaca/Validation-VMaxAE-8.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/assets/plots/bias-variance/alpaca/Validation-VMaxAE-9.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/assets/plots/bias-variance/alpaca/Validation-VMaxSE-0.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/assets/plots/bias-variance/alpaca/Validation-VMaxSE-1.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/assets/plots/bias-variance/alpaca/Validation-VMaxSE-2.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/assets/plots/bias-variance/alpaca/Validation-VMaxSE-3.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/assets/plots/bias-variance/alpaca/Validation-VMaxSE-4.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/assets/plots/bias-variance/alpaca/Validation-VMaxSE-5.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/assets/plots/bias-variance/alpaca/Validation-VMaxSE-6.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/assets/plots/bias-variance/alpaca/Validation-VMaxSE-7.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/assets/plots/bias-variance/alpaca/Validation-VMaxSE-8.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/assets/plots/bias-variance/alpaca/Validation-VMaxSE-9.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/assets/plots/bias-variance/alpaca/training-VMaxAE-0.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/assets/plots/bias-variance/alpaca/validation-VMaxAE-0.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/assets/plots/forecasts/alpaca/CMaxSE.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/assets/plots/forecasts/alpaca/MSELoss.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/assets/plots/forecasts/alpaca/WVMaxAE.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/assets/plots/forecasts/alpaca/WaveletLoss.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/poetry.lock" beforeDir="false" afterPath="$PROJECT_DIR$/poetry.lock" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/pyproject.toml" beforeDir="false" afterPath="$PROJECT_DIR$/pyproject.toml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/sibyl/utils/config.py" beforeDir="false" afterPath="$PROJECT_DIR$/sibyl/utils/config.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/sibyl/utils/log.py" beforeDir="false" afterPath="$PROJECT_DIR$/sibyl/utils/log.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/sibyl/utils/loss.py" beforeDir="false" afterPath="$PROJECT_DIR$/sibyl/utils/loss.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/sibyl/utils/plot.py" beforeDir="false" afterPath="$PROJECT_DIR$/sibyl/utils/plot.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/sibyl/workflows/training.py" beforeDir="false" afterPath="$PROJECT_DIR$/sibyl/workflows/training.py" afterDir="false" />
@@ -341,15 +251,7 @@
       <workItem from="1712674200740" duration="57000" />
       <workItem from="1712676116696" duration="239000" />
       <workItem from="1712783347438" duration="7661000" />
-      <workItem from="1712794365766" duration="880000" />
-    </task>
-    <task id="LOCAL-00002" summary="//">
-      <option name="closed" value="true" />
-      <created>1709832365897</created>
-      <option name="number" value="00002" />
-      <option name="presentableId" value="LOCAL-00002" />
-      <option name="project" value="LOCAL" />
-      <updated>1709832365897</updated>
+      <workItem from="1712794365766" duration="14727000" />
     </task>
     <task id="LOCAL-00003" summary="starting eigenloss">
       <option name="closed" value="true" />
@@ -735,7 +637,15 @@
       <option name="project" value="LOCAL" />
       <updated>1712285452607</updated>
     </task>
-    <option name="localTasksCounter" value="51" />
+    <task id="LOCAL-00051" summary="//">
+      <option name="closed" value="true" />
+      <created>1712797837224</created>
+      <option name="number" value="00051" />
+      <option name="presentableId" value="LOCAL-00051" />
+      <option name="project" value="LOCAL" />
+      <updated>1712797837224</updated>
+    </task>
+    <option name="localTasksCounter" value="52" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -771,7 +681,7 @@
   </component>
   <component name="com.intellij.coverage.CoverageDataManagerImpl">
     <SUITE FILE_PATH="coverage/sibyl$setup.coverage" NAME="setup Coverage Results" MODIFIED="1709948761846" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
-    <SUITE FILE_PATH="coverage/sibyl$training.coverage" NAME="training Coverage Results" MODIFIED="1712784734310" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/sibyl/workflows" />
+    <SUITE FILE_PATH="coverage/sibyl$training.coverage" NAME="training Coverage Results" MODIFIED="1712814154416" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/sibyl/workflows" />
     <SUITE FILE_PATH="coverage/sibyl$preprocessing.coverage" NAME="preprocessing Coverage Results" MODIFIED="1712328487469" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/sibyl/utils" />
     <SUITE FILE_PATH="coverage/sibyl$plot.coverage" NAME="plot Coverage Results" MODIFIED="1710091283376" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/sibyl/workflows" />
   </component>

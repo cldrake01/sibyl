@@ -1,6 +1,6 @@
 import os
 import signal
-from typing import Any
+from typing import Any, Generator
 
 import matplotlib.pyplot as plt
 import seaborn as sns
@@ -9,14 +9,14 @@ from torch import Tensor, nn
 from torch.utils.data import TensorDataset, DataLoader, random_split
 from tqdm import tqdm
 
+from sibyl.utils.benchmarking import stats, bias, variance
 from sibyl.utils.config import Config
 from sibyl.utils.log import find_root_dir
-from sibyl.utils.loss import bias_variance_decomposition
 from sibyl.utils.models.dimformer.model import Dimformer
 from sibyl.utils.models.informer.model import Informer, DecoderOnlyInformer
 from sibyl.utils.models.ring.model import Ring
 from sibyl.utils.models.ring.ring_attention import RingTransformer
-from sibyl.utils.plot import pred_plot, bias_variance_plot
+from sibyl.utils.plot import pred_plot, plot_metrics
 from sibyl.utils.preprocessing import normalize
 
 
@@ -128,17 +128,76 @@ def prepare_datasets(
     return train_loader, val_loader
 
 
-def train_model(
+@stats(bias, variance)
+def train(
+    model: nn.Module, loader: DataLoader, config: Config
+) -> Generator[tuple[Tensor, Tensor], None, None]:
+    config.stage = "Training"
+    model.train()
+    losses: list[float] = []
+    train_loss = 0.0  # Reset train loss for the epoch
+
+    for window, (X, y) in enumerate(tqdm(loader, desc="Training")):
+        config.optimizer.zero_grad()
+        y_hat = model(X, y)
+        loss = config.criterion(y_hat, y)
+        loss.backward()
+        config.optimizer.step()
+        train_loss += loss.item()
+        losses.append(loss.item())
+        # if window == 20_000:
+        #     return
+        # Gradient clipping
+        nn.utils.clip_grad_norm_(model.parameters(), 0.5)
+        if window % config.plot_interval == 0:
+            pred_plot(
+                X=X,
+                y=y,
+                y_hat=y_hat,
+                loss=losses,
+                config=config,
+            )
+        # We yield the predictions and the true values so that we can compute various metrics
+        # using decorators later on
+        yield y, y_hat
+
+
+@stats(bias, variance)
+def validate(
+    model: nn.Module, loader: DataLoader, config: Config
+) -> Generator[tuple[Tensor, Tensor], None, None]:
+    config.stage = "Validation"
+    model.eval()
+    losses: list[float] = []
+    val_loss = 0.0  # Reset validation loss for the epoch
+
+    with torch.no_grad():
+        for window, (X, y) in enumerate(tqdm(loader, desc="Validating")):
+            y_hat = model(X, y)
+            loss = config.criterion(y_hat, y)
+            val_loss += loss.item()
+            losses.append(loss.item())
+            if window % config.plot_interval == 0:
+                pred_plot(
+                    X=X,
+                    y=y,
+                    y_hat=y_hat,
+                    loss=losses,
+                    config=config,
+                )
+            # We yield the predictions and the true values so that we can compute various metrics
+            # using decorators later on
+            yield y, y_hat
+
+
+def build_model(
     model: nn.Module,
     train_loader: DataLoader,
     val_loader: DataLoader,
     config: Config,
-) -> tuple[float, float, float, float]:
+):
     config.criterion = config.criterion()
     config.optimizer = config.optimizer(model.parameters(), lr=config.learning_rate)
-
-    for param in model.parameters():
-        param.requires_grad = True
 
     # Define a function to save the model
     def save_model(model: nn.Module, filepath: str):
@@ -157,83 +216,19 @@ def train_model(
 
     signal.signal(signal.SIGINT, signal_handler)
 
-    # maxape = MaxAPE(benchmark=True)
-
     for epoch in range(config.epochs):
-
         config.epoch = epoch
-        model.train()
-        training_losses: list[float] = []
-        bias: list[float] = []
-        variance: list[float] = []
-        train_loss = 0.0  # Reset train loss for the epoch
 
-        for window, (X, y) in enumerate(tqdm(train_loader, desc="Training")):
-            config.optimizer.zero_grad()
-            y_hat = model(X, y)
-            loss = config.criterion(y_hat, y)
-            _, b, v = bias_variance_decomposition(y, y_hat)
-            bias.append(b)
-            variance.append(v)
-            loss.backward()
-            config.optimizer.step()
-            train_loss += loss.item()
-            training_losses.append(loss.item())
-            # if window == 20_000:
-            #     return
-            # Gradient clipping
-            nn.utils.clip_grad_norm_(model.parameters(), 0.5)
-            if window % config.plot_interval == 0:
-                pred_plot(
-                    X=X,
-                    y=y,
-                    y_hat=y_hat,
-                    loss=training_losses,
-                    config=config,
-                )
+        # train(model, train_loader, config)
 
-        t_e_b, t_e_v = bias_variance_plot(
-            bias,
-            variance,
-            step="Training",
-            config=config,
-        )
+        # plot_metrics(config)
 
-        model.eval()
-        validation_losses: list[float] = []
-        bias: list[float] = []
-        variance: list[float] = []
-        val_loss = 0.0  # Reset validation loss for the epoch
+        validate(model, val_loader, config)
 
-        with torch.no_grad():
-            for window, (X, y) in enumerate(tqdm(val_loader, desc="Validating")):
-                y_hat = model(X, y)
-                loss = config.criterion(y_hat, y)
-                val_loss += loss.item()
-                _, b, v = bias_variance_decomposition(y, y_hat)
-                bias.append(b)
-                variance.append(v)
-                validation_losses.append(loss.item())
-                if window % config.plot_interval == 0:
-                    pred_plot(
-                        X=X,
-                        y=y,
-                        y_hat=y_hat,
-                        loss=validation_losses,
-                        config=config,
-                    )
-
-        v_e_b, v_e_v = bias_variance_plot(
-            bias,
-            variance,
-            step="Validation",
-            config=config,
-        )
+        plot_metrics(config)
 
     config.log.info("Training complete.")
     save_model(model, f"{find_root_dir(os.path.dirname(__file__))}/assets/model.pt")
-
-    return t_e_b, t_e_v, v_e_b, v_e_v
 
 
 def main():
@@ -290,21 +285,12 @@ def main():
         #     val_loader=val_loader,
         #     config=config,
         # )
-        t_e_b, t_e_v, v_e_b, v_e_v = train_model(
+        build_model(
             model=model,
             train_loader=train_loader,
             val_loader=val_loader,
             config=config,
         )
-        loss_functions[loss] += [t_e_b, t_e_v, v_e_b, v_e_v]
-
-        sns.set_theme(style="dark")
-        plt.clf()
-        plt.plot(loss_functions[loss])
-        plt.savefig(
-            f"{find_root_dir(os.path.dirname(__file__))}/assets/plots/{loss}.png"
-        )
-        plt.show()
 
 
 if __name__ == "__main__":

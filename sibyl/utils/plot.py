@@ -104,10 +104,8 @@ def pred_plot(
 
 def bias_variance_plot(
     *lists: list[float],
-    step: str,
     config: Config,
 ) -> tuple[float, ...]:
-
     criterion = config.criterion.__class__.__name__
 
     sns.set_theme(style="dark")
@@ -119,10 +117,12 @@ def bias_variance_plot(
 
     for l, m in zip(lists, means):
         plt.plot(l, alpha=0.5)
-        config.log.metric(f"{config.dataset_name} - {criterion} - {step} | {m:.2f}")
+        config.log.metric(
+            f"{config.dataset_name} - {criterion} - {config.stage} | {m:.2f}"
+        )
 
     plt.title(
-        f"{criterion} {step} Bias-Variance Decomposition at Epoch {config.epoch}\n"
+        f"{criterion} {config.stage} Bias-Variance Decomposition at Epoch {config.epoch}\n"
         + " | ".join([f"{lst.mean().item():.5f}" for lst in lists])
     )
 
@@ -130,7 +130,7 @@ def bias_variance_plot(
     path += "/assets/plots/bias-variance/"
     path += f"{config.dataset_name}/"
     os.makedirs(path, exist_ok=True)
-    path += f"{step}-{criterion}-{config.epoch}.png"
+    path += f"{config.stage}-{criterion}-{config.epoch}.png"
 
     plt.savefig(
         path,
@@ -139,3 +139,25 @@ def bias_variance_plot(
     plt.show()
 
     return means
+
+
+def plot_metrics(config: Config):
+    sns.set_theme(style="dark")
+
+    for metric, values in config.metrics.items():
+        plt.plot(
+            pd.DataFrame(values).rolling(config.plot_interval).mean(), label=metric
+        )
+        path: str = find_root_dir(os.path.dirname(__file__))
+        path += f"/assets/plots/{metric}/"
+        path += f"{config.dataset_name}/"
+        os.makedirs(path, exist_ok=True)
+        criterion = config.criterion.__class__.__name__
+        path += f"{config.stage}-{criterion}-{config.epoch}.png"
+
+        plt.savefig(
+            path,
+            dpi=500,
+        )
+
+        plt.show()
