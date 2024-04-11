@@ -30,6 +30,12 @@ class Log:
         return cls._instance
 
     def __init__(self, file_name: str, dataset: str = None):
+        """
+        Initialize the logger
+
+        :param file_name: Name of the log file
+        :param dataset: Name of the dataset
+        """
         self.logger: Logger = self._setup_logger(file_name, dataset)
 
     def _setup_logger(self, file_name: str, dataset: str) -> Logger:

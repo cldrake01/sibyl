@@ -22,12 +22,12 @@ class Bar:
             "volume": self.volume,
         }
 
-
-def bar(stock: dict) -> Bar:
-    return Bar(
-        open=stock["o"],
-        close=stock["c"],
-        high=stock["h"],
-        low=stock["l"],
-        volume=stock["v"],
-    )
+    @staticmethod
+    def from_dict(data: dict):
+        return Bar(
+            open=data["open"],
+            high=data["high"],
+            low=data["low"],
+            close=data["close"],
+            volume=data["volume"],
+        )

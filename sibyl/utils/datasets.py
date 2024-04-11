@@ -1,5 +1,6 @@
 import os
 import pickle
+from typing import Callable
 
 import pandas as pd
 import torch
@@ -10,7 +11,16 @@ from sibyl.utils.preprocessing import indicator_tensors
 from sibyl.utils.retrieval import fetch_data
 
 
-def cache(func):
+def cache(
+    func: Callable[["Config", ...], tuple[Tensor, Tensor]]
+) -> Callable[["Config", ...], tuple[Tensor, Tensor]]:
+    """
+    Cache the results of a dataset function to disk.
+    This is particularly useful for dataset functions that make API calls, e.g., Alpaca.
+
+    :param func: The function to cache
+    """
+
     def wrapper(*args, **kwargs):
         config = args[0]
         root = find_root_dir(os.path.dirname(__file__))
@@ -45,6 +55,10 @@ def ett(
 ) -> tuple[Tensor, Tensor]:
     """
     Parse the ETT CSVs and return tensors of shape (batch, features, time).
+
+    :param config: Configuration object
+    :param directory: Directory containing the CSVs
+    :param file: The CSV file to parse
 
     :return: Feature windows, target windows
     """
@@ -91,6 +105,10 @@ def eld(
 ) -> tuple[Tensor, Tensor]:
     """
     Parse the ELD text file and return tensors of shape (batch, features, time).
+
+    :param config: Configuration object
+    :param directory: Directory containing the text file
+    :param file: The text file to parse
     """
     directory = directory or os.path.join(
         find_root_dir(os.path.dirname(__file__)), "assets", "datasets", "eld"

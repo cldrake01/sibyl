@@ -2,8 +2,6 @@ import os
 import signal
 from typing import Any, Generator
 
-import matplotlib.pyplot as plt
-import seaborn as sns
 import torch
 from torch import Tensor, nn
 from torch.utils.data import TensorDataset, DataLoader, random_split
@@ -16,11 +14,18 @@ from sibyl.utils.models.dimformer.model import Dimformer
 from sibyl.utils.models.informer.model import Informer, DecoderOnlyInformer
 from sibyl.utils.models.ring.model import Ring
 from sibyl.utils.models.ring.ring_attention import RingTransformer
-from sibyl.utils.plot import pred_plot, plot_metrics
+from sibyl.utils.plot import predicted_vs_actual, metrics_table, metrics
 from sibyl.utils.preprocessing import normalize
 
 
 def initialize_model(X: Tensor, y: Tensor, model: Any) -> nn.Module:
+    """
+    Initialize the model based on the configuration.
+
+    :param X: The features.
+    :param y: The targets.
+    :param model: The model to initialize.
+    """
     num_features = X.size(2)
     num_targets = y.size(2)
     feature_len = X.size(1)
@@ -116,6 +121,13 @@ def initialize_model(X: Tensor, y: Tensor, model: Any) -> nn.Module:
 def prepare_datasets(
     X: Tensor, y: Tensor, config: Config
 ) -> tuple[DataLoader, DataLoader]:
+    """
+    Prepare the training and validation datasets.
+
+    :param X: The features.
+    :param y: The targets.
+    :param config: The configuration object.
+    """
     total_samples = len(X)
     train_size = int(total_samples * config.train_val_split)
     val_size = total_samples - train_size
@@ -132,6 +144,13 @@ def prepare_datasets(
 def train(
     model: nn.Module, loader: DataLoader, config: Config
 ) -> Generator[tuple[Tensor, Tensor], None, None]:
+    """
+    Train the model using the training dataset.
+
+    :param model: The model to train.
+    :param loader: The training dataset.
+    :param config: The configuration object.
+    """
     config.stage = "Training"
     model.train()
     losses: list[float] = []
@@ -150,7 +169,7 @@ def train(
         # Gradient clipping
         nn.utils.clip_grad_norm_(model.parameters(), 0.5)
         if window % config.plot_interval == 0:
-            pred_plot(
+            predicted_vs_actual(
                 X=X,
                 y=y,
                 y_hat=y_hat,
@@ -166,6 +185,13 @@ def train(
 def validate(
     model: nn.Module, loader: DataLoader, config: Config
 ) -> Generator[tuple[Tensor, Tensor], None, None]:
+    """
+    Validate the model using the validation dataset.
+
+    :param model: The model to validate.
+    :param loader: The validation dataset.
+    :param config: The configuration object.
+    """
     config.stage = "Validation"
     model.eval()
     losses: list[float] = []
@@ -178,7 +204,7 @@ def validate(
             val_loss += loss.item()
             losses.append(loss.item())
             if window % config.plot_interval == 0:
-                pred_plot(
+                predicted_vs_actual(
                     X=X,
                     y=y,
                     y_hat=y_hat,
@@ -196,6 +222,14 @@ def build_model(
     val_loader: DataLoader,
     config: Config,
 ):
+    """
+    Train the model using the training and validation datasets.
+
+    :param model: The model to train.
+    :param train_loader: The training dataset.
+    :param val_loader: The validation dataset.
+    :param config: The configuration object.
+    """
     config.criterion = config.criterion()
     config.optimizer = config.optimizer(model.parameters(), lr=config.learning_rate)
 
@@ -208,27 +242,31 @@ def build_model(
     # Register a signal handler to save the model upon termination
     def signal_handler(sig, frame):
         config.log.info("Program interrupted.")
-        save_model(
-            model,
-            f"{find_root_dir(os.path.dirname(__file__))}/assets/models/{config.dataset_name}-model.pt",
-        )
-        exit()
+        path_ = find_root_dir(os.path.dirname(__file__))
+        path_ += f"/assets/models/{config.dataset_name}-model.pt"
+        save_model(model, path_)
 
     signal.signal(signal.SIGINT, signal_handler)
 
     for epoch in range(config.epochs):
         config.epoch = epoch
 
-        # train(model, train_loader, config)
+        train(model, train_loader, config)
 
-        # plot_metrics(config)
+        metrics(config)
+
+        metrics_table(config)
 
         validate(model, val_loader, config)
 
-        plot_metrics(config)
+        metrics(config)
+
+        metrics_table(config)
 
     config.log.info("Training complete.")
-    save_model(model, f"{find_root_dir(os.path.dirname(__file__))}/assets/model.pt")
+    path = find_root_dir(os.path.dirname(__file__))
+    path += f"/assets/models/{config.dataset_name}-model.pt"
+    save_model(model, path)
 
 
 def main():
@@ -254,7 +292,7 @@ def main():
 
     for loss in loss_functions.keys():
         config = Config(
-            epochs=10,
+            epochs=1,
             learning_rate=0.001,
             criterion=str(loss),
             optimizer="AdamW",

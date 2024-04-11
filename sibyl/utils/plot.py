@@ -3,6 +3,7 @@ import os
 import pandas as pd
 import seaborn as sns
 import torch
+from great_tables import GT
 from matplotlib import pyplot as plt
 from torch import Tensor
 
@@ -10,7 +11,7 @@ from sibyl.utils.config import Config
 from sibyl.utils.log import find_root_dir
 
 
-def pred_plot(
+def predicted_vs_actual(
     X: Tensor,
     y: Tensor,
     y_hat: Tensor,
@@ -102,10 +103,16 @@ def pred_plot(
     plt.show()
 
 
-def bias_variance_plot(
+def bias_variance(
     *lists: list[float],
     config: Config,
 ) -> tuple[float, ...]:
+    """
+    Plot the bias-variance decomposition of the loss function.
+
+    :param lists: The lists of bias and variance values.
+    :param config: The configuration object.
+    """
     criterion = config.criterion.__class__.__name__
 
     sns.set_theme(style="dark")
@@ -141,7 +148,12 @@ def bias_variance_plot(
     return means
 
 
-def plot_metrics(config: Config):
+def metrics(config: Config):
+    """
+    Plot the metrics.
+
+    :param config: The configuration object.
+    """
     sns.set_theme(style="dark")
 
     for metric, values in config.metrics.items():
@@ -161,3 +173,39 @@ def plot_metrics(config: Config):
         )
 
         plt.show()
+
+
+def metrics_table(config: Config):
+    """
+    Plot a table of metrics.
+
+    :param config: The configuration object.
+    """
+    sns.set_theme(style="dark")
+
+    # Create a dataframe of `loss-function`, `bias`, and `variance` metrics
+
+    # Average each metric
+    metrics = (
+        f"{pd.DataFrame(metric).mean().item():.5f}"
+        for metric in config.metrics.values()
+    )
+    # Create a dataframe
+    df = pd.DataFrame(
+        {
+            "Metric": list(config.metrics.keys()),
+            "Value": metrics,
+        }
+    )
+
+    # Plot the table
+    name = config.criterion.__class__.__name__
+    path = find_root_dir(os.path.dirname(__file__))
+    path += f"/assets/plots/tables/{config.dataset_name}/"
+    os.makedirs(path, exist_ok=True)
+    path += f"{name}.png"
+
+    GT(df).tab_header(
+        title=name,
+        subtitle=" | ".join(f"{m}" for m in tuple(config.metrics.keys())),
+    ).opt_style(style=1, color="blue").save(path)

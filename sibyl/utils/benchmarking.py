@@ -34,8 +34,20 @@ def stats(
 
 
 def bias(y: Tensor, y_hat: Tensor) -> float:
+    """
+    Compute the bias between the actual and predicted values.
+
+    :param y: The actual values.
+    :param y_hat: The predicted values.
+    """
     return (y.mean() - y_hat.mean()).item()
 
 
 def variance(y: Tensor, y_hat: Tensor) -> float:
+    """
+    Compute the variance between the actual and predicted values.
+
+    :param y: The actual values.
+    :param y_hat: The predicted values.
+    """
     return (y - y_hat).var().item()

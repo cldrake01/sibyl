@@ -5,9 +5,24 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="a7ff77d1-7ecd-4619-8090-4ce640081a6c" name="Changes" comment="//">
-      <change afterPath="$PROJECT_DIR$/sibyl/utils/benchmarking.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/sibyl/utils/config.py" beforeDir="false" afterPath="$PROJECT_DIR$/sibyl/utils/config.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/assets/plots/bias/alpaca/Validation-VMaxAE-0.png" beforeDir="false" afterPath="$PROJECT_DIR$/assets/plots/bias/alpaca/Validation-VMaxAE-0.png" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/assets/plots/bias/alpaca/Validation-VMaxAE-1.png" beforeDir="false" afterPath="$PROJECT_DIR$/assets/plots/bias/alpaca/Validation-VMaxAE-1.png" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/assets/plots/bias/alpaca/Validation-VMaxAE-2.png" beforeDir="false" afterPath="$PROJECT_DIR$/assets/plots/bias/alpaca/Validation-VMaxAE-2.png" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/assets/plots/bias/alpaca/Validation-VMaxAE-3.png" beforeDir="false" afterPath="$PROJECT_DIR$/assets/plots/bias/alpaca/Validation-VMaxAE-3.png" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/assets/plots/bias/alpaca/Validation-VMaxAE-4.png" beforeDir="false" afterPath="$PROJECT_DIR$/assets/plots/bias/alpaca/Validation-VMaxAE-4.png" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/assets/plots/bias/alpaca/Validation-VMaxAE-5.png" beforeDir="false" afterPath="$PROJECT_DIR$/assets/plots/bias/alpaca/Validation-VMaxAE-5.png" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/assets/plots/bias/alpaca/Validation-VMaxAE-6.png" beforeDir="false" afterPath="$PROJECT_DIR$/assets/plots/bias/alpaca/Validation-VMaxAE-6.png" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/assets/plots/variance/alpaca/Validation-VMaxAE-0.png" beforeDir="false" afterPath="$PROJECT_DIR$/assets/plots/variance/alpaca/Validation-VMaxAE-0.png" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/assets/plots/variance/alpaca/Validation-VMaxAE-1.png" beforeDir="false" afterPath="$PROJECT_DIR$/assets/plots/variance/alpaca/Validation-VMaxAE-1.png" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/assets/plots/variance/alpaca/Validation-VMaxAE-2.png" beforeDir="false" afterPath="$PROJECT_DIR$/assets/plots/variance/alpaca/Validation-VMaxAE-2.png" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/assets/plots/variance/alpaca/Validation-VMaxAE-3.png" beforeDir="false" afterPath="$PROJECT_DIR$/assets/plots/variance/alpaca/Validation-VMaxAE-3.png" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/assets/plots/variance/alpaca/Validation-VMaxAE-4.png" beforeDir="false" afterPath="$PROJECT_DIR$/assets/plots/variance/alpaca/Validation-VMaxAE-4.png" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/assets/plots/variance/alpaca/Validation-VMaxAE-5.png" beforeDir="false" afterPath="$PROJECT_DIR$/assets/plots/variance/alpaca/Validation-VMaxAE-5.png" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/assets/plots/variance/alpaca/Validation-VMaxAE-6.png" beforeDir="false" afterPath="$PROJECT_DIR$/assets/plots/variance/alpaca/Validation-VMaxAE-6.png" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/poetry.lock" beforeDir="false" afterPath="$PROJECT_DIR$/poetry.lock" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/pyproject.toml" beforeDir="false" afterPath="$PROJECT_DIR$/pyproject.toml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/sibyl/utils/benchmarking.py" beforeDir="false" afterPath="$PROJECT_DIR$/sibyl/utils/benchmarking.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/sibyl/utils/loss.py" beforeDir="false" afterPath="$PROJECT_DIR$/sibyl/utils/loss.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/sibyl/utils/plot.py" beforeDir="false" afterPath="$PROJECT_DIR$/sibyl/utils/plot.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/sibyl/workflows/training.py" beforeDir="false" afterPath="$PROJECT_DIR$/sibyl/workflows/training.py" afterDir="false" />
@@ -252,14 +267,7 @@
       <workItem from="1712676116696" duration="239000" />
       <workItem from="1712783347438" duration="7661000" />
       <workItem from="1712794365766" duration="14727000" />
-    </task>
-    <task id="LOCAL-00003" summary="starting eigenloss">
-      <option name="closed" value="true" />
-      <created>1709917780642</created>
-      <option name="number" value="00003" />
-      <option name="presentableId" value="LOCAL-00003" />
-      <option name="project" value="LOCAL" />
-      <updated>1709917780642</updated>
+      <workItem from="1712848578438" duration="5353000" />
     </task>
     <task id="LOCAL-00004" summary="//">
       <option name="closed" value="true" />
@@ -645,7 +653,15 @@
       <option name="project" value="LOCAL" />
       <updated>1712797837224</updated>
     </task>
-    <option name="localTasksCounter" value="52" />
+    <task id="LOCAL-00052" summary="//">
+      <option name="closed" value="true" />
+      <created>1712848888892</created>
+      <option name="number" value="00052" />
+      <option name="presentableId" value="LOCAL-00052" />
+      <option name="project" value="LOCAL" />
+      <updated>1712848888893</updated>
+    </task>
+    <option name="localTasksCounter" value="53" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -668,20 +684,9 @@
     <MESSAGE value="//" />
     <option name="LAST_COMMIT_MESSAGE" value="//" />
   </component>
-  <component name="XDebuggerManager">
-    <breakpoint-manager>
-      <breakpoints>
-        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
-          <url>file://$PROJECT_DIR$/sibyl/utils/retrieval.py</url>
-          <line>37</line>
-          <option name="timeStamp" value="1" />
-        </line-breakpoint>
-      </breakpoints>
-    </breakpoint-manager>
-  </component>
   <component name="com.intellij.coverage.CoverageDataManagerImpl">
     <SUITE FILE_PATH="coverage/sibyl$setup.coverage" NAME="setup Coverage Results" MODIFIED="1709948761846" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
-    <SUITE FILE_PATH="coverage/sibyl$training.coverage" NAME="training Coverage Results" MODIFIED="1712814154416" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/sibyl/workflows" />
+    <SUITE FILE_PATH="coverage/sibyl$training.coverage" NAME="training Coverage Results" MODIFIED="1712854724935" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/sibyl/workflows" />
     <SUITE FILE_PATH="coverage/sibyl$preprocessing.coverage" NAME="preprocessing Coverage Results" MODIFIED="1712328487469" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/sibyl/utils" />
     <SUITE FILE_PATH="coverage/sibyl$plot.coverage" NAME="plot Coverage Results" MODIFIED="1710091283376" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/sibyl/workflows" />
   </component>
