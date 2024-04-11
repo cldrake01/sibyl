@@ -30,6 +30,7 @@ def cache(
             with open(file_path, "rb") as f:
                 return pickle.load(f)
         else:
+            config.log.info(f"Data not found at {file_path}. Fetching data...")
             data = func(*args, **kwargs)
             config.log.info(f"Caching data to {file_path}...")
             with open(file_path, "wb") as f:
@@ -42,7 +43,6 @@ def cache(
 @cache
 def alpaca(config: "Config") -> tuple[Tensor, Tensor]:
     time_series = fetch_data(config=config)
-    config.log.info("Creating tensors...")
     features, targets = indicator_tensors(time_series, config=config)
     return features, targets
 
