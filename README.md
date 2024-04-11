@@ -1,7 +1,5 @@
 # Sibyl
 
-## From Advancing Time Series Forecasting: Variance-Aware Loss Functions in Transformers
-
 **Authors:** Collin Drake, Jack Cerullo  
 **Affiliation:** Peak to Peak Charter School  
 **Date:** March 2024
