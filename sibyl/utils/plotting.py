@@ -203,7 +203,7 @@ def metrics_table(config: Config):
     path = find_root_dir(os.path.dirname(__file__))
     path += f"/assets/plots/tables/{config.dataset_name}/"
     os.makedirs(path, exist_ok=True)
-    path += f"{name}.png"
+    path += f"{config.stage}-{name}.png"
 
     GT(df).tab_header(
         title=name,
