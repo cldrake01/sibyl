@@ -1,5 +1,6 @@
+from dataclasses import dataclass
 from functools import wraps
-from typing import Callable, Any, Iterable
+from typing import Callable, Any, Sequence
 
 from torch import Tensor
 
@@ -21,9 +22,9 @@ def stats(
             config: Config = args[-1]
             assert isinstance(config, Config)
             output = tuple(func(*args, **kwargs))
-            for metric in metrics:
-                config.log.info(f"Computing {metric.__name__}...")
-                config.metrics[metric.__name__] = list(
+            config.metric_names = [metric.__name__ for metric in metrics]
+            for metric, name in zip(metrics, config.metric_names):
+                config.metrics[name] = (
                     metric(y, y_hat) for y, y_hat in (t for t in output)
                 )
             return output

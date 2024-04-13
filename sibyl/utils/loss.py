@@ -3,7 +3,6 @@ import pywt
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
-from scipy.signal import coherence
 from torch import Tensor
 
 

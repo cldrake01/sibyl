@@ -7,6 +7,7 @@ import torch
 from torch import Tensor, nn
 
 from sibyl import tickers, Informer
+from sibyl.utils.benchmarking import Metric
 from sibyl.utils.datasets import alpaca, ett, eld
 from sibyl.utils.logging import NullLogger, Log
 from sibyl.utils.loss import (
@@ -15,6 +16,7 @@ from sibyl.utils.loss import (
 )
 from sibyl.utils.models.dimformer.model import Dimformer
 from sibyl.utils.models.informer.model import DecoderOnlyInformer
+from sibyl.utils.models.ring.model import Ring
 from sibyl.utils.models.ring.ring_attention import RingTransformer
 
 
@@ -50,7 +52,7 @@ class Config:
     dataset: tuple[Tensor, Tensor] | None = None
     log: NullLogger | Logger = NullLogger()
     logger_name: str = ""
-    metrics: dict[str, list[float]] | None = None
+    metrics: dict[str, tuple[float, ...]] | None = None
     stage: str = "Preprocessing"
 
     def __post_init__(self):

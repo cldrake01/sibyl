@@ -1,6 +1,6 @@
 import os
 import signal
-from typing import Any, Generator
+from typing import Generator
 
 import torch
 from torch import Tensor, nn
@@ -10,10 +10,8 @@ from tqdm import tqdm
 from sibyl.utils.benchmarking import stats, bias, variance
 from sibyl.utils.configuration import Config, initialize_model
 from sibyl.utils.logging import find_root_dir
+from sibyl.utils.loss import VMaxSE, VMaxAE
 from sibyl.utils.models.dimformer.model import Dimformer
-from sibyl.utils.models.informer.model import Informer, DecoderOnlyInformer
-from sibyl.utils.models.ring.model import Ring
-from sibyl.utils.models.ring.ring_attention import RingTransformer
 from sibyl.utils.plotting import predicted_vs_actual, metrics_table, metrics
 from sibyl.utils.preprocessing import normalize
 
@@ -76,7 +74,7 @@ def train(
         yield y, y_hat
 
 
-@stats(bias, variance)
+@stats(bias, variance, VMaxSE(benchmark=True), VMaxAE(benchmark=True))
 def validate(
     model: nn.Module, loader: DataLoader, config: Config
 ) -> Generator[tuple[Tensor, Tensor], None, None]:
@@ -127,9 +125,9 @@ def build_model(
     config.optimizer = config.optimizer(model.parameters(), lr=config.learning_rate)
 
     # Define a function to save the model
-    def save_model(model: nn.Module, filepath: str):
+    def save_model(model_: nn.Module, filepath: str):
         config.log.info("Saving model...")
-        torch.save(model.state_dict(), filepath)
+        torch.save(model_.state_dict(), filepath)
         config.log.info("Model saved successfully.")
 
     # Register a signal handler to save the model upon termination
@@ -176,7 +174,8 @@ def main():
     function. You must override `setup.py` if you intend to utilize Sibyl as a custom package.
     """
 
-    loss_functions = ("VMaxAE", "VMaxSE", "MSE", "MAE")
+    aggregated_metrics = []
+    loss_functions = ["VMaxAE", "VMaxSE", "MSE", "MAE"]
 
     for loss in loss_functions:
         config = Config(
@@ -210,6 +209,7 @@ def main():
             val_loader=val_loader,
             config=config,
         )
+        aggregated_metrics.append((loss, config.metrics))
 
 
 if __name__ == "__main__":

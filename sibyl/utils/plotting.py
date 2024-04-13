@@ -3,7 +3,6 @@ import os
 import pandas as pd
 import seaborn as sns
 import torch
-from great_tables import GT
 from matplotlib import pyplot as plt
 from torch import Tensor
 
@@ -183,21 +182,6 @@ def metrics_table(config: Config):
     """
     sns.set_theme(style="dark")
 
-    # Create a dataframe of `loss-function`, `bias`, and `variance` metrics
-
-    # Average each metric
-    metrics = (
-        f"{pd.DataFrame(metric).mean().item():.5f}"
-        for metric in config.metrics.values()
-    )
-    # Create a dataframe
-    df = pd.DataFrame(
-        {
-            "Metric": list(config.metrics.keys()),
-            "Value": metrics,
-        }
-    )
-
     # Plot the table
     name = config.criterion.__class__.__name__
     path = find_root_dir(os.path.dirname(__file__))
@@ -205,7 +189,7 @@ def metrics_table(config: Config):
     os.makedirs(path, exist_ok=True)
     path += f"{config.stage}-{name}.png"
 
-    GT(df).tab_header(
-        title=name,
-        subtitle=" | ".join(f"{m}" for m in tuple(config.metrics.keys())),
-    ).opt_style(style=1, color="blue").save(path)
+    # GT(df.head(1)[columns]).tab_header(
+    #     title=name,
+    #     subtitle=" | ".join(f"{m}" for m in tuple(config.metrics.keys())),
+    # ).opt_stylize(style=1, color="blue").save(path)
