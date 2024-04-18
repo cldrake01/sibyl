@@ -10,5 +10,3 @@ assets/datasets
 *.env
 *.log
 **/.DS_Store
-
-environment.yml
