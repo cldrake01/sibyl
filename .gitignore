@@ -3,6 +3,7 @@ notebooks
 assets/pkl
 assets/models
 assets/datasets
+.idea
 
 *.pt
 *.pkl
