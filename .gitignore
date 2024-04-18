@@ -4,6 +4,7 @@ assets/pkl
 assets/models
 assets/datasets
 .idea
+.idea/*
 
 *.pt
 *.pkl
