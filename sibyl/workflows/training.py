@@ -7,11 +7,12 @@ from torch import Tensor, nn
 from torch.utils.data import TensorDataset, DataLoader, random_split
 from tqdm import tqdm
 
-from sibyl.utils.benchmarking import stats, bias, variance
+from sibyl.utils.benchmarking import stats, bias, variance, error
 from sibyl.utils.configuration import Config, initialize_model
 from sibyl.utils.logging import find_root_dir
-from sibyl.utils.loss import VMaxSE, VMaxAE
-from sibyl.utils.models.dimformer.model import Dimformer
+
+# from sibyl.utils.models.dimformer.model import Dimformer
+from sibyl.utils.models.transformer.model import Transformer
 from sibyl.utils.plotting import predicted_vs_actual, metrics_table, metrics
 from sibyl.utils.preprocessing import normalize
 
@@ -38,7 +39,7 @@ def prepare_datasets(
     return train_loader, val_loader
 
 
-@stats(bias, variance)
+@stats(bias, variance, error)
 def train(
     model: nn.Module, loader: DataLoader, config: Config
 ) -> Generator[tuple[Tensor, Tensor], None, None]:
@@ -56,7 +57,7 @@ def train(
 
     for step, (X, y) in enumerate(tqdm(loader, desc="Training")):
         config.optimizer.zero_grad()
-        y_hat = model(X, y)
+        y_hat = model(X)
         loss = config.criterion(y_hat, y)
         loss.backward()
         config.optimizer.step()
@@ -74,7 +75,7 @@ def train(
         yield y, y_hat
 
 
-@stats(bias, variance, VMaxSE(benchmark=True), VMaxAE(benchmark=True))
+# @stats(bias, variance, VMaxSE.mse, VMaxAE.mae)
 def validate(
     model: nn.Module, loader: DataLoader, config: Config
 ) -> Generator[tuple[Tensor, Tensor], None, None]:
@@ -92,7 +93,7 @@ def validate(
 
     with torch.no_grad():
         for step, (X, y) in enumerate(tqdm(loader, desc="Validating")):
-            y_hat = model(X, y)
+            y_hat = model(X)
             loss = config.criterion(y_hat, y)
             val_loss += loss.item()
             losses.append(loss.item())
@@ -146,13 +147,7 @@ def build_model(
 
         metrics(config)
 
-        metrics_table(config)
-
         validate(model, val_loader, config)
-
-        metrics(config)
-
-        metrics_table(config)
 
     config.log.info("Training complete.")
     path = find_root_dir(os.path.dirname(__file__))
@@ -175,17 +170,17 @@ def main():
     """
 
     aggregated_metrics = []
-    loss_functions = ["VMaxAE", "VMaxSE", "MSE", "MAE"]
+    loss_functions = ["VMaxSE", "MSE", "VMaxAE", "MAE"]
 
     for loss in loss_functions:
         config = Config(
             epochs=1,
             learning_rate=0.001,
-            criterion=str(loss),
+            criterion=loss,
             optimizer="AdamW",
-            plot_loss=False,
-            plot_predictions=False,
-            plot_interval=300,
+            plot_loss=True,
+            plot_predictions=True,
+            plot_interval=5,
             dataset_name="alpaca",
             feature_window_size=120,
             target_window_size=15,
@@ -201,7 +196,7 @@ def main():
         )
         features, targets = config.dataset
         X, y = normalize(features, targets)
-        model = initialize_model(X, y, Dimformer)
+        model = initialize_model(X, y, Transformer)
         train_loader, val_loader = prepare_datasets(X, y, config)
         build_model(
             model=model,
@@ -210,6 +205,8 @@ def main():
             config=config,
         )
         aggregated_metrics.append((loss, config.metrics))
+
+    metrics_table(aggregated_metrics)
 
 
 if __name__ == "__main__":

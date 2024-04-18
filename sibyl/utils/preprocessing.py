@@ -7,9 +7,7 @@ from torch import Tensor
 
 
 def indicators(
-    time_series: list,
-    stock_id: int,
-    config: "Config",
+    time_series: list, stock_id: int, config: "Config"
 ) -> tuple[Tensor, Tensor]:
     """
     Calculates technical indicators for a given stock and returns feature and target windows.

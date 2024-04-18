@@ -5,13 +5,130 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="a7ff77d1-7ecd-4619-8090-4ce640081a6c" name="Changes" comment="//">
+      <change afterPath="$PROJECT_DIR$/pyrightconfig.json" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/sibyl/utils/models/transformer/model.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/README.md" beforeDir="false" afterPath="$PROJECT_DIR$/README.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/assets/plots/bias-variance/alpaca/Training-L1Loss-0.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/assets/plots/bias-variance/alpaca/Training-L1Loss-1.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/assets/plots/bias-variance/alpaca/Training-L1Loss-2.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/assets/plots/bias-variance/alpaca/Training-L1Loss-3.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/assets/plots/bias-variance/alpaca/Training-L1Loss-4.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/assets/plots/bias-variance/alpaca/Training-L1Loss-5.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/assets/plots/bias-variance/alpaca/Training-L1Loss-6.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/assets/plots/bias-variance/alpaca/Training-L1Loss-7.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/assets/plots/bias-variance/alpaca/Training-L1Loss-8.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/assets/plots/bias-variance/alpaca/Training-L1Loss-9.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/assets/plots/bias-variance/alpaca/Training-MSELoss-0.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/assets/plots/bias-variance/alpaca/Training-MSELoss-1.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/assets/plots/bias-variance/alpaca/Training-MSELoss-2.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/assets/plots/bias-variance/alpaca/Training-MSELoss-3.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/assets/plots/bias-variance/alpaca/Training-MSELoss-4.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/assets/plots/bias-variance/alpaca/Training-MSELoss-5.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/assets/plots/bias-variance/alpaca/Training-MSELoss-6.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/assets/plots/bias-variance/alpaca/Training-MSELoss-7.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/assets/plots/bias-variance/alpaca/Training-MSELoss-8.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/assets/plots/bias-variance/alpaca/Training-MSELoss-9.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/assets/plots/bias-variance/alpaca/Training-VMaxAE-0.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/assets/plots/bias-variance/alpaca/Training-VMaxAE-1.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/assets/plots/bias-variance/alpaca/Training-VMaxAE-2.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/assets/plots/bias-variance/alpaca/Training-VMaxAE-3.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/assets/plots/bias-variance/alpaca/Training-VMaxAE-4.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/assets/plots/bias-variance/alpaca/Training-VMaxAE-5.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/assets/plots/bias-variance/alpaca/Training-VMaxAE-6.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/assets/plots/bias-variance/alpaca/Training-VMaxAE-7.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/assets/plots/bias-variance/alpaca/Training-VMaxAE-8.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/assets/plots/bias-variance/alpaca/Training-VMaxAE-9.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/assets/plots/bias-variance/alpaca/Training-VMaxSE-0.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/assets/plots/bias-variance/alpaca/Training-VMaxSE-1.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/assets/plots/bias-variance/alpaca/Training-VMaxSE-2.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/assets/plots/bias-variance/alpaca/Training-VMaxSE-3.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/assets/plots/bias-variance/alpaca/Training-VMaxSE-4.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/assets/plots/bias-variance/alpaca/Training-VMaxSE-5.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/assets/plots/bias-variance/alpaca/Training-VMaxSE-6.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/assets/plots/bias-variance/alpaca/Training-VMaxSE-7.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/assets/plots/bias-variance/alpaca/Training-VMaxSE-8.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/assets/plots/bias-variance/alpaca/Training-VMaxSE-9.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/assets/plots/bias-variance/alpaca/Validation-L1Loss-0.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/assets/plots/bias-variance/alpaca/Validation-L1Loss-1.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/assets/plots/bias-variance/alpaca/Validation-L1Loss-2.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/assets/plots/bias-variance/alpaca/Validation-L1Loss-3.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/assets/plots/bias-variance/alpaca/Validation-L1Loss-4.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/assets/plots/bias-variance/alpaca/Validation-L1Loss-5.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/assets/plots/bias-variance/alpaca/Validation-L1Loss-6.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/assets/plots/bias-variance/alpaca/Validation-L1Loss-7.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/assets/plots/bias-variance/alpaca/Validation-L1Loss-8.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/assets/plots/bias-variance/alpaca/Validation-L1Loss-9.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/assets/plots/bias-variance/alpaca/Validation-MSELoss-0.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/assets/plots/bias-variance/alpaca/Validation-MSELoss-1.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/assets/plots/bias-variance/alpaca/Validation-MSELoss-2.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/assets/plots/bias-variance/alpaca/Validation-MSELoss-3.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/assets/plots/bias-variance/alpaca/Validation-MSELoss-4.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/assets/plots/bias-variance/alpaca/Validation-MSELoss-5.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/assets/plots/bias-variance/alpaca/Validation-MSELoss-6.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/assets/plots/bias-variance/alpaca/Validation-MSELoss-7.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/assets/plots/bias-variance/alpaca/Validation-MSELoss-8.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/assets/plots/bias-variance/alpaca/Validation-MSELoss-9.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/assets/plots/bias-variance/alpaca/Validation-VMaxAE-0.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/assets/plots/bias-variance/alpaca/Validation-VMaxAE-1.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/assets/plots/bias-variance/alpaca/Validation-VMaxAE-2.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/assets/plots/bias-variance/alpaca/Validation-VMaxAE-3.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/assets/plots/bias-variance/alpaca/Validation-VMaxAE-4.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/assets/plots/bias-variance/alpaca/Validation-VMaxAE-5.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/assets/plots/bias-variance/alpaca/Validation-VMaxAE-6.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/assets/plots/bias-variance/alpaca/Validation-VMaxAE-7.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/assets/plots/bias-variance/alpaca/Validation-VMaxAE-8.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/assets/plots/bias-variance/alpaca/Validation-VMaxAE-9.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/assets/plots/bias-variance/alpaca/Validation-VMaxSE-0.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/assets/plots/bias-variance/alpaca/Validation-VMaxSE-1.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/assets/plots/bias-variance/alpaca/Validation-VMaxSE-2.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/assets/plots/bias-variance/alpaca/Validation-VMaxSE-3.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/assets/plots/bias-variance/alpaca/Validation-VMaxSE-4.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/assets/plots/bias-variance/alpaca/Validation-VMaxSE-5.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/assets/plots/bias-variance/alpaca/Validation-VMaxSE-6.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/assets/plots/bias-variance/alpaca/Validation-VMaxSE-7.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/assets/plots/bias-variance/alpaca/Validation-VMaxSE-8.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/assets/plots/bias-variance/alpaca/Validation-VMaxSE-9.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/assets/plots/bias/alpaca/Training-VMaxAE-0.png" beforeDir="false" afterPath="$PROJECT_DIR$/assets/plots/bias/alpaca/Training-VMaxAE-0.png" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/assets/plots/bias/alpaca/Validation-L1Loss-0.png" beforeDir="false" afterPath="$PROJECT_DIR$/assets/plots/bias/alpaca/Validation-L1Loss-0.png" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/assets/plots/bias/alpaca/Validation-MSELoss-0.png" beforeDir="false" afterPath="$PROJECT_DIR$/assets/plots/bias/alpaca/Validation-MSELoss-0.png" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/assets/plots/bias/alpaca/Validation-VMaxAE-0.png" beforeDir="false" afterPath="$PROJECT_DIR$/assets/plots/bias/alpaca/Validation-VMaxAE-0.png" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/assets/plots/bias/alpaca/Validation-VMaxSE-0.png" beforeDir="false" afterPath="$PROJECT_DIR$/assets/plots/bias/alpaca/Validation-VMaxSE-0.png" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/assets/plots/tables/alpaca/VMaxAE.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/assets/plots/tables/alpaca/VMaxSE.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/assets/plots/tables/alpaca/Validation-L1Loss.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/assets/plots/tables/alpaca/Validation-MSELoss.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/assets/plots/tables/alpaca/Validation-VMaxAE.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/assets/plots/tables/alpaca/Validation-VMaxSE.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/assets/plots/variance/alpaca/Training-VMaxAE-0.png" beforeDir="false" afterPath="$PROJECT_DIR$/assets/plots/variance/alpaca/Training-VMaxAE-0.png" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/assets/plots/variance/alpaca/Validation-L1Loss-0.png" beforeDir="false" afterPath="$PROJECT_DIR$/assets/plots/variance/alpaca/Validation-L1Loss-0.png" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/assets/plots/variance/alpaca/Validation-MSELoss-0.png" beforeDir="false" afterPath="$PROJECT_DIR$/assets/plots/variance/alpaca/Validation-MSELoss-0.png" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/assets/plots/variance/alpaca/Validation-VMaxAE-0.png" beforeDir="false" afterPath="$PROJECT_DIR$/assets/plots/variance/alpaca/Validation-VMaxAE-0.png" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/assets/plots/variance/alpaca/Validation-VMaxSE-0.png" beforeDir="false" afterPath="$PROJECT_DIR$/assets/plots/variance/alpaca/Validation-VMaxSE-0.png" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/poetry.lock" beforeDir="false" afterPath="$PROJECT_DIR$/poetry.lock" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/pyproject.toml" beforeDir="false" afterPath="$PROJECT_DIR$/pyproject.toml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/sibyl/tests/linear_regressor.py" beforeDir="false" afterPath="$PROJECT_DIR$/sibyl/tests/linear_regressor.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/sibyl/utils/benchmarking.py" beforeDir="false" afterPath="$PROJECT_DIR$/sibyl/utils/benchmarking.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/sibyl/utils/configuration.py" beforeDir="false" afterPath="$PROJECT_DIR$/sibyl/utils/configuration.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/sibyl/utils/datasets.py" beforeDir="false" afterPath="$PROJECT_DIR$/sibyl/utils/datasets.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/sibyl/utils/loss.py" beforeDir="false" afterPath="$PROJECT_DIR$/sibyl/utils/loss.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/sibyl/utils/models/dimformer/layers/decoder.py" beforeDir="false" afterPath="$PROJECT_DIR$/sibyl/utils/models/dimformer/layers/decoder.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/sibyl/utils/models/dimformer/layers/embed.py" beforeDir="false" afterPath="$PROJECT_DIR$/sibyl/utils/models/dimformer/layers/embed.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/sibyl/utils/models/dimformer/model.py" beforeDir="false" afterPath="$PROJECT_DIR$/sibyl/utils/models/dimformer/model.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/sibyl/utils/models/ring/__init__.py" beforeDir="false" afterPath="$PROJECT_DIR$/sibyl/utils/models/transformer/__init__.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/sibyl/utils/models/ring/distributed.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/sibyl/utils/models/ring/layers/attn.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/sibyl/utils/models/ring/layers/decoder.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/sibyl/utils/models/ring/layers/embed.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/sibyl/utils/models/ring/layers/encoder.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/sibyl/utils/models/ring/model.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/sibyl/utils/models/ring/ring.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/sibyl/utils/models/ring/ring_attention.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/sibyl/utils/models/ring/ring_flash_attention.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/sibyl/utils/models/ring/ring_flash_attention_cuda.py" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/sibyl/utils/plotting.py" beforeDir="false" afterPath="$PROJECT_DIR$/sibyl/utils/plotting.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/sibyl/utils/preprocessing.py" beforeDir="false" afterPath="$PROJECT_DIR$/sibyl/utils/preprocessing.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/sibyl/workflows/training.py" beforeDir="false" afterPath="$PROJECT_DIR$/sibyl/workflows/training.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -25,6 +142,9 @@
         <option value="Python Script" />
       </list>
     </option>
+  </component>
+  <component name="FormatOnSaveOptions">
+    <option name="myRunOnSave" value="true" />
   </component>
   <component name="Git.Settings">
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
@@ -45,6 +165,9 @@
   <component name="HighlightingSettingsPerFile">
     <setting file="file://$USER_HOME$/Library/Caches/pypoetry/virtualenvs/sibyl-QY2RSqpD-py3.12/lib/python3.12/site-packages/torch/nn/functional.py" root0="SKIP_INSPECTION" />
     <setting file="file://$USER_HOME$/Library/Caches/pypoetry/virtualenvs/sibyl-QY2RSqpD-py3.12/lib/python3.12/site-packages/torch/nn/modules/activation.py" root0="SKIP_INSPECTION" />
+    <setting file="file://$USER_HOME$/Library/Caches/pypoetry/virtualenvs/sibyl-QY2RSqpD-py3.12/lib/python3.12/site-packages/torch/nn/modules/linear.py" root0="SKIP_INSPECTION" />
+    <setting file="file://$USER_HOME$/Library/Caches/pypoetry/virtualenvs/sibyl-QY2RSqpD-py3.12/lib/python3.12/site-packages/torch/nn/modules/module.py" root0="SKIP_INSPECTION" />
+    <setting file="file://$USER_HOME$/Library/Caches/pypoetry/virtualenvs/sibyl-QY2RSqpD-py3.12/lib/python3.12/site-packages/torch/nn/modules/normalization.py" root0="SKIP_INSPECTION" />
   </component>
   <component name="MarkdownSettingsMigration">
     <option name="stateVersion" value="1" />
@@ -63,6 +186,7 @@
   <component name="PropertiesComponent">{
   &quot;keyToString&quot;: {
     &quot;ASKED_ADD_EXTERNAL_FILES&quot;: &quot;true&quot;,
+    &quot;Python.model.executor&quot;: &quot;Run&quot;,
     &quot;Python.plot.executor&quot;: &quot;Run&quot;,
     &quot;Python.preprocessing.executor&quot;: &quot;Run&quot;,
     &quot;Python.setup.executor&quot;: &quot;Run&quot;,
@@ -74,11 +198,13 @@
     &quot;deletionFromPopupRequiresConfirmation&quot;: &quot;false&quot;,
     &quot;git-widget-placeholder&quot;: &quot;main&quot;,
     &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
+    &quot;node.js.detected.package.stylelint&quot;: &quot;true&quot;,
     &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
     &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
+    &quot;node.js.selected.package.stylelint&quot;: &quot;&quot;,
     &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
     &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
-    &quot;settings.editor.selected.configurable&quot;: &quot;com.jetbrains.python.black.configuration.BlackFormatterConfigurable&quot;,
+    &quot;settings.editor.selected.configurable&quot;: &quot;preferences.pluginManager&quot;,
     &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
   }
 }</component>
@@ -91,30 +217,7 @@
       <recent name="$PROJECT_DIR$/sibyl" />
     </key>
   </component>
-  <component name="RunManager" selected="Python.training">
-    <configuration name="preprocessing" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
-      <module name="sibyl" />
-      <option name="ENV_FILES" value="" />
-      <option name="INTERPRETER_OPTIONS" value="" />
-      <option name="PARENT_ENVS" value="true" />
-      <envs>
-        <env name="PYTHONUNBUFFERED" value="1" />
-      </envs>
-      <option name="SDK_HOME" value="" />
-      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/sibyl/utils" />
-      <option name="IS_MODULE_SDK" value="true" />
-      <option name="ADD_CONTENT_ROOTS" value="true" />
-      <option name="ADD_SOURCE_ROOTS" value="true" />
-      <EXTENSION ID="PythonCoverageRunConfigurationExtension" runner="coverage.py" />
-      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/sibyl/utils/preprocessing.py" />
-      <option name="PARAMETERS" value="" />
-      <option name="SHOW_COMMAND_LINE" value="false" />
-      <option name="EMULATE_TERMINAL" value="false" />
-      <option name="MODULE_MODE" value="false" />
-      <option name="REDIRECT_INPUT" value="false" />
-      <option name="INPUT_FILE" value="" />
-      <method v="2" />
-    </configuration>
+  <component name="RunManager">
     <configuration name="training" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
       <module name="sibyl" />
       <option name="ENV_FILES" value="" />
@@ -141,7 +244,6 @@
     <recent_temporary>
       <list>
         <item itemvalue="Python.training" />
-        <item itemvalue="Python.preprocessing" />
       </list>
     </recent_temporary>
   </component>
@@ -262,14 +364,45 @@
       <workItem from="1712885593509" duration="2253000" />
       <workItem from="1712950800851" duration="804000" />
       <workItem from="1712951957518" duration="2526000" />
-    </task>
-    <task id="LOCAL-00020" summary="//">
-      <option name="closed" value="true" />
-      <created>1710437922129</created>
-      <option name="number" value="00020" />
-      <option name="presentableId" value="LOCAL-00020" />
-      <option name="project" value="LOCAL" />
-      <updated>1710437922129</updated>
+      <workItem from="1712977749949" duration="2236000" />
+      <workItem from="1712980214629" duration="722000" />
+      <workItem from="1712980957944" duration="564000" />
+      <workItem from="1712981586718" duration="214000" />
+      <workItem from="1712981816240" duration="194000" />
+      <workItem from="1712982080297" duration="115000" />
+      <workItem from="1712982205541" duration="303000" />
+      <workItem from="1712982534643" duration="392000" />
+      <workItem from="1712982941054" duration="19000" />
+      <workItem from="1712982971467" duration="56000" />
+      <workItem from="1712983038641" duration="785000" />
+      <workItem from="1712983964851" duration="560000" />
+      <workItem from="1712984539750" duration="338000" />
+      <workItem from="1712984935373" duration="644000" />
+      <workItem from="1712985812188" duration="35000" />
+      <workItem from="1712985859979" duration="374000" />
+      <workItem from="1713026142503" duration="108000" />
+      <workItem from="1713026369439" duration="608000" />
+      <workItem from="1713026997391" duration="356000" />
+      <workItem from="1713027624011" duration="20533000" />
+      <workItem from="1713125337751" duration="66000" />
+      <workItem from="1713129165738" duration="146000" />
+      <workItem from="1713129683483" duration="1712000" />
+      <workItem from="1713190492683" duration="4997000" />
+      <workItem from="1713196811969" duration="120000" />
+      <workItem from="1713196960608" duration="2522000" />
+      <workItem from="1713202346926" duration="3335000" />
+      <workItem from="1713220954918" duration="8017000" />
+      <workItem from="1713287236081" duration="2531000" />
+      <workItem from="1713293793688" duration="106000" />
+      <workItem from="1713294935715" duration="14000" />
+      <workItem from="1713296051260" duration="10386000" />
+      <workItem from="1713309668806" duration="577000" />
+      <workItem from="1713310339929" duration="410000" />
+      <workItem from="1713316017400" duration="210000" />
+      <workItem from="1713365690315" duration="1725000" />
+      <workItem from="1713392635948" duration="325000" />
+      <workItem from="1713400330943" duration="8141000" />
+      <workItem from="1713453531281" duration="238000" />
     </task>
     <task id="LOCAL-00021" summary="//">
       <option name="closed" value="true" />
@@ -655,7 +788,15 @@
       <option name="project" value="LOCAL" />
       <updated>1712869027128</updated>
     </task>
-    <option name="localTasksCounter" value="69" />
+    <task id="LOCAL-00069" summary="//">
+      <option name="closed" value="true" />
+      <created>1712977957963</created>
+      <option name="number" value="00069" />
+      <option name="presentableId" value="LOCAL-00069" />
+      <option name="project" value="LOCAL" />
+      <updated>1712977957964</updated>
+    </task>
+    <option name="localTasksCounter" value="70" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -678,9 +819,21 @@
     <MESSAGE value="//" />
     <option name="LAST_COMMIT_MESSAGE" value="//" />
   </component>
+  <component name="XDebuggerManager">
+    <breakpoint-manager>
+      <breakpoints>
+        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
+          <url>file://$PROJECT_DIR$/sibyl/workflows/training.py</url>
+          <line>70</line>
+          <option name="timeStamp" value="1" />
+        </line-breakpoint>
+      </breakpoints>
+    </breakpoint-manager>
+  </component>
   <component name="com.intellij.coverage.CoverageDataManagerImpl">
+    <SUITE FILE_PATH="coverage/sibyl$model.coverage" NAME="model Coverage Results" MODIFIED="1713402643508" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/sibyl/utils/models/transformer" />
     <SUITE FILE_PATH="coverage/sibyl$setup.coverage" NAME="setup Coverage Results" MODIFIED="1709948761846" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
-    <SUITE FILE_PATH="coverage/sibyl$training.coverage" NAME="training Coverage Results" MODIFIED="1712873050642" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/sibyl/workflows" />
+    <SUITE FILE_PATH="coverage/sibyl$training.coverage" NAME="training Coverage Results" MODIFIED="1713413604320" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/sibyl/workflows" />
     <SUITE FILE_PATH="coverage/sibyl$preprocessing.coverage" NAME="preprocessing Coverage Results" MODIFIED="1712328487469" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/sibyl/utils" />
     <SUITE FILE_PATH="coverage/sibyl$plot.coverage" NAME="plot Coverage Results" MODIFIED="1710091283376" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/sibyl/workflows" />
   </component>

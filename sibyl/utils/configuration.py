@@ -3,21 +3,21 @@ from dataclasses import dataclass
 from logging import Logger
 from typing import Any
 
+import pandas as pd
 import torch
 from torch import Tensor, nn
 
 from sibyl import tickers, Informer
-from sibyl.utils.benchmarking import Metric
 from sibyl.utils.datasets import alpaca, ett, eld
 from sibyl.utils.logging import NullLogger, Log
 from sibyl.utils.loss import (
     VMaxSE,
     VMaxAE,
+    Fourier,
 )
 from sibyl.utils.models.dimformer.model import Dimformer
 from sibyl.utils.models.informer.model import DecoderOnlyInformer
-from sibyl.utils.models.ring.model import Ring
-from sibyl.utils.models.ring.ring_attention import RingTransformer
+from sibyl.utils.models.transformer.model import Transformer
 
 
 @dataclass
@@ -52,7 +52,7 @@ class Config:
     dataset: tuple[Tensor, Tensor] | None = None
     log: NullLogger | Logger = NullLogger()
     logger_name: str = ""
-    metrics: dict[str, tuple[float, ...]] | None = None
+    metrics: pd.DataFrame | None = None
     stage: str = "Preprocessing"
 
     def __post_init__(self):
@@ -71,10 +71,10 @@ class Config:
         if os.name == "posix":
             os.environ["KMP_DUPLICATE_LIB_OK"] = "True"
 
-        self.metrics = self.metrics or {}
+        self.metrics = self.metrics or pd.DataFrame()
 
         loss_functions = {
-            # "Fourier": Fourier,
+            "Fourier": Fourier,
             "VMaxAE": VMaxAE,
             "VMaxSE": VMaxSE,
             # "MaxAPE": MaxAPE,
@@ -117,6 +117,14 @@ def initialize_model(X: Tensor, y: Tensor, model: Any) -> nn.Module:
     target_len = y.size(1)
 
     model_configurations = {
+        Transformer: Transformer(
+            X=X,
+            y=y,
+            d_layers=1,
+            d_model=512,
+            n_heads=8,
+            dropout=0.05,
+        ),
         Dimformer: Dimformer(
             enc_in=num_features,
             dec_in=num_features,
@@ -175,28 +183,6 @@ def initialize_model(X: Tensor, y: Tensor, model: Any) -> nn.Module:
             d_ff=512,
             dropout=0.01,
             activation="gelu",
-        ),
-        RingTransformer: Ring(
-            enc_in=num_features,
-            dec_in=num_features,
-            c_out=num_targets,
-            seq_len=feature_len,
-            label_len=target_len,
-            out_len=target_len,
-            factor=5,
-            d_model=512,
-            n_heads=num_features,
-            e_layers=3,
-            d_layers=2,
-            d_ff=512,
-            dropout=0.01,
-            attn="prob",
-            embed="fixed",
-            freq="h",
-            activation="gelu",
-            output_attention=False,
-            distil=True,
-            mix=True,
         ),
     }
 

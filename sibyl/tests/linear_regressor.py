@@ -8,6 +8,7 @@ from sibyl.utils.loss import VMaxSE
 
 
 class LinearRegressor(nn.Module):
+
     def __init__(self):
         super(LinearRegressor, self).__init__()
         self.linear = nn.Linear(1, 1)

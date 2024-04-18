@@ -49,9 +49,7 @@ def alpaca(config: "Config") -> tuple[Tensor, Tensor]:
 
 @cache
 def ett(
-    config: "Config",
-    directory: str | None = None,
-    file: str = "ETTh1.csv",
+    config: "Config", directory: str | None = None, file: str = "ETTh1.csv"
 ) -> tuple[Tensor, Tensor]:
     """
     Parse the ETT CSVs and return tensors of shape (batch, features, time).

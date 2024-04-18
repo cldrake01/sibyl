@@ -1,6 +1,7 @@
 import os
 
 import pandas as pd
+import plotly.graph_objects as go
 import seaborn as sns
 import torch
 from matplotlib import pyplot as plt
@@ -159,6 +160,12 @@ def metrics(config: Config):
         plt.plot(
             pd.DataFrame(values).rolling(config.plot_interval).mean(), label=metric
         )
+
+        plt.title(
+            f"{config.dataset_name} - {config.criterion.__class__.__name__}"
+            f"- {config.stage} Metrics at Epoch {config.epoch}"
+        )
+
         path: str = find_root_dir(os.path.dirname(__file__))
         path += f"/assets/plots/{metric}/"
         path += f"{config.dataset_name}/"
@@ -174,22 +181,63 @@ def metrics(config: Config):
         plt.show()
 
 
-def metrics_table(config: Config):
+def metrics_table(metrics_: list[tuple[str, pd.DataFrame]]):
     """
     Plot a table of metrics.
 
-    :param config: The configuration object.
+    :param metrics_: The metrics to plot.
     """
-    sns.set_theme(style="dark")
+    # Each data frame is structured as such:
+    #           bias  variance       mse       mae
+    # 0     0.841117  0.800877  1.490557  1.038116
+    # 1     0.891275  0.937894  1.711424  1.124250
+    # 2     0.808641  0.786355  1.422781  1.015115
+    # 3     0.955522  0.841266  1.735593  1.131148
+    # 4     0.831139  0.775454  1.449014  1.014566
+    # ...        ...       ...       ...       ...
+    # 3874  0.924198  0.822155  1.658028  1.099741
+    # 3875  0.911048  0.832099  1.643615  1.102134
+    # 3876  0.896106  0.780433  1.566096  1.067901
+    # 3877  0.845971  0.789652  1.487770  1.043889
+    # 3878  0.825264  0.765414  1.429466  1.012620
+    #
+    # [3879 rows x 4 columns]
+    names = [name for name, _ in metrics_]
 
-    # Plot the table
-    name = config.criterion.__class__.__name__
-    path = find_root_dir(os.path.dirname(__file__))
-    path += f"/assets/plots/tables/{config.dataset_name}/"
+    aggregated = [
+        [metrics_[i][1][col].mean() for col in metrics_[0][1].columns]
+        for i in range(len(metrics_))
+    ]
+
+    # Round the values to 5 decimal places
+    aggregated = [[round(val, 5) for val in row] for row in aggregated]
+
+    # Aggregated is structured such that it is a list of lists where 0 corresponds to the bias, 1 to the variance, etc.
+    # Instead, we want to transpose this list so that each list corresponds to a row in the table.
+    table = [names] + list(map(list, zip(*aggregated)))
+
+    # Create a table
+    fig: go.Figure = go.Figure(
+        data=[
+            go.Table(
+                header=dict(
+                    values=["Metric", *metrics_[0][1].columns],
+                    fill_color="paleturquoise",
+                    align="left",
+                ),
+                cells=dict(
+                    values=table,
+                    fill_color="lavender",
+                    align="left",
+                ),
+            )
+        ]
+    )
+
+    path: str = find_root_dir(os.path.dirname(__file__))
+    path += f"/assets/plots/tables/"
     os.makedirs(path, exist_ok=True)
-    path += f"{config.stage}-{name}.png"
+    path += "-".join(names)
+    path += ".png"
 
-    # GT(df.head(1)[columns]).tab_header(
-    #     title=name,
-    #     subtitle=" | ".join(f"{m}" for m in tuple(config.metrics.keys())),
-    # ).opt_stylize(style=1, color="blue").save(path)
+    fig.write_image(path)

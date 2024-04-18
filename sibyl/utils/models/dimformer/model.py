@@ -141,8 +141,6 @@ class Dimformer(nn.Module):
         dec_enc_mask=None,
     ):
         attentions = None
-        # print(f"(Dimformer.forward) x_enc.shape: {x_enc.shape}")
-        # print(f"(Dimformer.forward) x_dec.shape: {x_dec.shape}")
         enc_out = self.enc_embedding(x=x_enc)
         dec_out = self.dec_embedding(x=x_dec)
         if self.encoder:
@@ -151,14 +149,10 @@ class Dimformer(nn.Module):
                 dec_out, enc_out, x_mask=dec_self_mask, cross_mask=dec_enc_mask
             )
         else:
-            # print(f"(Dimformer.forward) enc_out.shape: {enc_out.shape}")
-            # print(f"(Dimformer.forward) dec_out.shape: {dec_out.shape}")
             dec_out = self.decoder(
                 dec_out, enc_out, x_mask=dec_self_mask, cross_mask=dec_enc_mask
             )
-        # print(f"(Dimformer.forward) dec_out.shape: {dec_out.shape}")
         dec_out = self.projection(dec_out).transpose(1, 2)
-        # print(f"(Dimformer.forward) dec_out.shape: {dec_out.shape}")
 
         if self.output_attention:
             return dec_out[:, -self.pred_len :, :], attentions

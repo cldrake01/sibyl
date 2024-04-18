@@ -1,7 +1,7 @@
-from dataclasses import dataclass
 from functools import wraps
-from typing import Callable, Any, Sequence
+from typing import Callable, Any
 
+import pandas as pd
 from torch import Tensor
 
 from sibyl.utils.configuration import Config
@@ -21,12 +21,11 @@ def stats(
         def wrapper(*args: Any, **kwargs: Any):
             config: Config = args[-1]
             assert isinstance(config, Config)
+            df: pd.DataFrame = config.metrics
             output = tuple(func(*args, **kwargs))
-            config.metric_names = [metric.__name__ for metric in metrics]
-            for metric, name in zip(metrics, config.metric_names):
-                config.metrics[name] = (
-                    metric(y, y_hat) for y, y_hat in (t for t in output)
-                )
+            for metric in metrics:
+                for i, (y, y_hat) in enumerate(t for t in output):
+                    df.loc[i, metric.__name__] = metric(y, y_hat)
             return output
 
         return wrapper
@@ -41,7 +40,7 @@ def bias(y: Tensor, y_hat: Tensor) -> float:
     :param y: The actual values.
     :param y_hat: The predicted values.
     """
-    return (y.mean() - y_hat.mean()).item()
+    return (y - y_hat).abs().mean().item()
 
 
 def variance(y: Tensor, y_hat: Tensor) -> float:
@@ -51,4 +50,14 @@ def variance(y: Tensor, y_hat: Tensor) -> float:
     :param y: The actual values.
     :param y_hat: The predicted values.
     """
-    return (y - y_hat).var().item()
+    return (y - y_hat).abs().var().item()
+
+
+def error(y: Tensor, y_hat: Tensor) -> float:
+    """
+    Compute the sum squared error between the actual and predicted values.
+
+    :param y: The actual values.
+    :param y_hat: The predicted values.
+    """
+    return (y - y_hat).abs().sum().item()
