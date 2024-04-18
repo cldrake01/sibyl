@@ -17,6 +17,7 @@ from sibyl.utils.loss import (
 )
 from sibyl.utils.models.dimformer.model import Dimformer
 from sibyl.utils.models.informer.model import DecoderOnlyInformer
+from sibyl.utils.models.regressor.model import LinearRegressor
 from sibyl.utils.models.transformer.model import Transformer
 
 
@@ -184,6 +185,10 @@ def initialize_model(X: Tensor, y: Tensor, model: Any) -> nn.Module:
             dropout=0.01,
             activation="gelu",
         ),
+        LinearRegressor: LinearRegressor(
+            in_dims=feature_len,
+            out_dims=target_len,
+        )
     }
 
     return model_configurations[model]

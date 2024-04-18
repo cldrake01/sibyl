@@ -10,6 +10,7 @@ from tqdm import tqdm
 from sibyl.utils.benchmarking import stats, bias, variance, error
 from sibyl.utils.configuration import Config, initialize_model
 from sibyl.utils.logging import find_root_dir
+from sibyl.utils.models.regressor.model import LinearRegressor
 
 # from sibyl.utils.models.dimformer.model import Dimformer
 from sibyl.utils.models.transformer.model import Transformer
@@ -196,7 +197,7 @@ def main():
         )
         features, targets = config.dataset
         X, y = normalize(features, targets)
-        model = initialize_model(X, y, Transformer)
+        model = initialize_model(X, y, LinearRegressor)
         train_loader, val_loader = prepare_datasets(X, y, config)
         build_model(
             model=model,
