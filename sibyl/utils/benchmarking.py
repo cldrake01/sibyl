@@ -2,13 +2,15 @@ from functools import wraps
 from typing import Callable, Any
 
 import pandas as pd
+import torch
+from scipy.stats import wasserstein_distance
 from torch import Tensor
 
 from sibyl.utils.configuration import Config
 
 
 def stats(
-    *metrics: Callable[[Tensor, Tensor], float],
+        *metrics: Callable[[Tensor, Tensor], float],
 ) -> callable:
     """
     `stats` is supposed to collect metrics on the two tensors returned by the decorated function.
@@ -61,3 +63,9 @@ def error(y: Tensor, y_hat: Tensor) -> float:
     :param y_hat: The predicted values.
     """
     return (y - y_hat).abs().sum().item()
+
+
+def emd(y: Tensor, y_hat: Tensor) -> float:
+    p = torch.histogram(y, 15)
+    q = torch.histogram(y_hat, 15)
+    return wasserstein_distance(len(p), len(q), p, q)
