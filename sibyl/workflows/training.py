@@ -56,6 +56,7 @@ def train(
 
     for step, (X, y) in enumerate(tqdm(loader, desc="Training")):
         config.optimizer.zero_grad()
+        # y_hat.size() = [batch, predicted_len, features]
         y_hat = model(X, y)
         loss = config.criterion(y_hat, y)
         loss.backward()

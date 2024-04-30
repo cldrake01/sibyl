@@ -2,6 +2,8 @@ from functools import wraps
 from typing import Callable, Any
 
 import pandas as pd
+import torch
+from scipy.stats import wasserstein_distance
 from torch import Tensor
 
 from sibyl.utils.configuration import Config
@@ -65,3 +67,9 @@ def error(y_hat: Tensor, y: Tensor) -> float:
 
 def euclidean(y_hat: Tensor, y: Tensor) -> float:
     return (y**2 - y_hat**2).sum().sqrt().item()
+
+
+def emd(y: Tensor, y_hat: Tensor) -> float:
+    p = torch.histogram(y, y.size(1))
+    q = torch.histogram(y_hat, y_hat.size(1))
+    return wasserstein_distance(len(p), len(q), p, q)
