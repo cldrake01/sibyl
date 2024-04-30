@@ -33,27 +33,27 @@ def stats(
     return decorator
 
 
-def bias(y: Tensor, y_hat: Tensor) -> float:
+def bias(y_hat: Tensor, y: Tensor) -> float:
     """
     Compute the bias between the actual and predicted values.
 
     :param y: The actual values.
     :param y_hat: The predicted values.
     """
-    return (y - y_hat).abs().mean().item()
+    return (y_hat.mean() - y).mean().item()
 
 
-def variance(y: Tensor, y_hat: Tensor) -> float:
+def variance(y_hat: Tensor, y: Tensor) -> float:
     """
     Compute the variance between the actual and predicted values.
 
     :param y: The actual values.
     :param y_hat: The predicted values.
     """
-    return (y - y_hat).abs().var().item()
+    return y_hat.var().item()
 
 
-def error(y: Tensor, y_hat: Tensor) -> float:
+def error(y_hat: Tensor, y: Tensor) -> float:
     """
     Compute the sum squared error between the actual and predicted values.
 
@@ -61,3 +61,7 @@ def error(y: Tensor, y_hat: Tensor) -> float:
     :param y_hat: The predicted values.
     """
     return (y - y_hat).abs().sum().item()
+
+
+def euclidean(y_hat: Tensor, y: Tensor) -> float:
+    return (y**2 - y_hat**2).sum().sqrt().item()
