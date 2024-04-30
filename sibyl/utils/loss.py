@@ -4,35 +4,38 @@ import torch.nn.functional as F
 from torch import Tensor
 
 
-class Fourier(nn.Module):
+class MaxAE(nn.Module):
     def __init__(
         self,
         dim: int = 1,
     ):
         """
-        A fourier loss function.
+        Variance-weighted Maximum Absolute Error (VMaxAE) loss function.
 
         :param dim: The dimension along which to compute the variance.
         """
-        super(Fourier, self).__init__()
+        super(MaxAE, self).__init__()
         self._dim: int = dim
 
     def __call__(self, *args, **kwargs):
-        return self.fourier(*args, **kwargs)
+        return self.maxae(*args, **kwargs)
+
+    def _weight(self, x: Tensor) -> Tensor:
+        return torch.repeat_interleave(
+            x,
+            torch.tensor(range(1, x.size(dim=self._dim) + 1)),
+            dim=self._dim,
+        )
+
+    def maxae(self, y_hat: Tensor, y: Tensor) -> Tensor:
+        return (y - y_hat).abs().max()
 
     @staticmethod
-    def fourier(y: Tensor, y_hat: Tensor) -> Tensor:
-        y = (y - y.mean()) / y.max()
-        y_hat = (y_hat - y_hat.mean()) / y_hat.max()
-        i = torch.trapezoid((y - y_hat).abs()).sum()
-        return i
-
-    @staticmethod
-    def mae(y: Tensor, y_hat: Tensor) -> float:
-        return F.l1_loss(y, y_hat).item()
+    def mae(y_hat: Tensor, y: Tensor) -> float:
+        return F.l1_loss(y_hat, y).item()
 
     def forward(self, y_hat: Tensor, y: Tensor) -> Tensor:
-        return self.fourier(y, y_hat)
+        return self.maxae(y_hat, y)
 
 
 class VMaxAE(nn.Module):
@@ -58,17 +61,44 @@ class VMaxAE(nn.Module):
             dim=self._dim,
         )
 
-    def vmaxae(self, y: Tensor, y_hat: Tensor) -> Tensor:
+    def vmaxae(self, y_hat: Tensor, y: Tensor) -> Tensor:
         r = (y - y_hat).abs()
         w = torch.abs(torch.var(y, dim=self._dim) - torch.var(y_hat, dim=self._dim)) + 1
         return r.max() * w.max()
 
     @staticmethod
-    def mae(y: Tensor, y_hat: Tensor) -> float:
-        return F.l1_loss(y, y_hat).item()
+    def mae(y_hat: Tensor, y: Tensor) -> float:
+        return F.l1_loss(y_hat, y).item()
 
     def forward(self, y_hat: Tensor, y: Tensor) -> Tensor:
-        return self.vmaxae(y, y_hat)
+        return self.vmaxae(y_hat, y)
+
+
+class MaxSE(nn.Module):
+    def __init__(
+        self,
+        dim: int = 1,
+    ):
+        """
+        Variance-weighted Maximum Squared Error (VMaxSE) loss function.
+
+        :param dim: The dimension along which to compute the variance.
+        """
+        super(MaxSE, self).__init__()
+        self._dim: int = dim
+
+    def __call__(self, *args, **kwargs):
+        return self.maxse(*args, **kwargs)
+
+    def maxse(self, y_hat: Tensor, y: Tensor) -> Tensor:
+        return ((y - y_hat) ** 2).max()
+
+    @staticmethod
+    def mse(y_hat: Tensor, y: Tensor) -> float:
+        return F.mse_loss(y_hat, y).item()
+
+    def forward(self, y_hat: Tensor, y: Tensor) -> Tensor:
+        return self.maxse(y_hat, y)
 
 
 class VMaxSE(nn.Module):
@@ -94,50 +124,47 @@ class VMaxSE(nn.Module):
             dim=self._dim,
         )
 
-    def vmaxse(self, y: Tensor, y_hat: Tensor) -> Tensor:
+    def vmaxse(self, y_hat: Tensor, y: Tensor) -> Tensor:
         r = (y - y_hat) ** 2
         w = torch.exp(
             (torch.var(y, dim=self._dim) - torch.var(y_hat, dim=self._dim)) ** 2
         )
-        return r.max() * w.max()
+        return r.mean() * w.mean()
 
     @staticmethod
-    def mse(y: Tensor, y_hat: Tensor) -> float:
-        return F.mse_loss(y, y_hat).item()
+    def mse(y_hat: Tensor, y: Tensor) -> float:
+        return F.mse_loss(y_hat, y).item()
 
     def forward(self, y_hat: Tensor, y: Tensor) -> Tensor:
-        return self.vmaxse(y, y_hat)
+        return self.vmaxse(y_hat, y)
 
 
-class MaxAPE(nn.Module):
+class VMaxAPE(nn.Module):
     def __init__(
         self,
         dim: int = 1,
-        benchmark: bool = False,
     ):
         """
         Maximum Absolute Percentage Error (MaxAPE) loss function.
 
         :param dim: The dimension along which to compute the variance.
-        :param benchmark: If True, use the Mean Absolute Percentage Error (MAPE) loss function.
         """
-        super(MaxAPE, self).__init__()
+        super(VMaxAPE, self).__init__()
         self._dim: int = dim
-        self._func: callable = self._mape if benchmark else self._maxape
 
     def __call__(self, *args, **kwargs):
-        return self.func(*args, **kwargs)
+        return self.maxape(*args, **kwargs)
 
-    def _maxape(self, y: Tensor, y_hat: Tensor) -> Tensor:
-        r = (y - y_hat).abs() / y
-        w = torch.exp(
-            torch.abs(torch.var(y, dim=self._dim) - torch.var(y_hat, dim=self._dim))
-        )
-        return w.max() * r.max()
+    def maxape(self, y_hat: Tensor, y: Tensor) -> Tensor:
+        y += torch.finfo(torch.float32).eps
+        r = y - y_hat
+        return (r / y).abs().max()
 
     @staticmethod
-    def _mape(y: Tensor, y_hat: Tensor) -> Tensor:
-        return (y - y_hat).abs() / y
+    def mape(y_hat: Tensor, y: Tensor) -> float:
+        y += torch.finfo(torch.float32).eps
+        r = y - y_hat
+        return (r / y).abs().mean().item()
 
     def forward(self, y_hat: Tensor, y: Tensor) -> Tensor:
-        return self._func(y, y_hat)
+        return self.maxape(y_hat, y)

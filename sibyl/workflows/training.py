@@ -10,10 +10,8 @@ from tqdm import tqdm
 from sibyl.utils.benchmarking import stats, bias, variance, error
 from sibyl.utils.configuration import Config, initialize_model
 from sibyl.utils.logging import find_root_dir
-from sibyl.utils.models.regressor.model import LinearRegressor
-
-# from sibyl.utils.models.dimformer.model import Dimformer
-from sibyl.utils.models.transformer.model import Transformer
+from sibyl.utils.loss import VMaxSE, VMaxAE, VMaxAPE
+from sibyl.utils.models.dimformer.model import Dimformer
 from sibyl.utils.plotting import predicted_vs_actual, metrics_table, metrics
 from sibyl.utils.preprocessing import normalize
 
@@ -40,7 +38,7 @@ def prepare_datasets(
     return train_loader, val_loader
 
 
-@stats(bias, variance, error)
+@stats(bias, variance, error, VMaxSE.mse, VMaxAE.mae, VMaxAPE.mape)
 def train(
     model: nn.Module, loader: DataLoader, config: Config
 ) -> Generator[tuple[Tensor, Tensor], None, None]:
@@ -58,7 +56,7 @@ def train(
 
     for step, (X, y) in enumerate(tqdm(loader, desc="Training")):
         config.optimizer.zero_grad()
-        y_hat = model(X)
+        y_hat = model(X, y)
         loss = config.criterion(y_hat, y)
         loss.backward()
         config.optimizer.step()
@@ -94,7 +92,7 @@ def validate(
 
     with torch.no_grad():
         for step, (X, y) in enumerate(tqdm(loader, desc="Validating")):
-            y_hat = model(X)
+            y_hat = model(X, y)
             loss = config.criterion(y_hat, y)
             val_loss += loss.item()
             losses.append(loss.item())
@@ -129,6 +127,7 @@ def build_model(
     # Define a function to save the model
     def save_model(model_: nn.Module, filepath: str):
         config.log.info("Saving model...")
+        os.makedirs(os.path.dirname(filepath), exist_ok=True)
         torch.save(model_.state_dict(), filepath)
         config.log.info("Model saved successfully.")
 
@@ -171,22 +170,28 @@ def main():
     """
 
     aggregated_metrics = []
-    loss_functions = ["VMaxSE", "MSE", "VMaxAE", "MAE"]
+    loss_functions = [
+        "MaxSE",
+        "VMaxSE",
+        "MSE",
+        "MaxAE",
+        "VMaxAE",
+        "MAE",
+    ]
+    # loss_functions = ["VMaxSE"]
 
     for loss in loss_functions:
-        config = Config(
+        config: Config = Config(
             epochs=1,
             learning_rate=0.001,
             criterion=loss,
             optimizer="AdamW",
             plot_loss=True,
             plot_predictions=True,
-            plot_interval=5,
+            plot_interval=300,
             dataset_name="alpaca",
             feature_window_size=120,
             target_window_size=15,
-            include_hashes=False,
-            include_temporal=False,
             included_indicators=[
                 "ROC",
                 "RSI",
@@ -195,9 +200,9 @@ def main():
             years=0.0009,
             logger_name=os.path.basename(__file__),
         )
-        features, targets = config.dataset
-        X, y = normalize(features, targets)
-        model = initialize_model(X, y, LinearRegressor)
+        X, y = config.dataset
+        X, y = normalize(X, y)
+        model = initialize_model(X, y, Dimformer)
         train_loader, val_loader = prepare_datasets(X, y, config)
         build_model(
             model=model,

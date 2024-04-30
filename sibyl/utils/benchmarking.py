@@ -25,7 +25,7 @@ def stats(
             output = tuple(func(*args, **kwargs))
             for metric in metrics:
                 for i, (y, y_hat) in enumerate(t for t in output):
-                    df.loc[i, metric.__name__] = metric(y, y_hat)
+                    df.loc[i, metric.__name__] = metric(y_hat, y)
             return output
 
         return wrapper

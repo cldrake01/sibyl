@@ -7,8 +7,8 @@ readme = "README.md"
 
 [tool.poetry.dependencies]
 python = "^3.10"
+torch = "2.2.2"
 pandas = "^2.2.1"
-torch = "^2.2.1"
 matplotlib = "^3.8.3"
 ta-lib = "^0.4.28"
 tqdm = "^4.66.2"
@@ -25,8 +25,8 @@ pywavelets = "^1.6.0"
 great-tables = "^0.4.0"
 selenium = "^4.19.0"
 plotly = "^5.20.0"
-yapf = "^0.40.2"
 black = "^24.4.0"
+kaleido = "0.2.1"
 
 
 [build-system]

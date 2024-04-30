@@ -47,11 +47,7 @@ class Dimformer(nn.Module):
         self.dec_embedding = PositionalEmbedding(d_model)
         # self.enc_embedding = RotaryPositionalEmbedding(d_model)
         # self.dec_embedding = RotaryPositionalEmbedding(d_model)
-        # self.enc_embedding = DataEmbedding(
-        #     c_in=enc_in, d_model=d_model, embed_type=embed, freq=freq
-        # )
-        # self.dec_embedding = DataEmbedding(
-        #     c_in=dec_in, d_model=d_model, embed_type=embed, freq=freq
+        # self.enc_embedding = DataEmbedding( #     c_in=enc_in, d_model=d_model, embed_type=embed, freq=freq # ) # self.dec_embedding = DataEmbedding( #     c_in=dec_in, d_model=d_model, embed_type=embed, freq=freq
         # )
 
         # Attention

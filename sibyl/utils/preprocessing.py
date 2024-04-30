@@ -18,7 +18,6 @@ def indicators(
     :return: tuple[Tensor, Tensor]: Two tensors representing feature windows and target windows.
     """
     # Extracting data points for indicators
-    # datetimes = [bar.timestamp for bar in time_series]
     opens = np.array([bar.open for bar in time_series], dtype=np.float64)
     closes = np.array([bar.close for bar in time_series], dtype=np.float64)
     highs = np.array([bar.high for bar in time_series], dtype=np.float64)
@@ -56,52 +55,16 @@ def indicators(
     indicator_time_series = torch.stack(indicator_tensor_list, dim=0)
     indicator_time_series = torch.nan_to_num(indicator_time_series)
 
-    # Adding stock ID if required
-    if config.include_hashes:
-        id_tensor = torch.full(
-            (1, indicator_time_series.shape[1]), stock_id, dtype=torch.float64
-        )
-        indicator_time_series = torch.cat((indicator_time_series, id_tensor), dim=0)
-
     # Defining window sizes for features and targets
-    feature_window_size, target_window_size = (
-        config.feature_window_size,
-        config.target_window_size,
-    )
-    total_window_size = feature_window_size + target_window_size
+    total_window_size = config.feature_window_size + config.target_window_size
 
     # Adding a batch dimension and creating sliding windows
     indicator_time_series = indicator_time_series.unsqueeze(0)
     windows = indicator_time_series.unfold(-1, total_window_size, 1)
 
     # Splitting into features and targets
-    feature_windows = windows[..., :feature_window_size]
-    target_windows = windows[..., feature_window_size:]
-
-    # def temporal_embedding(dt: datetime) -> Tensor:
-    #     """
-    #     Returns a tensor representing the temporal embedding for a given datetime object.
-    #
-    #     Note: All values are normalized to be between 0 and 1.
-    #     """
-    #     return Tensor(
-    #         [
-    #             dt.month / 12,
-    #             dt.weekday() / 7,
-    #             dt.day / 31,
-    #             dt.hour / 24,
-    #             dt.minute / 60,
-    #             dt.second / 60,
-    #         ],
-    #     ).to(config.device)
-    #
-    # # Adding temporal embeddings if required
-    # if config.include_temporal:
-    #     # Creating temporal embeddings
-    #     temporal_embeddings = torch.stack(
-    #         [temporal_embedding(dt) for dt in datetimes],
-    #         dim=0,
-    #     )
+    feature_windows = windows[..., : config.feature_window_size]
+    target_windows = windows[..., config.feature_window_size :]
 
     return feature_windows.squeeze(0), target_windows.squeeze(0)
 

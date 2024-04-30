@@ -1,5 +1,6 @@
 import os
 import pickle
+from functools import wraps
 from typing import Callable
 
 import pandas as pd
@@ -21,7 +22,8 @@ def cache(
     :param func: The function to cache
     """
 
-    def wrapper(*args, **kwargs):
+    @wraps(func)
+    def _cache(*args, **kwargs):
         config = args[0]
         root = find_root_dir(os.path.dirname(__file__))
         file_path = f"{root}/assets/pkl/{func.__name__}.pkl"
@@ -29,15 +31,46 @@ def cache(
             config.log.info(f"Loading cached data from {file_path}...")
             with open(file_path, "rb") as f:
                 return pickle.load(f)
-        else:
-            config.log.info(f"Data not found at {file_path}. Fetching data...")
-            data = func(*args, **kwargs)
-            config.log.info(f"Caching data to {file_path}...")
-            with open(file_path, "wb") as f:
-                pickle.dump(data, f)
-            return data
+        config.log.info(f"Data not found at {file_path}. Fetching data...")
+        data = func(*args, **kwargs)
+        config.log.info(f"Caching data to {file_path}...")
+        os.makedirs(os.path.dirname(file_path), exist_ok=True)
+        with open(file_path, "wb") as f:
+            pickle.dump(data, f)
+        return data
 
-    return wrapper
+    return _cache
+
+
+def dataframe_to_dataset(df: pd.DataFrame, config: "Config") -> tuple[Tensor, Tensor]:
+    """
+    Convert a DataFrame to a PyTorch dataset.
+
+    :param df: The DataFrame to convert
+    :param config: The configuration object
+    """
+    X = torch.tensor(df.to_numpy()).float()
+
+    # Reshape the tensors
+    X = X.permute(1, 0)
+
+    # Window the tensors
+    feature_window_size, target_window_size = (
+        config.feature_window_size,
+        config.target_window_size,
+    )
+    total_window_size = feature_window_size + target_window_size
+
+    X = X.unfold(-1, total_window_size, 1)
+
+    # (features, batch, time) -> (batch, time, features)
+    X = X.permute(1, 2, 0)
+
+    # Split into features and targets
+    train = X[:, :feature_window_size, :]
+    test = X[:, feature_window_size:, :]
+
+    return train, test
 
 
 @cache
@@ -70,29 +103,7 @@ def ett(
     # Remove the date column
     X = X.drop(columns=["date"])
 
-    # Convert to tensors
-    X = torch.tensor(X.to_numpy()).float()
-
-    # Reshape the tensors
-    X = X.permute(1, 0)
-
-    # Window the tensors
-    feature_window_size, target_window_size = (
-        config.feature_window_size,
-        config.target_window_size,
-    )
-    total_window_size = feature_window_size + target_window_size
-
-    X = X.unfold(-1, total_window_size, 1)
-
-    # (features, batch, time) -> (batch, time, features)
-    X = X.permute(1, 2, 0)
-
-    # Split into features and targets
-    train = X[:, :feature_window_size, :]
-    test = X[:, feature_window_size:, :]
-
-    return train, test
+    return dataframe_to_dataset(X, config)
 
 
 @cache
@@ -117,30 +128,9 @@ def eld(
     # Remove the date column
     X = X.drop(columns=["Unnamed: 0"])
 
-    # Convert to tensors
-    X = torch.tensor(X.to_numpy()).float()
+    X, y = dataframe_to_dataset(X, config)
 
-    # Reshape the tensors
-    X = X.permute(1, 0)
+    X = X[..., :15]
+    y = y[..., :15]
 
-    # Window the tensors
-    feature_window_size, target_window_size = (
-        config.feature_window_size,
-        config.target_window_size,
-    )
-    total_window_size = feature_window_size + target_window_size
-
-    X = X.unfold(-1, total_window_size, 1)
-
-    # (features, batch, time) -> (batch, time, features)
-    X = X.permute(1, 2, 0)
-
-    # Split into features and targets
-    train = X[:, :feature_window_size, :]
-    test = X[:, feature_window_size:, :]
-
-    # Due to its sheer size, we'll only use the first 15 features
-    train = train[..., :15]
-    test = test[..., :15]
-
-    return train, test
+    return X, y

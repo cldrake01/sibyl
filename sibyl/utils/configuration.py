@@ -7,16 +7,11 @@ import pandas as pd
 import torch
 from torch import Tensor, nn
 
-from sibyl import tickers, Informer
 from sibyl.utils.datasets import alpaca, ett, eld
 from sibyl.utils.logging import NullLogger, Log
-from sibyl.utils.loss import (
-    VMaxSE,
-    VMaxAE,
-    Fourier,
-)
+from sibyl.utils.loss import VMaxSE, VMaxAE, VMaxAPE, MaxAE, MaxSE
 from sibyl.utils.models.dimformer.model import Dimformer
-from sibyl.utils.models.informer.model import DecoderOnlyInformer
+from sibyl.utils.models.informer.model import DecoderOnlyInformer, Informer
 from sibyl.utils.models.regressor.model import LinearRegressor
 from sibyl.utils.models.transformer.model import Transformer
 
@@ -28,14 +23,9 @@ class Config:
     """
 
     years: float = 0.05
-    max_workers: int = len(tickers) // 2
     feature_window_size: int = 60
     target_window_size: int = 15
-    rate: int = 125
-    include_hashes: bool = False
-    include_temporal: bool = False
     included_indicators: list[str] | None = None
-    validation: bool = True
     epochs: int = 10
     epoch: int = 0
     batch_size: int = 1
@@ -47,7 +37,7 @@ class Config:
     save_path: str | None = None
     plot_loss: bool = False
     plot_predictions: bool = False
-    plot_interval: int = 20
+    plot_interval: int = 300
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     dataset_name: str = "alpaca"
     dataset: tuple[Tensor, Tensor] | None = None
@@ -75,15 +65,13 @@ class Config:
         self.metrics = self.metrics or pd.DataFrame()
 
         loss_functions = {
-            "Fourier": Fourier,
+            "MaxAE": MaxAE,
             "VMaxAE": VMaxAE,
+            "MaxSE": MaxSE,
             "VMaxSE": VMaxSE,
-            # "MaxAPE": MaxAPE,
             "MSE": torch.nn.MSELoss,
             "MAE": torch.nn.L1Loss,
-            # "CMaxSE": CMaxSE,
-            # "CMaxAE": CMaxAE,
-            # "WaveletLoss": Wave,
+            "VMaxAPE": VMaxAPE,
         }
         self.criterion = loss_functions[self.criterion]
 
@@ -188,7 +176,7 @@ def initialize_model(X: Tensor, y: Tensor, model: Any) -> nn.Module:
         LinearRegressor: LinearRegressor(
             in_dims=feature_len,
             out_dims=target_len,
-        )
+        ),
     }
 
     return model_configurations[model]
