@@ -51,16 +51,19 @@ def fetch_data(config: "Config") -> list:
     """
     config.log.info("Retrieving data from the Alpaca API...")
 
+    # Default to at market open
+    end = datetime.today()
+
     # On weekends, we must adjust the date range to avoid errors
     match datetime.today().weekday():
         case 5:
-            end = datetime.today() - timedelta(1)
+            end -= timedelta(days=1)
             config.log.warning("It's Saturday. Adjusting the date range...")
         case 6:
-            end = datetime.today() - timedelta(2)
+            end -= timedelta(days=2)
             config.log.warning("It's Sunday. Adjusting the date range...")
         case _:
-            end = datetime.today()
+            ...
 
     data: list[dict] = [
         alpaca_time_series([ticker], end - timedelta(365 * config.years), end)

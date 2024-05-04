@@ -53,6 +53,8 @@ def train(
     model.train()
     losses: list[float] = []
     train_loss = 0.0  # Reset train loss for the epoch
+    best_loss = float("inf")
+    best_X, best_y, best_y_hat = None, None, None
 
     for step, (X, y) in enumerate(tqdm(loader, desc="Training")):
         config.optimizer.zero_grad()
@@ -64,7 +66,10 @@ def train(
         train_loss += loss.item()
         losses.append(loss.item())
         nn.utils.clip_grad_norm_(model.parameters(), 0.5)
-        if step % config.plot_interval == 0:
+        if loss < best_loss:
+            best_loss = loss.item()
+            best_X, best_y, best_y_hat = X, y, y_hat
+        if config.plot_interval and step % config.plot_interval == 0:
             predicted_vs_actual(
                 X=X,
                 y=y,
@@ -73,6 +78,16 @@ def train(
                 config=config,
             )
         yield y, y_hat
+
+    config.log.metric(f"Best training loss: {best_loss:.5f}")
+    predicted_vs_actual(
+        X=X,
+        y=best_y,
+        y_hat=best_y_hat,
+        loss=losses,
+        config=config,
+        filename=f"best-{config.criterion.__class__.__name__}",
+    )
 
 
 # @stats(bias, variance, VMaxSE.mse, VMaxAE.mae)
@@ -90,6 +105,8 @@ def validate(
     model.eval()
     losses: list[float] = []
     val_loss = 0.0
+    best_loss = float("inf")
+    best_X, best_y, best_y_hat = None, None, None
 
     with torch.no_grad():
         for step, (X, y) in enumerate(tqdm(loader, desc="Validating")):
@@ -97,7 +114,10 @@ def validate(
             loss = config.criterion(y_hat, y)
             val_loss += loss.item()
             losses.append(loss.item())
-            if step % config.plot_interval == 0:
+            if loss < best_loss:
+                best_loss = loss.item()
+                best_X, best_y, best_y_hat = X, y, y_hat
+            if config.plot_interval and step % config.plot_interval == 0:
                 predicted_vs_actual(
                     X=X,
                     y=y,
@@ -106,6 +126,16 @@ def validate(
                     config=config,
                 )
             yield y, y_hat
+
+    config.log.metric(f"Best validation loss: {best_loss:.5f}")
+    predicted_vs_actual(
+        X=best_X,
+        y=best_y,
+        y_hat=best_y_hat,
+        loss=losses,
+        config=config,
+        filename=f"best-{config.criterion.__class__.__name__}",
+    )
 
 
 def build_model(
@@ -172,11 +202,11 @@ def main():
 
     aggregated_metrics = []
     loss_functions = [
-        "MaxSE",
         "VMaxSE",
+        # "MaxSE",
         "MSE",
-        "MaxAE",
         "VMaxAE",
+        # "MaxAE",
         "MAE",
     ]
     # loss_functions = ["VMaxSE"]
@@ -189,7 +219,7 @@ def main():
             optimizer="AdamW",
             plot_loss=True,
             plot_predictions=True,
-            plot_interval=300,
+            plot_interval=0,
             dataset_name="alpaca",
             feature_window_size=120,
             target_window_size=15,
@@ -198,7 +228,7 @@ def main():
                 "RSI",
                 "ADX",
             ],
-            years=0.0009,
+            years=0.0027,  # 1 day
             logger_name=os.path.basename(__file__),
         )
         X, y = config.dataset

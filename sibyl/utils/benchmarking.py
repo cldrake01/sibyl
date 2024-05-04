@@ -22,7 +22,9 @@ def stats(
         @wraps(func)
         def wrapper(*args: Any, **kwargs: Any):
             config: Config = args[-1]
-            assert isinstance(config, Config)
+            assert isinstance(
+                config, Config
+            ), "The provided function must have a signature with a `Config` object at index -1."
             df: pd.DataFrame = config.metrics
             output = tuple(func(*args, **kwargs))
             for metric in metrics:
@@ -42,7 +44,7 @@ def bias(y_hat: Tensor, y: Tensor) -> float:
     :param y: The actual values.
     :param y_hat: The predicted values.
     """
-    return (y_hat.mean() - y).mean().item()
+    return (y - y_hat).abs().mean().item()
 
 
 def variance(y_hat: Tensor, y: Tensor) -> float:
@@ -52,7 +54,8 @@ def variance(y_hat: Tensor, y: Tensor) -> float:
     :param y: The actual values.
     :param y_hat: The predicted values.
     """
-    return y_hat.var().item()
+    mu_y_hat = y_hat.mean()
+    return ((y_hat - mu_y_hat) ** 2).mean().item()
 
 
 def error(y_hat: Tensor, y: Tensor) -> float:
@@ -72,4 +75,4 @@ def euclidean(y_hat: Tensor, y: Tensor) -> float:
 def emd(y: Tensor, y_hat: Tensor) -> float:
     p = torch.histogram(y, y.size(1))
     q = torch.histogram(y_hat, y_hat.size(1))
-    return wasserstein_distance(len(p), len(q), p, q)
+    return wasserstein_distance(p, q)

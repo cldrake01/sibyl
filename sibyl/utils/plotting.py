@@ -18,6 +18,7 @@ def predicted_vs_actual(
     loss: list,
     config: Config,
     features: list[int] | None = None,
+    filename: str | None = None,
 ):
     """
     Plot both the predicted vs. actual values and the loss on the same graph.
@@ -28,6 +29,7 @@ def predicted_vs_actual(
     :param loss: List of loss values.
     :param config: TrainingConfig object.
     :param features: List of features to plot.
+    :param filename: The filename to save the plot as.
     """
     if not config.plot_predictions and not config.plot_loss:
         return
@@ -58,14 +60,14 @@ def predicted_vs_actual(
             actual = pd.DataFrame(torch.cat((X_[:, i], y_[:, i]), 0))
             predicted = pd.DataFrame(torch.cat((X_[:, i], y_hat_[:, i]), 0))
             sns.lineplot(
-                data=actual,
-                palette=["blue"],
-                alpha=0.5,
-            ).legend().remove()
-            sns.lineplot(
                 data=predicted,
                 palette=["red"],
-                alpha=0.5,
+                alpha=0.50,
+            ).legend().remove()
+            sns.lineplot(
+                data=actual,
+                palette=["blue"],
+                alpha=0.50,
             ).legend().remove()
 
     # Second subplot for loss
@@ -94,7 +96,7 @@ def predicted_vs_actual(
     path += "/assets/plots/forecasts/"
     path += f"{config.dataset_name}/"
     os.makedirs(path, exist_ok=True)
-    path += f"{criterion}.png"
+    path += filename or f"{criterion}.png"
 
     plt.savefig(
         path,
@@ -205,7 +207,10 @@ def metrics_table(metrics_: list[tuple[str, pd.DataFrame]]):
     names = [name for name, _ in metrics_]
 
     aggregated = [
-        [metrics_[i][1][col].mean() for col in metrics_[0][1].columns]
+        [
+            sum(x := metrics_[i][1][col][-1_000:]) / len(x)
+            for col in metrics_[0][1].columns
+        ]
         for i in range(len(metrics_))
     ]
 

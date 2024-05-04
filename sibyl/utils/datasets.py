@@ -37,6 +37,10 @@ def cache(
         os.makedirs(os.path.dirname(file_path), exist_ok=True)
         with open(file_path, "wb") as f:
             pickle.dump(data, f)
+        config.log.warning(
+            "Note that caches are invalidated when either `feature_window_size`"
+            " or `target_window_size` are changed."
+        )
         return data
 
     return _cache
