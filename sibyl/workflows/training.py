@@ -1,5 +1,6 @@
 import os
 import signal
+import time
 from typing import Generator
 
 import torch
@@ -38,7 +39,7 @@ def prepare_datasets(
     return train_loader, val_loader
 
 
-@stats(bias, variance, error, VMaxSE.mse, VMaxAE.mae, VMaxAPE.mape)
+@stats(bias, variance, error, VMaxSE.mse, VMaxAE.mae)
 def train(
     model: nn.Module, loader: DataLoader, config: Config
 ) -> Generator[tuple[Tensor, Tensor], None, None]:
@@ -90,7 +91,7 @@ def train(
     )
 
 
-# @stats(bias, variance, VMaxSE.mse, VMaxAE.mae)
+@stats(bias, variance, error, VMaxSE.mse, VMaxAE.mae)
 def validate(
     model: nn.Module, loader: DataLoader, config: Config
 ) -> Generator[tuple[Tensor, Tensor], None, None]:
@@ -152,6 +153,8 @@ def build_model(
     :param val_loader: The validation dataset.
     :param config: The configuration object.
     """
+    start = time.perf_counter_ns()
+
     config.criterion = config.criterion()
     config.optimizer = config.optimizer(model.parameters(), lr=config.learning_rate)
 
@@ -181,6 +184,9 @@ def build_model(
         validate(model, val_loader, config)
 
     config.log.info("Training complete.")
+    config.log.info(
+        f"Time Elapsed: {(time.perf_counter_ns() - start) / 1e9:.2f} seconds."
+    )
     path = find_root_dir(os.path.dirname(__file__))
     path += f"/assets/models/{config.dataset_name}-model.pt"
     save_model(model, path)
@@ -213,13 +219,13 @@ def main():
 
     for loss in loss_functions:
         config: Config = Config(
-            epochs=1,
+            epochs=3,
             learning_rate=0.001,
             criterion=loss,
             optimizer="AdamW",
             plot_loss=True,
             plot_predictions=True,
-            plot_interval=0,
+            plot_interval=300,
             dataset_name="alpaca",
             feature_window_size=120,
             target_window_size=15,

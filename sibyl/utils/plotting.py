@@ -158,6 +158,10 @@ def metrics(config: Config):
     """
     sns.set_theme(style="dark")
 
+    if not config.plot_interval:
+        config.log.warning("Plotting is disabled at `plot_interval = 0`.")
+        return
+
     for metric, values in config.metrics.items():
         plt.plot(
             pd.DataFrame(values).rolling(config.plot_interval).mean(), label=metric
@@ -179,7 +183,6 @@ def metrics(config: Config):
             path,
             dpi=500,
         )
-
         plt.show()
 
 

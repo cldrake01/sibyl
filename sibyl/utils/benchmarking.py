@@ -26,6 +26,9 @@ def stats(
                 config, Config
             ), "The provided function must have a signature with a `Config` object at index -1."
             df: pd.DataFrame = config.metrics
+            assert isinstance(
+                df, pd.DataFrame
+            ), "The provided `Config` object must have a `pd.DataFrame` attribute called `metrics`."
             output = tuple(func(*args, **kwargs))
             for metric in metrics:
                 for i, (y, y_hat) in enumerate(t for t in output):
