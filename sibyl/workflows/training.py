@@ -219,14 +219,14 @@ def main():
 
     for loss in loss_functions:
         config: Config = Config(
-            epochs=3,
+            epochs=2,
             learning_rate=0.001,
             criterion=loss,
             optimizer="AdamW",
             plot_loss=True,
             plot_predictions=True,
-            plot_interval=300,
-            dataset_name="alpaca",
+            plot_interval=5_000,
+            dataset_name="ett",
             feature_window_size=120,
             target_window_size=15,
             included_indicators=[
@@ -249,7 +249,7 @@ def main():
         )
         aggregated_metrics.append((loss, config.metrics))
 
-    metrics_table(aggregated_metrics)
+    metrics_table(aggregated_metrics, "ett")
 
 
 if __name__ == "__main__":

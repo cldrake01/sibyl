@@ -186,11 +186,12 @@ def metrics(config: Config):
         plt.show()
 
 
-def metrics_table(metrics_: list[tuple[str, pd.DataFrame]]):
+def metrics_table(metrics_: list[tuple[str, pd.DataFrame]], dataset: str):
     """
     Plot a table of metrics.
 
     :param metrics_: The metrics to plot.
+    :param dataset: The dataset name.
     """
     # Each data frame is structured as such:
     #           bias  variance       mse       mae
@@ -244,6 +245,7 @@ def metrics_table(metrics_: list[tuple[str, pd.DataFrame]]):
 
     path: str = find_root_dir(os.path.dirname(__file__))
     path += f"/assets/plots/tables/"
+    path += f"{dataset}/"
     os.makedirs(path, exist_ok=True)
     path += "-".join(names)
     path += ".png"

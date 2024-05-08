@@ -10,7 +10,7 @@ class MaxSE(nn.Module):
         dim: int = 1,
     ):
         """
-        Variance-weighted Maximum Squared Error (VMaxSE) loss function.
+        Maximum Squared Error (MaxSE) loss function.
 
         :param dim: The dimension along which to compute the variance.
         """
@@ -37,7 +37,7 @@ class MaxAE(nn.Module):
         dim: int = 1,
     ):
         """
-        Variance-weighted Maximum Absolute Error (VMaxAE) loss function.
+        Maximum Absolute Error (MaxAE) loss function.
 
         :param dim: The dimension along which to compute the variance.
         """

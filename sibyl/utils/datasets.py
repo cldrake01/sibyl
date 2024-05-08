@@ -107,7 +107,12 @@ def ett(
     # Remove the date column
     X = X.drop(columns=["date"])
 
-    return dataframe_to_dataset(X, config)
+    X, y = dataframe_to_dataset(X, config)
+
+    X = X[..., :3]
+    y = y[..., :3]
+
+    return X, y
 
 
 @cache
@@ -134,7 +139,7 @@ def eld(
 
     X, y = dataframe_to_dataset(X, config)
 
-    X = X[..., :15]
-    y = y[..., :15]
+    X = X[..., :3]
+    y = y[..., :3]
 
     return X, y
