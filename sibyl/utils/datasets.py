@@ -12,6 +12,12 @@ from sibyl.utils.preprocessing import indicator_tensors
 from sibyl.utils.retrieval import fetch_data
 
 
+class SignatureError(Exception):
+    def __init__(self):
+        self.message = "The provided callable must have a Config object as an argument."
+        super().__init__(self.message)
+
+
 def cache(
     func: Callable[["Config", ...], tuple[Tensor, Tensor]]
 ) -> Callable[["Config", ...], tuple[Tensor, Tensor]]:
@@ -24,19 +30,20 @@ def cache(
 
     @wraps(func)
     def _cache(*args, **kwargs):
-        config = args[0]
+        config, *_ = tuple(filter(lambda x: hasattr(x, "log"), args))
+        assert config, SignatureError()
         root = find_root_dir(os.path.dirname(__file__))
         file_path = f"{root}/assets/pkl/{func.__name__}.pkl"
         if os.path.exists(file_path):
             config.log.info(f"Loading cached data from {file_path}...")
-            with open(file_path, "rb") as f:
-                return pickle.load(f)
+            with open(file_path, "rb") as file:
+                return pickle.load(file)
         config.log.info(f"Data not found at {file_path}. Fetching data...")
         data = func(*args, **kwargs)
         config.log.info(f"Caching data to {file_path}...")
         os.makedirs(os.path.dirname(file_path), exist_ok=True)
-        with open(file_path, "wb") as f:
-            pickle.dump(data, f)
+        with open(file_path, "wb") as file:
+            pickle.dump(data, file)
         config.log.warning(
             "Note that caches are invalidated when either `feature_window_size`"
             " or `target_window_size` are changed."
@@ -109,8 +116,8 @@ def ett(
 
     X, y = dataframe_to_dataset(X, config)
 
-    X = X[..., :3]
-    y = y[..., :3]
+    X = X[..., :config.max_features]
+    y = y[..., :config.max_features]
 
     return X, y
 
@@ -139,7 +146,7 @@ def eld(
 
     X, y = dataframe_to_dataset(X, config)
 
-    X = X[..., :3]
-    y = y[..., :3]
+    X = X[..., :config.max_features]
+    y = y[..., :config.max_features]
 
     return X, y

@@ -23,6 +23,7 @@ class Config:
     """
 
     years: float = 0.05
+    max_features: int = 3
     feature_window_size: int = 60
     target_window_size: int = 15
     included_indicators: list[str] | None = None
@@ -41,7 +42,7 @@ class Config:
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     dataset_name: str = "alpaca"
     dataset: tuple[Tensor, Tensor] | None = None
-    log: NullLogger | Logger = NullLogger()
+    log: Logger | NullLogger = NullLogger()
     logger_name: str = ""
     metrics: pd.DataFrame | None = None
     stage: str = "Preprocessing"
