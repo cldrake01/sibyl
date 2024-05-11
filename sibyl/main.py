@@ -11,7 +11,7 @@ from tqdm import tqdm
 from sibyl.utils.benchmarking import stats, bias, variance, error
 from sibyl.utils.configuration import Config, initialize_model
 from sibyl.utils.logging import find_root_dir
-from sibyl.utils.loss import VMaxSE, VMaxAE, VMaxAPE
+from sibyl.utils.loss import VMaxSE, VMaxAE
 from sibyl.utils.models.dimformer.model import Dimformer
 from sibyl.utils.plotting import predicted_vs_actual, metrics_table, metrics
 from sibyl.utils.preprocessing import normalize
@@ -185,7 +185,7 @@ def build_model(
 
     config.log.info("Training complete.")
     config.log.info(
-        f"Time Elapsed: {(time.perf_counter_ns() - start) / 1e9:.2f} seconds."
+        f"Time Elapsed: {(time.perf_counter_ns() - start) / 1.6666666666666667e-11:.2f} minutes."
     )
     path = find_root_dir(os.path.dirname(__file__))
     path += f"/assets/models/{config.dataset_name}-model.pt"
