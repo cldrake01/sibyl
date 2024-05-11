@@ -116,8 +116,8 @@ def ett(
 
     X, y = dataframe_to_dataset(X, config)
 
-    X = X[..., :config.max_features]
-    y = y[..., :config.max_features]
+    X = X[..., : config.max_features]
+    y = y[..., : config.max_features]
 
     return X, y
 
@@ -146,7 +146,7 @@ def eld(
 
     X, y = dataframe_to_dataset(X, config)
 
-    X = X[..., :config.max_features]
-    y = y[..., :config.max_features]
+    X = X[..., : config.max_features]
+    y = y[..., : config.max_features]
 
     return X, y
