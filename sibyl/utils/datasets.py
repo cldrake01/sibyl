@@ -136,6 +136,6 @@ def eld(
     # Remove the date column
     X = X.drop(columns=["Unnamed: 0"])
 
-    X, y = dataframe_to_dataset(X, config)
+    X, Y = dataframe_to_dataset(X, config)
 
-    return X, y
+    return X, Y

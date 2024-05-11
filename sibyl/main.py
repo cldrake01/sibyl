@@ -57,10 +57,10 @@ def train(
     best_loss = float("inf")
     best_X, best_y, best_y_hat = None, None, None
 
-    for step, (X, y) in enumerate(tqdm(loader, desc="Training")):
+    for step, (x, y) in enumerate(tqdm(loader, desc="Training")):
         config.optimizer.zero_grad()
         # y_hat.size() = [batch, predicted_len, features]
-        y_hat = model(X, y)
+        y_hat = model(x, y)
         loss = config.criterion(y_hat, y)
         loss.backward()
         config.optimizer.step()
@@ -69,10 +69,10 @@ def train(
         nn.utils.clip_grad_norm_(model.parameters(), 0.5)
         if loss < best_loss:
             best_loss = loss.item()
-            best_X, best_y, best_y_hat = X, y, y_hat
+            best_X, best_y, best_y_hat = x, y, y_hat
         if config.plot_interval and step % config.plot_interval == 0:
             predicted_vs_actual(
-                x=X,
+                x=x,
                 y=y,
                 y_hat=y_hat,
                 loss=losses,
@@ -82,7 +82,7 @@ def train(
 
     config.log.metric(f"Best training loss: {best_loss:.5f}")
     predicted_vs_actual(
-        x=X,
+        x=x,
         y=best_y,
         y_hat=best_y_hat,
         loss=losses,

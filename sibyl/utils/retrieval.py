@@ -62,8 +62,7 @@ def fetch_data(config: "Config") -> list:
         case 6:
             end -= timedelta(days=2)
             config.log.warning("It's Sunday. Adjusting the date range...")
-        case _:
-            ...
+        case _: ...
 
     unfiltered: list[dict] = [
         alpaca_time_series([ticker], end - timedelta(365 * config.years), end)

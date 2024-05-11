@@ -93,23 +93,23 @@ class Config:
         self.dataset = datasets[self.dataset_name](self)
 
 
-def initialize_model(X: Tensor, y: Tensor, model: Any) -> nn.Module:
+def initialize_model(X: Tensor, Y: Tensor, model: Any) -> nn.Module:
     """
     Initialize the model based on the configuration.
 
     :param X: The features.
-    :param y: The targets.
+    :param Y: The targets.
     :param model: The model to initialize.
     """
     num_features = X.size(2)
-    num_targets = y.size(2)
+    num_targets = Y.size(2)
     feature_len = X.size(1)
-    target_len = y.size(1)
+    target_len = Y.size(1)
 
     model_configurations = {
         Transformer: Transformer(
             X=X,
-            y=y,
+            y=Y,
             d_layers=1,
             d_model=512,
             n_heads=8,
