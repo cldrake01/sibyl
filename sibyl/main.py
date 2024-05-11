@@ -18,19 +18,19 @@ from sibyl.utils.preprocessing import normalize
 
 
 def prepare_datasets(
-    X: Tensor, y: Tensor, config: Config
+    X: Tensor, Y: Tensor, config: Config
 ) -> tuple[DataLoader, DataLoader]:
     """
     Prepare the training and validation datasets.
 
     :param X: The features.
-    :param y: The targets.
+    :param Y: The targets.
     :param config: The configuration object.
     """
     total_samples = len(X)
     train_size = int(total_samples * config.train_val_split)
     val_size = total_samples - train_size
-    full_dataset = TensorDataset(X, y)
+    full_dataset = TensorDataset(X, Y)
     train_dataset, val_dataset = random_split(full_dataset, [train_size, val_size])
     train_loader = DataLoader(
         train_dataset, batch_size=config.batch_size, shuffle=False
@@ -72,7 +72,7 @@ def train(
             best_X, best_y, best_y_hat = X, y, y_hat
         if config.plot_interval and step % config.plot_interval == 0:
             predicted_vs_actual(
-                X=X,
+                x=X,
                 y=y,
                 y_hat=y_hat,
                 loss=losses,
@@ -82,7 +82,7 @@ def train(
 
     config.log.metric(f"Best training loss: {best_loss:.5f}")
     predicted_vs_actual(
-        X=X,
+        x=X,
         y=best_y,
         y_hat=best_y_hat,
         loss=losses,
@@ -120,7 +120,7 @@ def validate(
                 best_X, best_y, best_y_hat = X, y, y_hat
             if config.plot_interval and step % config.plot_interval == 0:
                 predicted_vs_actual(
-                    X=X,
+                    x=X,
                     y=y,
                     y_hat=y_hat,
                     loss=losses,
@@ -130,7 +130,7 @@ def validate(
 
     config.log.metric(f"Best validation loss: {best_loss:.5f}")
     predicted_vs_actual(
-        X=best_X,
+        x=best_X,
         y=best_y,
         y_hat=best_y_hat,
         loss=losses,
@@ -237,10 +237,10 @@ def main():
             years=0.0027,  # 1 day
             logger_name=os.path.basename(__file__),
         )
-        X, y = config.dataset
-        X, y = normalize(X, y)
-        model = initialize_model(X, y, Dimformer)
-        train_loader, val_loader = prepare_datasets(X, y, config)
+        X, Y = config.dataset
+        X, Y = normalize(X, Y)
+        model = initialize_model(X, Y, Dimformer)
+        train_loader, val_loader = prepare_datasets(X, Y, config)
         build_model(
             model=model,
             train_loader=train_loader,

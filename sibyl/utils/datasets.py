@@ -65,12 +65,7 @@ def dataframe_to_dataset(df: pd.DataFrame, config: "Config") -> tuple[Tensor, Te
     # Reshape the tensors
     X = X.permute(1, 0)
 
-    # Window the tensors
-    feature_window_size, target_window_size = (
-        config.feature_window_size,
-        config.target_window_size,
-    )
-    total_window_size = feature_window_size + target_window_size
+    total_window_size = config.feature_window_size + config.target_window_size
 
     X = X.unfold(-1, total_window_size, 1)
 
@@ -78,10 +73,10 @@ def dataframe_to_dataset(df: pd.DataFrame, config: "Config") -> tuple[Tensor, Te
     X = X.permute(1, 2, 0)
 
     # Split into features and targets
-    train = X[:, :feature_window_size, :]
-    test = X[:, feature_window_size:, :]
+    X = X[:, : config.feature_window_size, : config.max_features]
+    Y = X[:, config.feature_window_size :, : config.max_features]
 
-    return train, test
+    return X, Y
 
 
 @cache
@@ -114,12 +109,9 @@ def ett(
     # Remove the date column
     X = X.drop(columns=["date"])
 
-    X, y = dataframe_to_dataset(X, config)
+    X, Y = dataframe_to_dataset(X, config)
 
-    X = X[..., : config.max_features]
-    y = y[..., : config.max_features]
-
-    return X, y
+    return X, Y
 
 
 @cache
@@ -145,8 +137,5 @@ def eld(
     X = X.drop(columns=["Unnamed: 0"])
 
     X, y = dataframe_to_dataset(X, config)
-
-    X = X[..., : config.max_features]
-    y = y[..., : config.max_features]
 
     return X, y

@@ -12,7 +12,7 @@ from sibyl.utils.logging import find_root_dir
 
 
 def predicted_vs_actual(
-    X: Tensor,
+    x: Tensor,
     y: Tensor,
     y_hat: Tensor,
     loss: list,
@@ -23,7 +23,7 @@ def predicted_vs_actual(
     """
     Plot both the predicted vs. actual values and the loss on the same graph.
 
-    :param X: The context window which precedes the target window.
+    :param x: The context window which precedes the target window.
     :param y: The target window.
     :param y_hat: The predicted target window.
     :param loss: List of loss values.
@@ -49,7 +49,7 @@ def predicted_vs_actual(
         sub.xaxis.tick_top()
         sub.yaxis.tick_left()
         X_, y_, y_hat_ = (
-            X.detach().squeeze(0),
+            x.detach().squeeze(0),
             y.detach().squeeze(0),
             y_hat.detach().squeeze(0),
         )

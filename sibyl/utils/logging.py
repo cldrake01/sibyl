@@ -103,9 +103,8 @@ def find_root_dir(current_path, marker_file: str = "README.md") -> str:
     """
     if os.path.exists(os.path.join(current_path, marker_file)):
         return current_path
-    else:
-        parent = os.path.dirname(current_path)
-        if parent == current_path:
-            # Root directory reached without finding the marker
-            raise FileNotFoundError(f"Root directory marker '{marker_file}' not found.")
-        return find_root_dir(parent)
+    parent = os.path.dirname(current_path)
+    if parent == current_path:
+        # Root directory reached without finding the marker
+        raise FileNotFoundError(f"Root directory marker '{marker_file}' not found.")
+    return find_root_dir(parent)

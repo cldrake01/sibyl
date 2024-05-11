@@ -125,10 +125,9 @@ def window_function(
             return windows(aggregated_data, c)
 
         return list_indicators
-    else:
-        raise ValueError(
-            f"Expected stock_data to be a dictionary or a list of dictionaries, but got {type(stock_data)}."
-        )
+    raise ValueError(
+        f"Expected stock_data to be a dictionary or a list of dictionaries, but got {type(stock_data)}."
+    )
 
 
 def indicator_tensors(
