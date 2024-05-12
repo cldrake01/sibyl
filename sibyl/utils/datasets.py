@@ -10,12 +10,7 @@ from torch import Tensor
 from sibyl.utils.logging import find_root_dir
 from sibyl.utils.preprocessing import indicator_tensors
 from sibyl.utils.retrieval import fetch_data
-
-
-class SignatureError(Exception):
-    def __init__(self):
-        self.message = "The provided callable must have a Config object as an argument."
-        super().__init__(self.message)
+from sibyl.utils.errors import SignatureError
 
 
 def cache(
@@ -53,7 +48,10 @@ def cache(
     return _cache
 
 
-def dataframe_to_dataset(df: pd.DataFrame, config: "Config") -> tuple[Tensor, Tensor]:
+def dataframe_to_dataset(
+    df: pd.DataFrame,
+    config: "Config",
+) -> tuple[Tensor, Tensor]:
     """
     Convert a DataFrame to a PyTorch dataset.
 
@@ -80,7 +78,9 @@ def dataframe_to_dataset(df: pd.DataFrame, config: "Config") -> tuple[Tensor, Te
 
 
 @cache
-def alpaca(config: "Config") -> tuple[Tensor, Tensor]:
+def alpaca(
+    config: "Config",
+) -> tuple[Tensor, Tensor]:
     time_series = fetch_data(config=config)
     features, targets = indicator_tensors(time_series, config=config)
     return features, targets
@@ -88,7 +88,9 @@ def alpaca(config: "Config") -> tuple[Tensor, Tensor]:
 
 @cache
 def ett(
-    config: "Config", directory: str | None = None, file: str = "ETTh1.csv"
+    config: "Config",
+    directory: str | None = None,
+    file: str = "ETTh1.csv",
 ) -> tuple[Tensor, Tensor]:
     """
     Parse the ETT CSVs and return tensors of shape (batch, features, time).

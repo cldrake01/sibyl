@@ -93,7 +93,11 @@ class Config:
         self.dataset = datasets[self.dataset_name](self)
 
 
-def initialize_model(X: Tensor, Y: Tensor, model: Any) -> nn.Module:
+def initialize_model(
+    X: Tensor,
+    Y: Tensor,
+    model: Any,
+) -> nn.Module:
     """
     Initialize the model based on the configuration.
 

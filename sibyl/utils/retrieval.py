@@ -8,7 +8,9 @@ from sibyl.utils.tickers import tickers
 
 
 def alpaca_time_series(
-    stocks: list[str], start: datetime | str, end: datetime | str
+    stocks: list[str],
+    start: datetime | str,
+    end: datetime | str,
 ) -> dict:
     """
     Retrieve time series data from the Alpaca API.
@@ -42,7 +44,9 @@ def alpaca_time_series(
     return client.get_stock_bars(params).data
 
 
-def fetch_data(config: "Config") -> list:
+def fetch_data(
+    config: "Config",
+) -> list:
     """
     Retrieve data from the Alpaca API for a given number of years using multiple worker-threads.
 

@@ -19,7 +19,7 @@ def predicted_vs_actual(
     config: Config,
     features: list[int] | None = None,
     filename: str | None = None,
-):
+) -> None:
     """
     Plot both the predicted vs. actual values and the loss on the same graph.
 
@@ -150,7 +150,9 @@ def bias_variance(
     return means
 
 
-def metrics(config: Config):
+def metrics(
+    config: Config,
+) -> None:
     """
     Plot the metrics.
 
@@ -186,7 +188,10 @@ def metrics(config: Config):
         plt.show()
 
 
-def metrics_table(metrics_: list[tuple[str, pd.DataFrame]], dataset: str):
+def metrics_table(
+    metrics_: list[tuple[str, pd.DataFrame]],
+    dataset: str,
+) -> None:
     """
     Plot a table of metrics.
 

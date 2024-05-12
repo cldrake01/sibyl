@@ -6,7 +6,7 @@ import torch
 from scipy.stats import wasserstein_distance
 from torch import Tensor
 
-from sibyl.utils.configuration import Config
+from sibyl.utils.errors import SignatureError
 
 
 def stats(
@@ -21,10 +21,8 @@ def stats(
     def decorator(func: Callable) -> callable:
         @wraps(func)
         def wrapper(*args: Any, **kwargs: Any):
-            config: Config = args[-1]
-            assert isinstance(
-                config, Config
-            ), "The provided function must have a signature with a `Config` object at index -1."
+            config, *_ = tuple(filter(lambda x: hasattr(x, "log"), args))
+            assert config, SignatureError()
             df: pd.DataFrame = config.metrics
             assert isinstance(
                 df, pd.DataFrame
@@ -40,7 +38,10 @@ def stats(
     return decorator
 
 
-def bias(y_hat: Tensor, y: Tensor) -> float:
+def bias(
+    y_hat: Tensor,
+    y: Tensor,
+) -> float:
     """
     Compute the bias between the actual and predicted values.
 
@@ -50,7 +51,10 @@ def bias(y_hat: Tensor, y: Tensor) -> float:
     return (y - y_hat).abs().mean().item()
 
 
-def variance(y_hat: Tensor, y: Tensor) -> float:
+def variance(
+    y_hat: Tensor,
+    y: Tensor,
+) -> float:
     """
     Compute the variance between the actual and predicted values.
 
@@ -61,7 +65,10 @@ def variance(y_hat: Tensor, y: Tensor) -> float:
     return ((y_hat - mu_y_hat) ** 2).mean().item()
 
 
-def error(y_hat: Tensor, y: Tensor) -> float:
+def error(
+    y_hat: Tensor,
+    y: Tensor,
+) -> float:
     """
     Compute the sum squared error between the actual and predicted values.
 
@@ -71,11 +78,17 @@ def error(y_hat: Tensor, y: Tensor) -> float:
     return (y - y_hat).abs().sum().item()
 
 
-def euclidean(y_hat: Tensor, y: Tensor) -> float:
+def euclidean(
+    y_hat: Tensor,
+    y: Tensor,
+) -> float:
     return (y**2 - y_hat**2).sum().sqrt().item()
 
 
-def emd(y: Tensor, y_hat: Tensor) -> float:
+def emd(
+    y: Tensor,
+    y_hat: Tensor,
+) -> float:
     p = torch.histogram(y, y.size(1))
     q = torch.histogram(y_hat, y_hat.size(1))
     return wasserstein_distance(p, q)

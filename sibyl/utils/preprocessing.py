@@ -7,13 +7,13 @@ from torch import Tensor
 
 
 def indicators(
-    time_series: list, stock_id: int, config: "Config"
+    time_series: list,
+    config: "Config",
 ) -> tuple[Tensor, Tensor]:
     """
     Calculates technical indicators for a given stock and returns feature and target windows.
 
     :param time_series: (list): A list of bars for a given stock.
-    :param stock_id: (int): A unique identifier for the stock. Which must be passed to indi
     :param config: (TrainingConfig): A configuration object for time series data.
     :return: tuple[Tensor, Tensor]: Two tensors representing feature windows and target windows.
     """
@@ -69,7 +69,10 @@ def indicators(
     return feature_windows.squeeze(0), target_windows.squeeze(0)
 
 
-def windows(stock_data: dict, config: "Config") -> tuple[list, list]:
+def windows(
+    stock_data: dict,
+    config: "Config",
+) -> tuple[list, list]:
     """
     Applies the `indicators` function to each stock in the input dictionary and aggregates the resulting feature and
     target windows into lists.
@@ -161,7 +164,9 @@ def indicator_tensors(
     return feature_windows_tensor, target_windows_tensor
 
 
-def normalize(*tensors: Tensor) -> tuple[Tensor, ...]:
+def normalize(
+    *tensors: Tensor,
+) -> tuple[Tensor, ...]:
     r"""
     See \frac{\left|T\right|}{T}\log_{10}\left(\left|T\right|+1\right), where T is the tensor
     to be normalized.

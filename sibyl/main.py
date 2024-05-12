@@ -18,13 +18,15 @@ from sibyl.utils.preprocessing import normalize
 
 
 def prepare_datasets(
-    X: Tensor, Y: Tensor, config: Config
+    X: Tensor,
+    Y: Tensor,
+    config: Config,
 ) -> tuple[DataLoader, DataLoader]:
     """
     Prepare the training and validation datasets.
 
-    :param X: The features.
-    :param Y: The targets.
+    :param X: Features of shape (batch, time, features).
+    :param Y: Targets of shape (batch, time, features).
     :param config: The configuration object.
     """
     total_samples = len(X)
@@ -41,7 +43,9 @@ def prepare_datasets(
 
 @stats(bias, variance, error, VMaxSE.mse, VMaxAE.mae)
 def train(
-    model: nn.Module, loader: DataLoader, config: Config
+    model: nn.Module,
+    loader: DataLoader,
+    config: Config,
 ) -> Generator[tuple[Tensor, Tensor], None, None]:
     """
     Train the model using the training dataset.
@@ -55,7 +59,7 @@ def train(
     losses: list[float] = []
     train_loss = 0.0  # Reset train loss for the epoch
     best_loss = float("inf")
-    best_X, best_y, best_y_hat = None, None, None
+    best_x, best_y, best_y_hat = None, None, None
 
     for step, (x, y) in enumerate(tqdm(loader, desc="Training")):
         config.optimizer.zero_grad()
@@ -69,7 +73,7 @@ def train(
         nn.utils.clip_grad_norm_(model.parameters(), 0.5)
         if loss < best_loss:
             best_loss = loss.item()
-            best_X, best_y, best_y_hat = x, y, y_hat
+            best_x, best_y, best_y_hat = x, y, y_hat
         if config.plot_interval and step % config.plot_interval == 0:
             predicted_vs_actual(
                 x=x,
@@ -93,7 +97,9 @@ def train(
 
 @stats(bias, variance, error, VMaxSE.mse, VMaxAE.mae)
 def validate(
-    model: nn.Module, loader: DataLoader, config: Config
+    model: nn.Module,
+    loader: DataLoader,
+    config: Config,
 ) -> Generator[tuple[Tensor, Tensor], None, None]:
     """
     Validate the model using the validation dataset.
@@ -107,20 +113,20 @@ def validate(
     losses: list[float] = []
     val_loss = 0.0
     best_loss = float("inf")
-    best_X, best_y, best_y_hat = None, None, None
+    best_x, best_y, best_y_hat = None, None, None
 
     with torch.no_grad():
-        for step, (X, y) in enumerate(tqdm(loader, desc="Validating")):
-            y_hat = model(X, y)
+        for step, (x, y) in enumerate(tqdm(loader, desc="Validating")):
+            y_hat = model(x, y)
             loss = config.criterion(y_hat, y)
             val_loss += loss.item()
             losses.append(loss.item())
             if loss < best_loss:
                 best_loss = loss.item()
-                best_X, best_y, best_y_hat = X, y, y_hat
+                best_x, best_y, best_y_hat = x, y, y_hat
             if config.plot_interval and step % config.plot_interval == 0:
                 predicted_vs_actual(
-                    x=X,
+                    x=x,
                     y=y,
                     y_hat=y_hat,
                     loss=losses,
@@ -130,7 +136,7 @@ def validate(
 
     config.log.metric(f"Best validation loss: {best_loss:.5f}")
     predicted_vs_actual(
-        x=best_X,
+        x=best_x,
         y=best_y,
         y_hat=best_y_hat,
         loss=losses,
@@ -144,7 +150,7 @@ def build_model(
     train_loader: DataLoader,
     val_loader: DataLoader,
     config: Config,
-):
+) -> None:
     """
     Train the model using the training and validation datasets.
 
@@ -192,7 +198,7 @@ def build_model(
     save_model(model, path)
 
 
-def main():
+def main() -> None:
     """
     Having a main function allows us to run the script within a Jupyter Notebook.
 

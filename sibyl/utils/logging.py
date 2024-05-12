@@ -25,11 +25,16 @@ class Log:
     _instance = None
 
     def __new__(cls, *args, **kwargs):
+        """
+        Singleton pattern to ensure only one instance of the logger is created.
+
+        :return: The logger instance
+        """
         if cls._instance is None:
             cls._instance = super(Log, cls).__new__(cls)
         return cls._instance
 
-    def __init__(self, file_name: str, dataset: str = None):
+    def __init__(self, file_name: str, dataset: str | None = None):
         """
         Initialize the logger
 
@@ -97,7 +102,10 @@ class Log:
         return log
 
 
-def find_root_dir(current_path, marker_file: str = "README.md") -> str:
+def find_root_dir(
+    current_path: str,
+    marker_file: str = "README.md",
+) -> str:
     """
     Recursively find the root directory by looking for a marker file or directory.
     """
