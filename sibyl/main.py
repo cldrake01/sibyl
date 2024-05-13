@@ -8,7 +8,7 @@ from torch import Tensor, nn
 from torch.utils.data import TensorDataset, DataLoader, random_split
 from tqdm import tqdm
 
-from sibyl.utils.benchmarking import stats, bias, variance, error
+from sibyl.utils.benchmarking import stats, bias, variance, error, irreducible_error
 from sibyl.utils.configuration import Config, initialize_model
 from sibyl.utils.logging import find_root_dir
 from sibyl.utils.loss import VMaxSE, VMaxAE
@@ -41,7 +41,7 @@ def prepare_datasets(
     return train_loader, val_loader
 
 
-@stats(bias, variance, error, VMaxSE.mse, VMaxAE.mae)
+@stats(bias, variance, irreducible_error)
 def train(
     model: nn.Module,
     loader: DataLoader,
@@ -86,7 +86,7 @@ def train(
 
     config.log.metric(f"Best training loss: {best_loss:.5f}")
     predicted_vs_actual(
-        x=x,
+        x=best_x,
         y=best_y,
         y_hat=best_y_hat,
         loss=losses,
@@ -95,7 +95,7 @@ def train(
     )
 
 
-@stats(bias, variance, error, VMaxSE.mse, VMaxAE.mae)
+@stats(bias, variance, irreducible_error)
 def validate(
     model: nn.Module,
     loader: DataLoader,

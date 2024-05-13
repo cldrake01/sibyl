@@ -24,9 +24,9 @@ def stats(
             config, *_ = tuple(filter(lambda x: hasattr(x, "log"), args))
             assert config, SignatureError()
             df: pd.DataFrame = config.metrics
-            assert isinstance(
-                df, pd.DataFrame
-            ), "The provided `Config` object must have a `pd.DataFrame` attribute called `metrics`."
+            assert isinstance(df, pd.DataFrame), ValueError(
+                "The provided `Config` object must have a `pd.DataFrame` attribute called `metrics`."
+            )
             output = tuple(func(*args, **kwargs))
             for metric in metrics:
                 for i, (y, y_hat) in enumerate(t for t in output):
@@ -45,10 +45,23 @@ def bias(
     """
     Compute the bias between the actual and predicted values.
 
+    For bias and variance, we've merely reimplemented mlxtend's bias_variance_decomp function.
+
+    ```py
+    avg_expected_loss = np.apply_along_axis(
+        lambda x: ((x - y_test) ** 2).mean(), axis=1, arr=all_pred
+    ).mean()
+
+    main_predictions = np.mean(all_pred, axis=0)
+
+    avg_bias = np.sum((main_predictions - y_test) ** 2) / y_test.size
+    ```
+
     :param y: The actual values.
     :param y_hat: The predicted values.
     """
-    return (y - y_hat).abs().mean().item()
+    y_hat_bar = torch.ones_like(y_hat) * y_hat.mean()
+    return ((y_hat_bar - y) ** 2).mean().item()
 
 
 def variance(
@@ -58,11 +71,37 @@ def variance(
     """
     Compute the variance between the actual and predicted values.
 
+    For bias and variance, we've merely reimplemented mlxtend's bias_variance_decomp function.
+
+    ```py
+    avg_expected_loss = np.apply_along_axis(
+        lambda x: ((x - y_test) ** 2).mean(), axis=1, arr=all_pred
+    ).mean()
+
+    main_predictions = np.mean(all_pred, axis=0)
+
+    avg_var = np.sum((main_predictions - all_pred) ** 2) / all_pred.size
+    ```
+
     :param y: The actual values.
     :param y_hat: The predicted values.
     """
-    mu_y_hat = y_hat.mean()
-    return ((y_hat - mu_y_hat) ** 2).mean().item()
+    y_hat_bar = torch.ones_like(y_hat) * y_hat.mean()
+    return ((y_hat_bar - y_hat) ** 2).mean().item()
+
+
+def irreducible_error(
+    y_hat: Tensor,
+    y: Tensor,
+) -> float:
+    """
+    Compute the irreducible error between the actual and predicted values.
+
+    :param y: The actual values.
+    :param y_hat: The predicted values.
+    """
+    mse = ((y - y_hat) ** 2).mean().item()
+    return mse - bias(y_hat, y) - variance(y_hat, y)
 
 
 def error(
