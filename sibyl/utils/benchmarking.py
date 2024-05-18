@@ -60,8 +60,9 @@ def bias(
     :param y: The actual values.
     :param y_hat: The predicted values.
     """
-    y_hat_bar = torch.ones_like(y_hat) * y_hat.mean()
-    return ((y_hat_bar - y) ** 2).mean().item()
+    # y_hat_bar = torch.ones_like(y_hat) * y_hat.mean()
+    # return ((y_hat_bar - y) ** 2).mean().item()
+    return (y_hat - y).abs().mean().item()
 
 
 def variance(
@@ -86,22 +87,24 @@ def variance(
     :param y: The actual values.
     :param y_hat: The predicted values.
     """
-    y_hat_bar = torch.ones_like(y_hat) * y_hat.mean()
-    return ((y_hat_bar - y_hat) ** 2).mean().item()
+    # y_hat_bar = torch.ones_like(y_hat) * y_hat.mean()
+    # return ((y_hat_bar - y_hat) ** 2).mean().item()
+
+    # Torch's built-in variance function produces identical results to the above.
+    return y_hat.var().item()
 
 
-def irreducible_error(
+def std(
     y_hat: Tensor,
     y: Tensor,
 ) -> float:
     """
-    Compute the irreducible error between the actual and predicted values.
+    Compute the standard deviation between the actual and predicted values.
 
     :param y: The actual values.
     :param y_hat: The predicted values.
     """
-    mse = ((y - y_hat) ** 2).mean().item()
-    return mse - bias(y_hat, y) - variance(y_hat, y)
+    return y_hat.std().item()
 
 
 def error(

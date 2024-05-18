@@ -48,17 +48,17 @@ def predicted_vs_actual(
         # sub.xaxis.set_label_position("top")
         sub.xaxis.tick_top()
         sub.yaxis.tick_left()
-        X_, y_, y_hat_ = (
+        x_, y_, y_hat_ = (
             x.detach().squeeze(0),
             y.detach().squeeze(0),
             y_hat.detach().squeeze(0),
         )
 
-        features = features or range(X_.shape[1])
+        features = features or range(x_.shape[1])
 
         for i in features:
-            actual = pd.DataFrame(torch.cat((X_[:, i], y_[:, i]), 0))
-            predicted = pd.DataFrame(torch.cat((X_[:, i], y_hat_[:, i]), 0))
+            actual = pd.DataFrame(torch.cat((x_[:, i], y_[:, i]), 0))
+            predicted = pd.DataFrame(torch.cat((x_[:, i], y_hat_[:, i]), 0))
             sns.lineplot(
                 data=predicted,
                 palette=["red"],
@@ -69,6 +69,13 @@ def predicted_vs_actual(
                 palette=["blue"],
                 alpha=0.50,
             ).legend().remove()
+
+        plt.title(
+            f"{criterion} -"
+            f" x_bar: {x_.mean().item():.2f} -"
+            f" y_bar: {y_.mean().item():.2f} -"
+            f" y_hat_bar: {y_hat_.mean().item():.2f}"
+        )
 
     # Second subplot for loss
     if config.plot_loss:
@@ -97,6 +104,60 @@ def predicted_vs_actual(
     path += f"{config.dataset_name}/"
     os.makedirs(path, exist_ok=True)
     path += filename or f"{criterion}.png"
+
+    plt.savefig(
+        path,
+        dpi=500,
+    )
+    plt.show()
+
+
+def residuals(
+    y: Tensor,
+    y_hat: Tensor,
+    features: list[int] | None,
+    config: Config,
+) -> None:
+    """
+    Plots the residuals of a given time series.
+
+    :param y: The actual values.
+    :param y_hat: The predicted values.
+    :param features: The features to plot.
+    :param config: The configuration object.
+    """
+    y_, y_hat_ = (
+        y.detach().squeeze(0),
+        y_hat.detach().squeeze(0),
+    )
+
+    assert y_.shape == y_hat_.shape, ValueError(
+        "The actual and predicted values must have the same shape."
+    )
+
+    features = features or range(y_.shape[1])
+
+    plt.clf()
+    sns.set_theme(style="dark")
+    axis = plt.subplot(1, 1, 1)
+
+    for i in features:
+        axis.fill_between(y_hat_[i], y_[i], color="magenta", alpha=0.5)
+
+        sns.lineplot(data=y_[i])
+
+        sns.lineplot(data=y_hat_[i])
+
+    plt.title(
+        f"{config.dataset_name} - {config.criterion.__class__.__name__}"
+        f" - {config.stage} Residuals at Epoch {config.epoch}"
+    )
+
+    path: str = find_root_dir(os.path.dirname(__file__))
+    path += "/assets/plots/residuals/"
+    path += f"{config.dataset_name}/"
+    os.makedirs(path, exist_ok=True)
+    path += f"{config.stage}-{config.criterion.__class__.__name__}-{config.epoch}.png"
 
     plt.savefig(
         path,

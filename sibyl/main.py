@@ -8,12 +8,11 @@ from torch import Tensor, nn
 from torch.utils.data import TensorDataset, DataLoader, random_split
 from tqdm import tqdm
 
-from sibyl.utils.benchmarking import stats, bias, variance, error, irreducible_error
+from sibyl.utils.benchmarking import stats, bias, variance, std
 from sibyl.utils.configuration import Config, initialize_model
 from sibyl.utils.logging import find_root_dir
-from sibyl.utils.loss import VMaxSE, VMaxAE
 from sibyl.utils.models.dimformer.model import Dimformer
-from sibyl.utils.plotting import predicted_vs_actual, metrics_table, metrics
+from sibyl.utils.plotting import predicted_vs_actual, metrics_table, metrics, residuals
 from sibyl.utils.preprocessing import normalize
 
 
@@ -41,7 +40,7 @@ def prepare_datasets(
     return train_loader, val_loader
 
 
-@stats(bias, variance, irreducible_error)
+@stats(bias, variance, std)
 def train(
     model: nn.Module,
     loader: DataLoader,
@@ -82,9 +81,16 @@ def train(
                 loss=losses,
                 config=config,
             )
+            # residuals(
+            #     y=y,
+            #     y_hat=y_hat,
+            #     features=None,
+            #     config=config,
+            # )
         yield y, y_hat
 
-    config.log.metric(f"Best training loss: {best_loss:.5f}")
+    name = config.criterion.__class__.__name__
+    config.log.metric(f"Best training loss: {best_loss:.5f} {name}")
     predicted_vs_actual(
         x=best_x,
         y=best_y,
@@ -95,7 +101,7 @@ def train(
     )
 
 
-@stats(bias, variance, irreducible_error)
+@stats(bias, variance, std)
 def validate(
     model: nn.Module,
     loader: DataLoader,
@@ -191,7 +197,7 @@ def build_model(
 
     config.log.info("Training complete.")
     config.log.info(
-        f"Time Elapsed: {(time.perf_counter_ns() - start) / 1.6666666666666667e-11:.2f} minutes."
+        f"Total time elapsed: {(time.perf_counter_ns() - start) / 1e9:.2f} seconds."
     )
     path = find_root_dir(os.path.dirname(__file__))
     path += f"/assets/models/{config.dataset_name}-model.pt"
@@ -215,24 +221,22 @@ def main() -> None:
     aggregated_metrics = []
     loss_functions = [
         "VMaxSE",
-        # "MaxSE",
         "MSE",
         "VMaxAE",
-        # "MaxAE",
         "MAE",
     ]
     # loss_functions = ["VMaxSE"]
 
     for loss in loss_functions:
         config: Config = Config(
-            epochs=2,
+            epochs=1,
             learning_rate=0.001,
             criterion=loss,
             optimizer="AdamW",
             plot_loss=True,
             plot_predictions=True,
-            plot_interval=5_000,
-            dataset_name="ett",
+            plot_interval=10_000,
+            dataset_name="alpaca",
             feature_window_size=120,
             target_window_size=15,
             included_indicators=[
@@ -255,7 +259,7 @@ def main() -> None:
         )
         aggregated_metrics.append((loss, config.metrics))
 
-    metrics_table(aggregated_metrics, "ett")
+    metrics_table(aggregated_metrics, "alpaca")
 
 
 if __name__ == "__main__":
