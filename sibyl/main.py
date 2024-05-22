@@ -11,8 +11,9 @@ from tqdm import tqdm
 from sibyl.utils.benchmarking import stats, bias, variance, std
 from sibyl.utils.configuration import Config, initialize_model
 from sibyl.utils.logging import find_root_dir
+from sibyl.utils.loss import VMaxSE, VMaxAE
 from sibyl.utils.models.dimformer.model import Dimformer
-from sibyl.utils.plotting import predicted_vs_actual, metrics_table, metrics, residuals
+from sibyl.utils.plotting import predicted_vs_actual, metrics_table, metrics
 from sibyl.utils.preprocessing import normalize
 
 
@@ -40,7 +41,7 @@ def prepare_datasets(
     return train_loader, val_loader
 
 
-@stats(bias, variance, std)
+@stats(bias, variance, std, VMaxSE.mse, VMaxAE.mae)
 def train(
     model: nn.Module,
     loader: DataLoader,
@@ -227,8 +228,11 @@ def main() -> None:
     ]
     # loss_functions = ["VMaxSE"]
 
+    # "alpaca", "ett", or "eld"
+    dataset = "alpaca"
+
     for loss in loss_functions:
-        config: Config = Config(
+        config = Config(
             epochs=1,
             learning_rate=0.001,
             criterion=loss,
@@ -236,18 +240,20 @@ def main() -> None:
             plot_loss=True,
             plot_predictions=True,
             plot_interval=10_000,
-            dataset_name="alpaca",
-            feature_window_size=120,
-            target_window_size=15,
+            dataset_name=dataset,
+            X_window_size=120,
+            Y_window_size=15,
             included_indicators=[
                 "ROC",
                 "RSI",
                 "ADX",
             ],
             years=0.0027,  # 1 day
-            logger_name=os.path.basename(__file__),
+            features=3,
+            batches=30_000,
+            log_file_name=os.path.basename(__file__),
         )
-        X, Y = config.dataset
+        X, Y = config.__dataset
         X, Y = normalize(X, Y)
         model = initialize_model(X, Y, Dimformer)
         train_loader, val_loader = prepare_datasets(X, Y, config)
@@ -259,7 +265,7 @@ def main() -> None:
         )
         aggregated_metrics.append((loss, config.metrics))
 
-    metrics_table(aggregated_metrics, "alpaca")
+    metrics_table(aggregated_metrics, dataset)
 
 
 if __name__ == "__main__":

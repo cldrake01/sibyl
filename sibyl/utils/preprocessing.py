@@ -54,15 +54,15 @@ def indicators(
     XUY = torch.nan_to_num(XUY)
 
     # Defining window sizes for features and targets
-    window_size = config.feature_window_size + config.target_window_size
+    window_size = config.X_window_size + config.Y_window_size
 
     # Adding a batch dimension and creating sliding windows
     XUY = XUY.unsqueeze(0)
     XUY = XUY.unfold(-1, window_size, 1)
 
     # Splitting into features and targets
-    X = XUY[..., : config.feature_window_size]
-    Y = XUY[..., config.feature_window_size :]
+    X = XUY[..., : config.X_window_size]
+    Y = XUY[..., config.X_window_size :]
 
     return X.squeeze(0), Y.squeeze(0)
 
@@ -97,7 +97,7 @@ def window_function(
         unfiltered = {
             ticker: time_series
             for ticker, time_series in unfiltered.items()
-            if len(time_series) > config.feature_window_size + config.target_window_size
+            if len(time_series) > config.X_window_size + config.Y_window_size
         }
 
         for ticker, time_series in unfiltered.items():

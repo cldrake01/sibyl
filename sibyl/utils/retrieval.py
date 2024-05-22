@@ -75,7 +75,7 @@ def fetch_data(
     ]
 
     filtered = list(
-        filter(lambda x: len(x.values()) < config.feature_window_size, unfiltered)
+        filter(lambda x: len(x.values()) < config.X_window_size, unfiltered)
     )
 
     if difference := len(unfiltered) - len(filtered) > 0:

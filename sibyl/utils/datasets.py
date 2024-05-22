@@ -7,10 +7,10 @@ import pandas as pd
 import torch
 from torch import Tensor
 
+from sibyl.utils.errors import SignatureError
 from sibyl.utils.logging import find_root_dir
 from sibyl.utils.preprocessing import indicator_tensors
 from sibyl.utils.retrieval import fetch_data
-from sibyl.utils.errors import SignatureError
 
 
 def cache(
@@ -63,7 +63,7 @@ def dataframe_to_dataset(
     # Reshape the tensors
     X = X.permute(1, 0)
 
-    total_window_size = config.feature_window_size + config.target_window_size
+    total_window_size = config.X_window_size + config.Y_window_size
 
     X = X.unfold(-1, total_window_size, 1)
 
@@ -71,8 +71,8 @@ def dataframe_to_dataset(
     X = X.permute(1, 2, 0)
 
     # Split into features and targets
-    X = X[:, : config.feature_window_size, : config.max_features]
-    Y = X[:, config.feature_window_size :, : config.max_features]
+    X = X[config.batches :, : config.X_window_size, : config.features]
+    Y = X[config.batches :, config.X_window_size :, : config.features]
 
     return X, Y
 

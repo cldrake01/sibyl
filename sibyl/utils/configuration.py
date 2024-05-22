@@ -19,13 +19,53 @@ from sibyl.utils.models.transformer.model import Transformer
 @dataclass
 class Config:
     """
-    Configuration for training.
+    Configuration class for training models.
+
+    :param years: A floating point coefficient for the number of years from which to fetch data.
+    This parameter applies only to the Alpaca dataset. Altering this parameter will invalidate the cache,
+     please be sure to remove any associated `.pkl` files.
+    :param features: The number of features in the dataset. If None, the dataset includes all features.
+    Altering this parameter will invalidate the cache, please be sure to remove any `.pkl` files.
+    :param batches: The number of batches in the dataset. If None, the dataset includes all batches.
+    Altering this parameter will invalidate the cache, please be sure to remove any `.pkl` files.
+    :param X_window_size: The size of the feature window. If your dataset has minute intervals,
+    the window size denotes the minutes included for each feature.
+    :param Y_window_size: The size of the target window. If your dataset has minute intervals,
+    the target window size denotes the minutes included for each target.
+    :param included_indicators: A list of indicators to include in the dataset. If None, all indicators
+    are included. This applies only to the Alpaca dataset.
+    :param epochs: The number of epochs to train the model.
+    :param epoch: The current epoch.
+    :param batch_size: The batch size for training.
+    :param train_val_split: A floating point between 0 and 1 for the train-validation split.
+    :param learning_rate: The learning rate for the optimizer.
+    :param criterion: The loss function to use. Options are "VMaxAE", "VMaxSE", "MSE", "MAE".
+    :param optimizer: The optimizer to use. Options are "Adam", "AdamW".
+    :param load_path: The path to load the model from.
+    :param save_path: The path to save the model to.
+    :param plot_loss: Whether to plot the loss. Note that loss and predictions are plotted every
+    `plot_interval` epochs and will share a plot if both are set to True.
+    :param plot_predictions: Whether to plot the predictions. Note that loss and predictions are plotted
+    every `plot_interval` epochs and will share a plot if both are set to True.
+    :param plot_interval: The interval at which to plot the loss and predictions.
+    :param device: The device to use for training. Defaults to CUDA if available.
+    :param dataset_name: The dataset to use. Options are "alpaca", "ett", "eld".
+    :param dataset: The dataset to use. If None, the Alpaca dataset is used. This contains a tuple of
+    X and Y tensors of (batch, time, features).
+    :param log: The logger to use. Defaults to a NullLogger.
+    :param log_file_name: The name of the log file. If None, the logger will default to the name
+    of the script.
+    :param metrics: A DataFrame to store metrics.
+    :param stage: The current stage of the training process. Defaults to "Preprocessing", but can be
+    set to "Training" or "Evaluation". This is changed at each stage of the training process and
+    has no effect upon the training itself.
     """
 
     years: float = 0.05
-    max_features: int = 3
-    feature_window_size: int = 60
-    target_window_size: int = 15
+    features: int | None = None
+    batches: int | None = None
+    X_window_size: int = 60
+    Y_window_size: int = 15
     included_indicators: list[str] | None = None
     epochs: int = 10
     epoch: int = 0
@@ -43,7 +83,7 @@ class Config:
     dataset_name: str = "alpaca"
     dataset: tuple[Tensor, Tensor] | None = None
     log: Logger | NullLogger = NullLogger()
-    logger_name: str = ""
+    log_file_name: str = ""
     metrics: pd.DataFrame | None = None
     stage: str = "Preprocessing"
 
@@ -82,8 +122,8 @@ class Config:
         }
         self.optimizer = optimizers[self.optimizer]
 
-        if self.logger_name:
-            self.log = Log(self.logger_name, self.dataset_name).logger
+        if self.log_file_name:
+            self.log = Log(self.log_file_name, self.dataset_name).logger
 
         datasets = {
             "alpaca": alpaca,

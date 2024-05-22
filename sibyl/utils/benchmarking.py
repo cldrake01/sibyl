@@ -60,9 +60,9 @@ def bias(
     :param y: The actual values.
     :param y_hat: The predicted values.
     """
-    # y_hat_bar = torch.ones_like(y_hat) * y_hat.mean()
-    # return ((y_hat_bar - y) ** 2).mean().item()
-    return (y_hat - y).abs().mean().item()
+    y_hat_bar = torch.ones_like(y_hat) * y_hat.mean()
+    return ((y_hat_bar - y) ** 2).mean().item()
+    # return (y_hat - y).abs().mean().item()
 
 
 def variance(
