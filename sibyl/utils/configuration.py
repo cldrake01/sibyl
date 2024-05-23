@@ -23,20 +23,24 @@ class Config:
 
     :param years: A floating point coefficient for the number of years from which to fetch data.
     This parameter applies only to the Alpaca dataset. Altering this parameter will invalidate the cache,
-     please be sure to remove any associated `.pkl` files.
+    please be sure to remove any associated `.pkl` files.
     :param features: The number of features in the dataset. If None, the dataset includes all features.
     Altering this parameter will invalidate the cache, please be sure to remove any `.pkl` files.
     :param batches: The number of batches in the dataset. If None, the dataset includes all batches.
     Altering this parameter will invalidate the cache, please be sure to remove any `.pkl` files.
     :param X_window_size: The size of the feature window. If your dataset has minute intervals,
-    the window size denotes the minutes included for each feature.
+    the window size denotes the minutes included for each feature. This parameter is not optional.
+    Altering this parameter will invalidate the cache, please be sure to remove any `.pkl` files.
     :param Y_window_size: The size of the target window. If your dataset has minute intervals,
-    the target window size denotes the minutes included for each target.
+    the target window size denotes the minutes included for each target. This parameter is not optional.
+    Altering this parameter will invalidate the cache, please be sure to remove any `.pkl` files.
     :param included_indicators: A list of indicators to include in the dataset. If None, all indicators
     are included. This applies only to the Alpaca dataset.
+    Altering this parameter will invalidate the cache, please be sure to remove any `.pkl` files.
     :param epochs: The number of epochs to train the model.
     :param epoch: The current epoch.
-    :param batch_size: The batch size for training.
+    :param batch_size: The batch size for training. Altering this parameter will invalidate the cache,
+    please be sure to remove any `.pkl` files.
     :param train_val_split: A floating point between 0 and 1 for the train-validation split.
     :param learning_rate: The learning rate for the optimizer.
     :param criterion: The loss function to use. Options are "VMaxAE", "VMaxSE", "MSE", "MAE".

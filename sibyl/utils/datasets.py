@@ -71,8 +71,10 @@ def dataframe_to_dataset(
     X = X.permute(1, 2, 0)
 
     # Split into features and targets
-    X = X[config.batches :, : config.X_window_size, : config.features]
-    Y = X[config.batches :, config.X_window_size :, : config.features]
+    X = X[: config.batches, : config.X_window_size, : config.features]
+    Y = X[..., : config.features]
+
+    config.log.info(f"{X.size() = }, {Y.size() = }")
 
     return X, Y
 
@@ -82,8 +84,14 @@ def alpaca(
     config: "Config",
 ) -> tuple[Tensor, Tensor]:
     time_series = fetch_data(config=config)
-    features, targets = indicator_tensors(time_series, config=config)
-    return features, targets
+    X, Y = indicator_tensors(time_series, config=config)
+
+    X = X[: config.batches, ...]
+    Y = Y[: config.batches, ...]
+
+    config.log.info(f"{X.size() = }, {Y.size() = }")
+
+    return X, Y
 
 
 @cache

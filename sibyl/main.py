@@ -222,9 +222,9 @@ def main() -> None:
     aggregated_metrics = []
     loss_functions = [
         "VMaxSE",
-        "MSE",
-        "VMaxAE",
-        "MAE",
+        # "MSE",
+        # "VMaxAE",
+        # "MAE",
     ]
     # loss_functions = ["VMaxSE"]
 
@@ -239,7 +239,7 @@ def main() -> None:
             optimizer="AdamW",
             plot_loss=True,
             plot_predictions=True,
-            plot_interval=10_000,
+            plot_interval=300,
             dataset_name=dataset,
             X_window_size=120,
             Y_window_size=15,
@@ -253,7 +253,7 @@ def main() -> None:
             batches=30_000,
             log_file_name=os.path.basename(__file__),
         )
-        X, Y = config.__dataset
+        X, Y = config.dataset
         X, Y = normalize(X, Y)
         model = initialize_model(X, Y, Dimformer)
         train_loader, val_loader = prepare_datasets(X, Y, config)
