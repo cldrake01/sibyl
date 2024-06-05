@@ -93,8 +93,7 @@ class VMaxSE(nn.Module):
         w = torch.exp(
             (torch.var(y, dim=self._dim) - torch.var(y_hat, dim=self._dim)) ** 2
         )
-        m = (r * w).max(dim=self._dim).values
-        return m.mean()
+        return (r * w).max()
 
     @staticmethod
     def mse(y_hat: Tensor, y: Tensor) -> float:
@@ -132,8 +131,7 @@ class VMaxAE(nn.Module):
         w = torch.exp(
             (torch.var(y, dim=self._dim) - torch.var(y_hat, dim=self._dim)).abs()
         )
-        m = (r * w).max(dim=self._dim).values
-        return m.mean()
+        return (r * w).max()
 
     @staticmethod
     def mae(y_hat: Tensor, y: Tensor) -> float:

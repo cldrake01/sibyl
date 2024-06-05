@@ -76,8 +76,8 @@ class Config:
     batch_size: int = 1
     train_val_split: float = 0.9
     learning_rate: float = 0.001
-    criterion: str | torch.nn.Module = "MSE"
-    optimizer: str | torch.optim.Optimizer = "AdamW"
+    criterion: torch.nn.Module | str = "MSE"
+    optimizer: torch.optim.Optimizer | str = "AdamW"
     load_path: str | None = None
     save_path: str | None = None
     plot_loss: bool = False
