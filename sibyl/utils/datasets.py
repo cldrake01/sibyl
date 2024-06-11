@@ -58,21 +58,21 @@ def dataframe_to_dataset(
     :param df: The DataFrame to convert
     :param config: The configuration object
     """
-    X = torch.tensor(df.to_numpy()).float()
+    XUY = torch.tensor(df.to_numpy()).float()
 
     # Reshape the tensors
-    X = X.permute(1, 0)
+    XUY = XUY.permute(1, 0)
 
     total_window_size = config.X_window_size + config.Y_window_size
 
-    X = X.unfold(-1, total_window_size, 1)
+    XUY = XUY.unfold(-1, total_window_size, 1)
 
     # (features, batch, time) -> (batch, time, features)
-    X = X.permute(1, 2, 0)
+    XUY = XUY.permute(1, 2, 0)
 
-    # Split into features and targets
-    X = X[: config.batches, : config.X_window_size, : config.features]
-    Y = X[..., : config.features]
+    XUY = XUY[: config.batches, :, : config.features]
+    X = XUY[:, : config.X_window_size, :]
+    Y = XUY[:, config.Y_window_size :, : config.features]
 
     config.log.info(f"{X.size() = }, {Y.size() = }")
 

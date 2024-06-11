@@ -222,14 +222,14 @@ def main() -> None:
     aggregated_metrics = []
     loss_functions = [
         "VMaxSE",
-        # "MSE",
-        # "VMaxAE",
-        # "MAE",
+        "MSE",
+        "VMaxAE",
+        "MAE",
     ]
     # loss_functions = ["VMaxSE"]
 
     # "alpaca", "ett", or "eld"
-    dataset = "alpaca"
+    dataset = "ett"
 
     for loss in loss_functions:
         config = Config(
