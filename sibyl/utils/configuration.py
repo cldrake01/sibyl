@@ -83,7 +83,7 @@ class Config:
     plot_loss: bool = False
     plot_predictions: bool = False
     plot_interval: int = 300
-    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+    device: str | torch.device | None = None
     dataset_name: str = "alpaca"
     dataset: tuple[Tensor, Tensor] | None = None
     log: Logger | NullLogger = NullLogger()
@@ -103,10 +103,15 @@ class Config:
         optimizer = self.optimizer()
         ```
         """
+        if self.log_file_name:
+            self.log = Log(self.log_file_name, self.dataset_name).logger
+
         # Check for macOS and set environment variable to avoid MKL errors
         if os.name == "posix":
             os.environ["KMP_DUPLICATE_LIB_OK"] = "True"
+            self.log.info("Running on macOS, setting KMP_DUPLICATE_LIB_OK=True")
 
+        # Required for collecting metrics across multiple runs
         self.metrics = self.metrics or pd.DataFrame()
 
         loss_functions = {
@@ -119,15 +124,14 @@ class Config:
             "VMaxAPE": VMaxAPE,
         }
         self.criterion = loss_functions[self.criterion]
+        self.log.info(f"Using {self.criterion.__class__.__name__} as the loss function")
 
         optimizers = {
             "Adam": torch.optim.Adam,
             "AdamW": torch.optim.AdamW,
         }
         self.optimizer = optimizers[self.optimizer]
-
-        if self.log_file_name:
-            self.log = Log(self.log_file_name, self.dataset_name).logger
+        self.log.info(f"Using {self.optimizer.__class__.__name__} as the optimizer")
 
         datasets = {
             "alpaca": alpaca,
@@ -135,6 +139,24 @@ class Config:
             "eld": eld,
         }
         self.dataset = datasets[self.dataset_name](self)
+        self.log.info(f"Using {self.dataset_name.__class__.__name__} as the dataset")
+
+        if self.device is None:
+            self.device = device()
+        elif isinstance(self.device, str):
+            self.device = torch.device(self.device)
+        self.log.info(f"Using {self.device} as the device")
+
+
+def device() -> torch.device:
+    device = "cpu"
+    # Check for CUDA availability
+    if torch.cuda.is_available():
+        device = "cuda"
+    # Check for Apple Silicon MPS compatibility
+    elif hasattr(torch.backends, "mps") and torch.backends.mps.is_available():
+        device = "mps"
+    return torch.device(device)
 
 
 def initialize_model(

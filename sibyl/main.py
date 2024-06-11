@@ -254,9 +254,12 @@ def main() -> None:
             log_file_name=os.path.basename(__file__),
         )
         X, Y = config.dataset
+        X.to(config.device)
+        Y.to(config.device)
         X, Y = normalize(X, Y)
         model = initialize_model(X, Y, Dimformer)
         train_loader, val_loader = prepare_datasets(X, Y, config)
+        model.to(config.device)
         build_model(
             model=model,
             train_loader=train_loader,
