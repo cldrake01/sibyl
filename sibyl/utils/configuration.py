@@ -88,7 +88,7 @@ class Config:
     dataset: tuple[Tensor, Tensor] | None = None
     log: Logger | NullLogger = NullLogger()
     log_file_name: str = ""
-    metrics: pd.DataFrame | None = None
+    metrics: pd.DataFrame = pd.DataFrame()
     stage: str = "Preprocessing"
 
     def __post_init__(self):
@@ -111,9 +111,6 @@ class Config:
             os.environ["KMP_DUPLICATE_LIB_OK"] = "True"
             self.log.info("Running on macOS, setting KMP_DUPLICATE_LIB_OK=True")
 
-        # Required for collecting metrics across multiple runs
-        self.metrics = self.metrics or pd.DataFrame()
-
         loss_functions = {
             "MaxAE": MaxAE,
             "VMaxAE": VMaxAE,
@@ -123,14 +120,18 @@ class Config:
             "MAE": torch.nn.L1Loss,
             "VMaxAPE": VMaxAPE,
         }
+        assert isinstance(self.criterion, str), "Criterion must be a string"
         self.criterion = loss_functions[self.criterion]
+        assert isinstance(self.criterion, type), "Criterion must be a class"
         self.log.info(f"Using {self.criterion.__class__.__name__} as the loss function")
 
         optimizers = {
             "Adam": torch.optim.Adam,
             "AdamW": torch.optim.AdamW,
         }
+        assert isinstance(self.optimizer, str), "Optimizer must be a string"
         self.optimizer = optimizers[self.optimizer]
+        assert isinstance(self.optimizer, type), "Optimizer must be a class"
         self.log.info(f"Using {self.optimizer.__class__.__name__} as the optimizer")
 
         datasets = {

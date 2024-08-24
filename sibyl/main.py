@@ -168,7 +168,9 @@ def build_model(
     """
     start = time.perf_counter_ns()
 
+    assert isinstance(config.criterion, nn.Module)
     config.criterion = config.criterion()
+    assert isinstance(config.optimizer, nn.Module)
     config.optimizer = config.optimizer(model.parameters(), lr=config.learning_rate)
 
     # Define a function to save the model
@@ -239,7 +241,7 @@ def main() -> None:
             optimizer="AdamW",
             plot_loss=True,
             plot_predictions=True,
-            plot_interval=300,
+            plot_interval=10_000,
             dataset_name=dataset,
             X_window_size=120,
             Y_window_size=15,
@@ -254,12 +256,10 @@ def main() -> None:
             log_file_name=os.path.basename(__file__),
         )
         X, Y = config.dataset
-        X.to(config.device)
-        Y.to(config.device)
         X, Y = normalize(X, Y)
         model = initialize_model(X, Y, Dimformer)
+        torch.compile(model)
         train_loader, val_loader = prepare_datasets(X, Y, config)
-        model.to(config.device)
         build_model(
             model=model,
             train_loader=train_loader,
